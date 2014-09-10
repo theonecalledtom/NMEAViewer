@@ -1,0 +1,589 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using WeifenLuo.WinFormsUI.Docking;
+using Newtonsoft.Json;
+
+namespace NMEAViewer
+{
+    public partial class PAMainWindow : Form
+    {
+        private NMEACruncher m_Data;
+        private NMEADataViewInfo m_DataView;
+        private MetaDataSerializer m_MetaData;  //Don't really need to keep around in memory, using for debugging / development. Laugh at me when still here in 2017
+        private DeserializeDockContent m_deserializeDockContent;
+        private Connection PortConnection;
+        private NMEAStreamReader m_Reader;
+        private bool m_bSavedOnExit;
+        private ApplicationSettings AppSettings;
+        private PolarData m_PolarData;
+        Timer m_UpdateTick;
+
+        const double kTimeToAutoSave = 10.0;
+        double m_fTimeToAutoSave = 0.0;
+        double m_fTimeToAutoSaveSettings = 0.0;
+
+        public PAMainWindow()
+        {
+            MetaDataWindow.StaticInit();
+
+            InitializeComponent();
+
+            InitProjectData();
+
+            m_deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
+            m_Reader = new NMEAStreamReader();
+
+            m_UpdateTick = new Timer();
+            m_UpdateTick.Enabled = true;
+            m_UpdateTick.Interval = 1000;   //Think about stuff every second
+            m_UpdateTick.Tick += m_UpdateTick_Tick;
+
+            ClientSizeChanged += PAMainWindow_ClientSizeChanged;
+            LocationChanged += PAMainWindow_LocationChanged;
+
+            m_PolarData = new PolarData();
+            AppSettings = ApplicationSettings.Load();
+            if (AppSettings == null)
+            {
+                AppSettings = new ApplicationSettings();
+                AppSettings.ProjectName = "c:\\Users\\Tom\\lastlayout.xml";
+            }
+            else
+            {
+                if ((AppSettings.PolarDataName != null) && (AppSettings.PolarDataName.Length > 0))
+                {
+                    m_PolarData.Load(AppSettings.PolarDataName);
+                }
+
+                if ((AppSettings.MainWindowState != null) && (AppSettings.MainWindowState.Length > 0))
+                {
+                    WindowState = (FormWindowState)Enum.Parse(
+                            typeof(FormWindowState),
+                            AppSettings.MainWindowState
+                            );
+                }
+
+                if (AppSettings.MainWindowLocation != null && AppSettings.MainWindowSize != null)
+                {
+                    this.DesktopBounds = new Rectangle(AppSettings.MainWindowLocation, AppSettings.MainWindowSize);
+                }
+
+            }
+
+        }
+
+        void PAMainWindow_LocationChanged(object sender, EventArgs e)
+        {
+            if (AppSettings.MainWindowLocation != Location)
+            {
+                AppSettings.MainWindowState = Enum.GetName(typeof(FormWindowState), this.WindowState);
+                AppSettings.MainWindowLocation = Location;
+                m_fTimeToAutoSaveSettings = kTimeToAutoSave;
+            }
+        }
+
+        void PAMainWindow_ClientSizeChanged(object sender, EventArgs e)
+        {
+            if (AppSettings.MainWindowSize != ClientSize)
+            {
+                AppSettings.MainWindowState = Enum.GetName(typeof(FormWindowState), this.WindowState);
+                AppSettings.MainWindowSize = ClientSize;
+                m_fTimeToAutoSaveSettings = kTimeToAutoSave;
+            }
+        }
+
+        void m_UpdateTick_Tick(object sender, EventArgs e)
+        {
+            if (m_fTimeToAutoSave > 0.0)
+            {
+                m_fTimeToAutoSave -= ((double)m_UpdateTick.Interval) * 0.001;
+                if (m_fTimeToAutoSave <= 0.0)
+                {
+                    if (AppSettings.ProjectName != null)
+                    {
+                        SaveProject(AppSettings.ProjectName);
+                    }
+                    else 
+                    {
+                        SaveProject("c:\\Users\\Tom\\lastlayout.xml");
+                    }
+                }
+            }
+
+            if (m_fTimeToAutoSaveSettings > 0.0)
+            {
+                m_fTimeToAutoSaveSettings -= ((double)m_UpdateTick.Interval) * 0.001;
+                if (m_fTimeToAutoSaveSettings <= 0.0)
+                {
+                    AppSettings.Save();
+                }
+            }
+        }
+
+        ~PAMainWindow()
+        {
+            MetaDataWindow.StaticDeInit();
+        }
+
+        private void InitProjectData()
+        {
+            m_Data = new NMEACruncher();
+            m_DataView = new NMEADataViewInfo();
+            m_MetaData = new MetaDataSerializer();
+            m_Data.SetPolarData(m_PolarData);
+        }
+
+        //TODO: Make a factory!
+        private DockableDrawable CreateWindowOfType(string typeName)
+        {
+            //if (typeName == typeof(NMEAViewer.VLCVideoWindow).ToString())
+            //{
+            //    return new VLCVideoWindow();
+            //}
+            if (typeName == typeof(NMEAViewer.VideoWindow).ToString())
+            {
+                return new VideoWindow();
+            }
+            else if (typeName == typeof(NMEAViewer.TimeBasedGraph).ToString())
+            {
+                return new TimeBasedGraph(m_Data, m_DataView);
+            }
+            else if (typeName == typeof(NMEAViewer.Histogram).ToString())
+            {
+                return new Histogram(m_Data);
+            }
+            else if (typeName == typeof(NMEAViewer.MapWindow).ToString())
+            {
+                return new MapWindow(m_Data);
+            }
+            else if (typeName == typeof(NMEAViewer.MetaDataWindow).ToString())
+            {
+                return new MetaDataWindow();
+            }
+            else if (typeName == typeof(NMEAViewer.TackingWindow).ToString())
+            {
+                return new TackingWindow(m_Data);
+            }
+            return null;
+        }
+
+        private IDockContent GetContentFromPersistString(string persistString)
+        {
+            string[] parsedStrings = persistString.Split(new char[] { ',' });
+            if (parsedStrings.Length == 2)
+            {
+                DockableDrawable newDockable = CreateWindowOfType(parsedStrings[0]);
+                if (newDockable!=null)
+                {
+                    //Rather than putting a load of information in the persist string
+                    //We ID each window and have a parallel file of per window information
+                    newDockable.SetID( Convert.ToInt32(parsedStrings[1]) );
+                    newDockable.SetMDICloseCallback(new DockableDrawable.VoidConsumer(OnMDIWindowClose));
+                }
+                return newDockable;
+            }
+
+            return CreateWindowOfType(persistString);
+        }
+
+
+
+        protected void SaveProject(string projectXmlName)
+        {
+            MainDockPanel.SaveAsXml(projectXmlName);
+
+            //Save the parallel json file
+            m_MetaData.ParseProjectMetaData();
+
+            //TODO: Save main window position and size!
+
+            //string output = JsonConvert.SerializeObject(m_MetaData.m_ArrayOfWindowData, Formatting.Indented, new JsonSerializerSettings
+            string output = JsonConvert.SerializeObject(m_MetaData, Formatting.Indented, new JsonSerializerSettings
+                                {
+                                    TypeNameHandling = TypeNameHandling.All
+                                }
+                            );
+            string jsonFile = projectXmlName + ".json";
+            System.IO.StreamWriter sOut = System.IO.File.CreateText(jsonFile);
+            if (sOut != null)
+            {
+                sOut.Write(output);
+            }
+            sOut.Close();
+        }
+
+        private void CloseAllDocuments()
+        {
+            if (MainDockPanel.DocumentStyle == DocumentStyle.SystemMdi)
+            {
+                foreach (Form form in MdiChildren)
+                    form.Close();
+            }
+            else
+            {
+                //The sample for DockPanelSuite closes Documents, which doesn't seem to include the panes
+                //loaded by XML.
+                while (MainDockPanel.Contents.Count > 0)
+                {
+                    MainDockPanel.Contents[0].DockHandler.Close();
+                }
+            }
+        }
+
+        public void CloseProject()
+        {
+            CloseAllDocuments();
+
+            //Reinit the project data
+            InitProjectData();
+        }
+
+        void SetProjectName(string name)
+        {
+            AppSettings.ProjectName = name;
+            string nameNoExt = System.IO.Path.GetFileNameWithoutExtension(name);
+            this.Text = nameNoExt;
+            
+            AppSettings.Save();
+        }
+
+        protected void LoadProject(string projectXmlName)
+        {
+            if (System.IO.File.Exists(projectXmlName))
+            {
+                MainDockPanel.SuspendLayout();
+
+                //Destroy existing content
+                CloseProject();
+
+                //Update name and settings
+                SetProjectName(projectXmlName);
+
+                //And load in the settings for this project
+                string jsonFile = projectXmlName + ".json";
+                if (System.IO.File.Exists(jsonFile))
+                {
+                    string jsonData = System.IO.File.ReadAllText(jsonFile);
+                    if (jsonData != null)
+                    {
+                        m_MetaData = JsonConvert.DeserializeObject<MetaDataSerializer>(jsonData, new JsonSerializerSettings
+                            {
+                                TypeNameHandling = TypeNameHandling.All
+                            }
+                        );
+
+                        ReadInputData(false);
+
+                        if (m_MetaData != null)
+                        {
+                            //Possible TODO: Factory this?
+                            //Load the static settings
+                            if ((m_MetaData.m_DictonaryOfStaticData != null) && m_MetaData.m_DictonaryOfStaticData.ContainsKey(typeof(MetaDataWindow.StaticData).ToString()))
+                            {
+                                MetaDataWindow.StaticData.sm_Data = (MetaDataWindow.StaticData)m_MetaData.m_DictonaryOfStaticData[typeof(MetaDataWindow.StaticData).ToString()];
+                            }
+                        }
+                    }
+                }
+
+                //Setup new windows
+                MainDockPanel.LoadFromXml(projectXmlName, new DeserializeDockContent(GetContentFromPersistString));
+
+                if (m_MetaData != null)
+                {
+                    if (m_MetaData.m_ArrayOfWindowData != null)
+                    {
+                        //And load in the settings for each pane from the json file
+                        for (int i = 0; i < m_MetaData.m_ArrayOfWindowData.Count; i++)
+                        {
+                            if (m_MetaData.m_ArrayOfWindowData[i] != null)
+                            {
+                                DockableDrawable windowReferedTo = DockableDrawable.GetFromID(m_MetaData.m_ArrayOfWindowData[i].m_ID);
+                                if (windowReferedTo != null)
+                                {
+                                    windowReferedTo.InitFromSerializedData(m_MetaData.m_ArrayOfWindowData[i]);
+                                }
+                            }
+                        }
+
+                        //And allow a second phase of initialization after all the data has been processed (cross window links)
+                        for (int i = 0; i < m_MetaData.m_ArrayOfWindowData.Count; i++)
+                        {
+                            if (m_MetaData.m_ArrayOfWindowData[i] != null)
+                            {
+                                DockableDrawable windowReferedTo = DockableDrawable.GetFromID(m_MetaData.m_ArrayOfWindowData[i].m_ID);
+                                if (windowReferedTo != null)
+                                {
+                                    windowReferedTo.PostInitFromSerializedData(m_MetaData.m_ArrayOfWindowData[i]);
+                                }
+                            }
+                        }
+
+                        //Same post init but for static data
+                        MetaDataWindow.PostInitFromStaticData();
+                    }
+
+                }
+
+                MainDockPanel.ResumeLayout(true, true);
+            }
+        }
+
+        private void OnMDIWindowClose()
+        {
+            //Save out setup for next run
+            if (!m_bSavedOnExit)
+            {
+                m_bSavedOnExit = true;
+                SaveProject(AppSettings.ProjectName);
+
+                if (m_fTimeToAutoSaveSettings >= 0.0)
+                {
+                    //Had a pending save!
+                    AppSettings.Save();
+                }
+            }
+        }
+
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            HookupPanel(new DockableDrawable());
+        }
+
+        private void HookupPanel(DockableDrawable newPanel)
+        {
+            if (MainDockPanel.DocumentStyle == DocumentStyle.SystemMdi)
+            {
+                newPanel.MdiParent = this;
+                newPanel.Show();
+            }
+            else
+            {
+                newPanel.Show(MainDockPanel);
+            }
+
+            //Make sure we can ID this window
+            newPanel.AssignNewID();
+            newPanel.SetMDICloseCallback(new DockableDrawable.VoidConsumer(OnMDIWindowClose));
+
+            //Trigger save
+            m_fTimeToAutoSave = kTimeToAutoSave;
+        }
+
+        private void newVideoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenVideoFile.InitialDirectory = m_MetaData.VideoFilePath;
+            if (OpenVideoFile.ShowDialog() == DialogResult.OK)
+            {
+                System.IO.Stream s = OpenVideoFile.OpenFile();
+                if (s != null)
+                {
+                    ///Restore to same place next time
+                    OpenVideoFile.InitialDirectory = System.IO.Path.GetDirectoryName(OpenVideoFile.FileName);
+                    m_MetaData.VideoFilePath = System.IO.Path.GetDirectoryName(OpenVideoFile.FileName);
+                    //HookupPanel(new VideoWindow(OpenVideoFile.SafeFileName, OpenVideoFile.FileName));
+                    HookupPanel(new VideoWindow(OpenVideoFile.SafeFileName, OpenVideoFile.FileName));
+                }
+            }
+        }
+
+        private void newGraphToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            HookupPanel(new TimeBasedGraph(m_Data, m_DataView));
+        }
+
+        private void ReadInputData(bool bForceReprocessing)
+        {
+            //If we already processed this file read it.
+            if (m_MetaData.InputDataFileName != null)
+            {
+                if (!bForceReprocessing && m_Data.HasMatchingProcessedFile(m_MetaData.InputDataFileName))
+                {
+                    m_Data.ReadProcessedData(m_MetaData.InputDataFileName + ".prc");
+                }
+                else
+                {
+                    m_Data.ProcessFile(m_MetaData.InputDataFileName, m_Reader);
+                }
+                
+                //Get windows to refresh their data
+                DockableDrawable.BroadcastDataReplaced(m_Data);
+
+                //Trigger save
+                m_fTimeToAutoSave = kTimeToAutoSave;
+            }
+        }
+
+        private void OnDataRecieved(string newData, double fElapsedTime)
+        {
+            m_Data.ProcessNewData(newData, m_Reader, fElapsedTime);
+
+            DockableDrawable.BroadcastDataAppended();
+        }
+
+        private void loadRecordingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenRecording.FileName = m_MetaData.InputDataFileName;
+            OpenRecording.InitialDirectory = System.IO.Path.GetDirectoryName(m_MetaData.InputDataFileName);
+            if (OpenRecording.ShowDialog() == DialogResult.OK)
+            {
+                m_MetaData.InputDataFileName = OpenRecording.FileName;
+
+                ReadInputData(false);
+            }
+        }
+
+        private void reprocessToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //OpenRecording.FileName = m_MetaData.InputDataFileName;
+            //OpenRecording.InitialDirectory = System.IO.Path.GetDirectoryName(m_MetaData.InputDataFileName);
+            //if (OpenRecording.ShowDialog() == DialogResult.OK)
+            {
+//                m_MetaData.InputDataFileName = OpenRecording.FileName;
+
+                ReadInputData(true);
+            }
+        }
+
+        private void newMapToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            HookupPanel(new MapWindow(m_Data));
+        }
+
+        private void saveProjectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (SaveProjectFile.ShowDialog() == DialogResult.OK)
+            {
+                SaveProject(SaveProjectFile.FileName);
+
+                SetProjectName(SaveProjectFile.FileName);
+            }
+        }
+
+        private void loadProjectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if ((AppSettings.ProjectName != null) && (AppSettings.ProjectName.Length > 0))
+            {
+                OpenProjectFile.InitialDirectory = System.IO.Path.GetDirectoryName(AppSettings.ProjectName);
+            }
+
+            if (OpenProjectFile.ShowDialog() == DialogResult.OK)
+            {
+                //Save the current project
+                if (AppSettings.ProjectName != null)
+                {
+                    SaveProject(AppSettings.ProjectName);
+                }
+
+                LoadProject(OpenProjectFile.FileName);
+            }
+        }
+
+        private void PAMainWindow_Load(object sender, EventArgs e)
+        {
+            if (AppSettings.ProjectName != null)
+            {
+                LoadProject(AppSettings.ProjectName);
+            }
+            else
+            {
+                LoadProject("c:\\Users\\Tom\\lastlayout.xml");
+            }
+        }
+
+        private void openDialogToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (PortConnection == null)
+            {
+                PortConnection = new Connection(m_MetaData);
+                PortConnection.OnNewConnection += PortConnection_OnNewConnection;
+                PortConnection.OnDataRecieved += OnDataRecieved;
+                PortConnection.Show();
+            }
+            else
+            {
+                PortConnection.BringToFront();
+            }
+        }
+
+        void PortConnection_OnNewConnection()
+        {
+            //Blitz everything we have.
+            //TODO: Consider prompting for save, we might be overwriting good data
+            InitProjectData();
+
+            //Get windows to refresh their data
+            DockableDrawable.BroadcastDataReplaced(m_Data);
+        }
+
+        private void newHistogramToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            HookupPanel(new Histogram(m_Data));
+        }
+
+        private void newProjectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //Dump current data, close current windows
+            CloseProject();
+
+            //Get windows to refresh their data
+            DockableDrawable.BroadcastDataReplaced(m_Data);
+
+            //TODO: Setup default windows - graph, map, tacks?
+            LoadProject("c:\\Users\\Tom\\DefaultNewProjectLayout.xml");
+            //MapWindow mapWindow = new MapWindow(m_Data);
+            //HookupPanel(new MapWindow(m_Data));
+            //TimeBasedGraph graph = new TimeBasedGraph(m_Data, m_DataView);
+            //HookupPanel(graph);
+
+            ////mapWindow.DockTo(MainDockPanel, DockStyle.Top);
+            ////graph.DockTo(MainDockPanel, DockStyle.Bottom);
+
+            //Prompt user to save out the project file
+            if (SaveProjectFile.ShowDialog() == DialogResult.OK)
+            {
+                SetProjectName(SaveProjectFile.FileName);
+
+                SaveProject(SaveProjectFile.FileName);
+
+                //And auto set the connection output name
+                m_MetaData.OutputDataFileName = AppSettings.ProjectName + ".dat";
+
+                //Set the name
+                this.Name = System.IO.Path.GetFileNameWithoutExtension(AppSettings.ProjectName);
+            }
+        }
+
+        private void newTackingWindowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            HookupPanel( new TackingWindow(m_Data) );
+        }
+
+        private void newMetaDataToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            HookupPanel(new MetaDataWindow());
+        }
+
+        private void loadPolarDataToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if ((AppSettings.PolarDataName != null) && (AppSettings.PolarDataName.Length > 0))
+            {
+                OpenPolarFile.InitialDirectory = System.IO.Path.GetDirectoryName(AppSettings.PolarDataName);
+            }
+            if (OpenPolarFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                AppSettings.PolarDataName = OpenPolarFile.FileName;
+                AppSettings.Save();
+                m_PolarData.Load(AppSettings.PolarDataName);
+                m_Data.SetPolarData(m_PolarData);
+            }
+        }
+    }
+}
