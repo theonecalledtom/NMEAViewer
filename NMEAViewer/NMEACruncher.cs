@@ -230,7 +230,7 @@ namespace NMEAViewer
                 }
             }
 
-            public double Lerp(int iDataTYpe, double fLerp, SOutputData a, SOutputData b)
+            public static double Lerp(int iDataTYpe, double fLerp, SOutputData a, SOutputData b)
             {
                 int iDataCount = GetNumDataTypes();
                 if (iDataTYpe < iDataCount)
@@ -346,15 +346,13 @@ namespace NMEAViewer
                 return m_CrunchedData[0].GetValue(dataType);
             }
 
-            SOutputData ret = new SOutputData();
-
             double fCount = (double)m_CrunchedData.Count;
             double fIndex = fCount * fTimeToSample / m_fTimeOfLastEntry;
             double fLerp = fIndex - System.Math.Floor(fIndex);
             int iIndexA = System.Math.Min((int)fIndex, m_CrunchedData.Count - 1);
             int iIndexB = System.Math.Min(iIndexA + 1, m_CrunchedData.Count - 1);
 
-            return ret.Lerp(dataType, fLerp, m_CrunchedData[iIndexA], m_CrunchedData[iIndexB]);
+            return SOutputData.Lerp(dataType, fLerp, m_CrunchedData[iIndexA], m_CrunchedData[iIndexB]);
         }
 
         public bool HasMatchingProcessedFile(System.String fileName)

@@ -589,6 +589,9 @@ namespace NMEAViewer
             SetTimerFrequency(1.0);
         }
 
+        const double PI = 3.141592653589793;
+        const double DegToRad = (2.0 * PI / 360.0);
+        bool m_bGraphDirections = false;
         private void RedrawGraphLines()
         {
             Graphics g = Graphics.FromImage(m_SurfaceForLines);
@@ -617,20 +620,31 @@ namespace NMEAViewer
             int iTypeCount = NMEACruncher.GetNumDataTypes();
             int iMenuEntry = 0;
             List<double>[] fLastValue = new List<double>[iNumDataRanges];
+            List<int> directionalDataTypes = new List<int>();
+            List<Pen> directionalDataTypePens = new List<Pen>();
             for (int iType = 0; iType < iTypeCount; iType++)
             {
                 if (m_Data.HasDataForEntry(iType) && (NMEACruncher.GetDataRangeForType(iType) != NMEACruncher.DataRangeTypes.NoGraph))
                 {
                     if (m_ContextMenu.MenuItems[iMenuEntry].Checked)
                     {
-                        int iRangeType = (int)NMEACruncher.GetDataRangeForType(iType);
-                        if (typesByRange[iRangeType] == null)
+                        bool bSkipDirectional = (!m_bGraphDirections) && (NMEACruncher.GetDataRangeForType(iType) == NMEACruncher.DataRangeTypes.Direction);
+                        if (!bSkipDirectional)
                         {
-                            typesByRange[iRangeType] = new List<int>();
-                            fLastValue[iRangeType] = new List<double>();
+                            int iRangeType = (int)NMEACruncher.GetDataRangeForType(iType);
+                            if (typesByRange[iRangeType] == null)
+                            {
+                                typesByRange[iRangeType] = new List<int>();
+                                fLastValue[iRangeType] = new List<double>();
+                            }
+                            typesByRange[iRangeType].Add(iType);
+                            fLastValue[iRangeType].Add(0.0);    //For later manipulation
                         }
-                        typesByRange[iRangeType].Add(iType);
-                        fLastValue[iRangeType].Add(0.0);    //For later manipulation
+                        else
+                        {
+                            directionalDataTypes.Add(iType);
+                            directionalDataTypePens.Add(new Pen(new SolidBrush(NMEACruncher.GetColorForType(iType))));
+                        }
                     }
                     iMenuEntry++;
                 }
@@ -638,7 +652,6 @@ namespace NMEAViewer
 
             double[] fMaxs = new double[iNumDataRanges];
             double[] fMins = new double[iNumDataRanges];
-            double[] fAngleAvs = new double[iNumDataRanges];
             bool[] bHasData = new bool[iNumDataRanges];
             for (int iRangeType = 0; iRangeType < iNumDataRanges; iRangeType++)
             {
@@ -646,18 +659,50 @@ namespace NMEAViewer
                 fMaxs[iRangeType] = fMins[iRangeType] = -1.0;
             }
 
+            //Create pens for all data lines
+            List<Pen>[] pens = new List<Pen>[iNumDataRanges];
             for (int iRangeType = 1; iRangeType < iNumDataRanges; iRangeType++)
             {
                 if (typesByRange[iRangeType] != null)
                 {
-                    if (iRangeType == (int)NMEACruncher.DataRangeTypes.Direction)
+                    pens[iRangeType] = new List<Pen>();
+                    for (int iDataTypeIndex = 0; iDataTypeIndex < typesByRange[iRangeType].Count; iDataTypeIndex++)
                     {
-                        for (int iDataTypeIndex = 0; iDataTypeIndex < typesByRange[iRangeType].Count; iDataTypeIndex++)
+                        pens[iRangeType].Add(new Pen(new SolidBrush(NMEACruncher.GetColorForType(typesByRange[iRangeType][iDataTypeIndex]))));
+                    }
+                }
+            }
+
+            if (directionalDataTypes.Count > 0)
+            {
+                //Stack directions at the bottom of the graph, with arrows indicating direction of value
+                //Height per direction
+                float fHeightPerDirection = Math.Min(15.0f, Math.Max(10.0f, ((float)GraphSurface.ClientSize.Height) * 0.25f / (float)directionalDataTypes.Count));
+                float fCentreY = GraphSurface.ClientSize.Height - fHeightPerDirection * 0.5f;
+                float fCentreX = fHeightPerDirection * 0.5f;
+                float fWidthPerDirection = fHeightPerDirection * 0.5f;
+                float fCount = Math.Max(1.0f, ((float)GraphSurface.ClientSize.Width) / fWidthPerDirection);
+                double fTimeToIncrementPerDirection = (m_fGraphEndTime - m_fGraphStartTime) / fCount;
+                double fTime = m_fGraphStartTime;
+                for(int i=0 ; i<directionalDataTypes.Count ; i++)
+                {
+                    int iDataType = directionalDataTypes[i];
+                    //Draw strip of values at bottom of graph
+                    while (fTime < m_fGraphEndTime)
+                    {
+                        int iEntry = m_Data.GetIndexForTime(fTime);
+                        if (iEntry >= 0)
                         {
-                            //Find average as a pin?
-                            int iDataType = typesByRange[iRangeType][iDataTypeIndex];
-                            fAngleAvs[iRangeType] = Util.CalculateAverage(m_Data, dataType, iStartIndex, iEndIndex);
+                            double value = m_Data.GetDataAtIndex(iEntry, iDataType);
+                            double dX = Math.Sin(value * DegToRad);
+                            double dY = -Math.Cos(value * DegToRad);
+
+                            g.DrawLine(directionalDataTypePens[i], fCentreX, fCentreY, fCentreX + (float)dX, fCentreY + (float)dY);
                         }
+
+                        fCentreY -= fHeightPerDirection;
+                        fCentreX += fWidthPerDirection;
+                        fTime += fTimeToIncrementPerDirection;                        
                     }
                 }
             }
@@ -666,7 +711,7 @@ namespace NMEAViewer
             {
                 for (int iRangeType = 1; iRangeType < iNumDataRanges; iRangeType++)
                 {
-                    if (typesByRange[iRangeType] != null)
+                    if ((typesByRange[iRangeType]) != null && (iRangeType != (int)NMEACruncher.DataRangeTypes.Direction))
                     {
                         for (int iDataTypeIndex = 0; iDataTypeIndex < typesByRange[iRangeType].Count; iDataTypeIndex++)
                         {
@@ -676,7 +721,8 @@ namespace NMEAViewer
                                 double fValue = m_Data.GetDataAtIndex(iEntry, iDataType);
                                 if (bHasData[iRangeType])
                                 {
-                                    fValue = FixValueForGraph(fValue, fLastValue[iRangeType][iDataTypeIndex], iDataType);
+                                    double fPinValue = fLastValue[iRangeType][iDataTypeIndex];
+                                    fValue = FixValueForGraph(fValue, fPinValue, iDataType);
                                     fMins[iRangeType] = System.Math.Min(fMins[iRangeType], fValue);
                                     fMaxs[iRangeType] = System.Math.Max(fMaxs[iRangeType], fValue);
                                 }
@@ -710,7 +756,7 @@ namespace NMEAViewer
             List<float>[] fLastDrawnX = new List<float>[iNumDataRanges];
             for (int iRangeType = 1; iRangeType < iNumDataRanges; iRangeType++)
             {
-                if (typesByRange[iRangeType] != null)
+                if ((typesByRange[iRangeType] != null) && (iRangeType != (int)NMEACruncher.DataRangeTypes.Direction))
                 {
                     fLastY[iRangeType] = new List<double>();
                     fCountY[iRangeType] = new List<double>();
@@ -731,20 +777,6 @@ namespace NMEAViewer
                 }
             }
 
-            //Create pens for all data lines
-            List<Pen>[] pens = new List<Pen>[iNumDataRanges];
-            for (int iRangeType = 1; iRangeType < iNumDataRanges; iRangeType++)
-            {
-                if (typesByRange[iRangeType] != null)
-                {
-                    pens[iRangeType] = new List<Pen>();
-                    for (int iDataTypeIndex = 0; iDataTypeIndex < typesByRange[iRangeType].Count; iDataTypeIndex++)
-                    {
-                        pens[iRangeType].Add(new Pen(new SolidBrush(NMEACruncher.GetColorForType(typesByRange[iRangeType][iDataTypeIndex]))));
-                    }
-                }
-            }
-
             //Now draw lines for the graph
             Pen drawPen = new Pen(new SolidBrush(Color.BlueViolet));
             drawPen.Width = 2;
@@ -753,7 +785,7 @@ namespace NMEAViewer
             {
                 for (int iRangeType = 1; iRangeType < iNumDataRanges; iRangeType++)
                 {
-                    if (typesByRange[iRangeType] != null)
+                    if ((typesByRange[iRangeType] != null) && (iRangeType != (int)NMEACruncher.DataRangeTypes.Direction))
                     {
                         for (int iDataTypeIndex = 0; iDataTypeIndex < typesByRange[iRangeType].Count; iDataTypeIndex++)
                         {
