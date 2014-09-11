@@ -322,6 +322,10 @@ namespace NMEAViewer
             {
                 m_bHasHoveredValue = true;
                 m_fHoveredValue = m_Data.GetDataAtIndex(iDataIndex, type);
+                if ((type == (int)NMEACruncher.DataTypes.AWA) && (type == (int)NMEACruncher.DataTypes.TWA))
+                {
+                    m_fHoveredValue = Math.Abs(m_fHoveredValue);
+                }
                 m_bHoverOnPort = m_Data.GetDataAtIndex(iDataIndex, NMEACruncher.DataTypes.AWA) < 0.0;
 
                 //Force a repaint
