@@ -33,6 +33,8 @@
             this.overlayListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.trackSelectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.directionsAsArrowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.GraphSurface)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -53,7 +55,8 @@
             this.menuStrip1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.overlayListToolStripMenuItem,
-            this.timeToolStripMenuItem});
+            this.timeToolStripMenuItem,
+            this.optionsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 207);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(703, 28);
@@ -81,6 +84,21 @@
             this.trackSelectionToolStripMenuItem.Text = "Track selection";
             this.trackSelectionToolStripMenuItem.Click += new System.EventHandler(this.trackSelectionToolStripMenuItem_Click);
             // 
+            // optionsToolStripMenuItem
+            // 
+            this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.directionsAsArrowsToolStripMenuItem});
+            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(73, 24);
+            this.optionsToolStripMenuItem.Text = "Options";
+            // 
+            // directionsAsArrowsToolStripMenuItem
+            // 
+            this.directionsAsArrowsToolStripMenuItem.Name = "directionsAsArrowsToolStripMenuItem";
+            this.directionsAsArrowsToolStripMenuItem.Size = new System.Drawing.Size(211, 24);
+            this.directionsAsArrowsToolStripMenuItem.Text = "Directions as arrows";
+            this.directionsAsArrowsToolStripMenuItem.Click += new System.EventHandler(this.directionsAsArrowsToolStripMenuItem_Click);
+            // 
             // TimeBasedGraph
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -106,5 +124,7 @@
         private System.Windows.Forms.ToolStripMenuItem overlayListToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem timeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem trackSelectionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem directionsAsArrowsToolStripMenuItem;
     }
 }

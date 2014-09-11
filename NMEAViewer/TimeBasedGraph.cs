@@ -61,6 +61,7 @@ namespace NMEAViewer
             public double m_fGraphStartTime = -1.0;
             public double m_fGraphEndTime = -1.0;
             public bool m_bTrackSelection = false;
+            public bool m_bDirectionsAsArrows = false;
         };
 
         public override DockableDrawable.SerializedDataBase CreateSerializedData()
@@ -73,6 +74,7 @@ namespace NMEAViewer
             data.m_fSelectionEndTime = m_fSelectionEndTime;
             data.m_bTrackSelection = trackSelectionToolStripMenuItem.Checked;
             data.CheckedButtons = new List<string>();
+            data.m_bDirectionsAsArrows = directionsAsArrowsToolStripMenuItem.Checked;
             for (int i = 0; i < m_ContextMenu.MenuItems.Count; i++)
             {
                 if (m_ContextMenu.MenuItems[i].Checked)
@@ -88,27 +90,6 @@ namespace NMEAViewer
             return data;
         }
 
-        public override void PostInitFromSerializedData(SerializedDataBase data_base)
-        {
-           SerializedData data = (SerializedData)data_base;
-           if (data.ActiveOverlays != null)
-           {
-               foreach (string overlayName in data.ActiveOverlays)
-               {
-                   foreach (GraphOverlay go in GraphOverlay.sm_OverlayList)
-                   {
-                       if (go.GetName() == overlayName)
-                       {
-                           if (!m_ActiveOverlays.Contains(go))
-                           {
-                               m_ActiveOverlays.Add(go);
-                           }
-                       }
-                   }
-               }
-           }
-        }
-
         public override void InitFromSerializedData(SerializedDataBase data_base)
         {
             base.InitFromSerializedData(data_base);
@@ -120,6 +101,7 @@ namespace NMEAViewer
             m_fSelectionStartTime = data.m_fSelectionStartTime;
             m_fSelectionEndTime = data.m_fSelectionEndTime;
             trackSelectionToolStripMenuItem.Checked = data.m_bTrackSelection;
+            directionsAsArrowsToolStripMenuItem.Checked = data.m_bDirectionsAsArrows;
 
             //Set the checked state
             for (int iMenu = 0; iMenu < m_ContextMenu.MenuItems.Count; iMenu++)
@@ -153,6 +135,28 @@ namespace NMEAViewer
                 BroadcastOnTimeRangeSelected(m_fSelectionStartTime, m_fSelectionEndTime);
             }
         }
+
+        public override void PostInitFromSerializedData(SerializedDataBase data_base)
+        {
+           SerializedData data = (SerializedData)data_base;
+           if (data.ActiveOverlays != null)
+           {
+               foreach (string overlayName in data.ActiveOverlays)
+               {
+                   foreach (GraphOverlay go in GraphOverlay.sm_OverlayList)
+                   {
+                       if (go.GetName() == overlayName)
+                       {
+                           if (!m_ActiveOverlays.Contains(go))
+                           {
+                               m_ActiveOverlays.Add(go);
+                           }
+                       }
+                   }
+               }
+           }
+        }
+
 
         double m_fGraphStartTime = -1.0;
         double m_fGraphEndTime = -1.0;
@@ -193,6 +197,8 @@ namespace NMEAViewer
 
             m_ContextMenu = CreateContextMenu();
             ContextMenu = m_ContextMenu;
+
+            directionsAsArrowsToolStripMenuItem.Checked = true; //Will get set from any stored data, defaulting true for now
 
             overlayListToolStripMenuItem.DropDownOpening += overlayListToolStripMenuItem_DropDownOpening;
             //overlayListToolStripMenuItem.DropDownItemClicked += overlayListToolStripMenuItem_Click;
@@ -591,7 +597,6 @@ namespace NMEAViewer
 
         const double PI = 3.141592653589793;
         const double DegToRad = (2.0 * PI / 360.0);
-        bool m_bGraphDirections = false;
         private void RedrawGraphLines()
         {
             Graphics g = Graphics.FromImage(m_SurfaceForLines);
@@ -628,7 +633,7 @@ namespace NMEAViewer
                 {
                     if (m_ContextMenu.MenuItems[iMenuEntry].Checked)
                     {
-                        bool bSkipDirectional = (!m_bGraphDirections) && (NMEACruncher.GetDataRangeForType(iType) == NMEACruncher.DataRangeTypes.Direction);
+                        bool bSkipDirectional = (directionsAsArrowsToolStripMenuItem.Checked) && (NMEACruncher.GetDataRangeForType(iType) == NMEACruncher.DataRangeTypes.Direction);
                         if (!bSkipDirectional)
                         {
                             int iRangeType = (int)NMEACruncher.GetDataRangeForType(iType);
@@ -643,7 +648,9 @@ namespace NMEAViewer
                         else
                         {
                             directionalDataTypes.Add(iType);
-                            directionalDataTypePens.Add(new Pen(new SolidBrush(NMEACruncher.GetColorForType(iType))));
+                            Pen newPen = new Pen(new SolidBrush(NMEACruncher.GetColorForType(iType)));
+                            newPen.Width = 2;
+                            directionalDataTypePens.Add(newPen);
                         }
                     }
                     iMenuEntry++;
@@ -668,24 +675,28 @@ namespace NMEAViewer
                     pens[iRangeType] = new List<Pen>();
                     for (int iDataTypeIndex = 0; iDataTypeIndex < typesByRange[iRangeType].Count; iDataTypeIndex++)
                     {
-                        pens[iRangeType].Add(new Pen(new SolidBrush(NMEACruncher.GetColorForType(typesByRange[iRangeType][iDataTypeIndex]))));
+                        Pen newPen = new Pen(new SolidBrush(NMEACruncher.GetColorForType(typesByRange[iRangeType][iDataTypeIndex])));
+                        newPen.Width = 2;
+                        pens[iRangeType].Add(newPen);
                     }
                 }
             }
 
+            double fAvailableHeight = GraphSurface.ClientSize.Height;
             if (directionalDataTypes.Count > 0)
             {
                 //Stack directions at the bottom of the graph, with arrows indicating direction of value
                 //Height per direction
-                float fHeightPerDirection = Math.Min(15.0f, Math.Max(10.0f, ((float)GraphSurface.ClientSize.Height) * 0.25f / (float)directionalDataTypes.Count));
+                float fHeightPerDirection = Math.Min(40.0f, Math.Max(20.0f, ((float)GraphSurface.ClientSize.Height) * 0.25f / (float)directionalDataTypes.Count));
                 float fCentreY = GraphSurface.ClientSize.Height - fHeightPerDirection * 0.5f;
-                float fCentreX = fHeightPerDirection * 0.5f;
                 float fWidthPerDirection = fHeightPerDirection * 0.5f;
                 float fCount = Math.Max(1.0f, ((float)GraphSurface.ClientSize.Width) / fWidthPerDirection);
                 double fTimeToIncrementPerDirection = (m_fGraphEndTime - m_fGraphStartTime) / fCount;
-                double fTime = m_fGraphStartTime;
+                fAvailableHeight -= (double)fHeightPerDirection * (double)directionalDataTypes.Count;
                 for(int i=0 ; i<directionalDataTypes.Count ; i++)
                 {
+                    float fCentreX = fHeightPerDirection * 0.5f;
+                    double fTime = m_fGraphStartTime;
                     int iDataType = directionalDataTypes[i];
                     //Draw strip of values at bottom of graph
                     while (fTime < m_fGraphEndTime)
@@ -694,17 +705,22 @@ namespace NMEAViewer
                         if (iEntry >= 0)
                         {
                             double value = m_Data.GetDataAtIndex(iEntry, iDataType);
-                            double dX = Math.Sin(value * DegToRad);
-                            double dY = -Math.Cos(value * DegToRad);
-
-                            g.DrawLine(directionalDataTypePens[i], fCentreX, fCentreY, fCentreX + (float)dX, fCentreY + (float)dY);
+                            //double dX = Math.Sin(value * DegToRad) * fWidthPerDirection;
+                            //double dY = -Math.Cos(value * DegToRad) * fWidthPerDirection;
+                            g.ResetTransform();
+                            g.TranslateTransform(fCentreX, fCentreY);
+                            g.RotateTransform((float)value);
+                            g.DrawLine(directionalDataTypePens[i], 0.0f, 0.0f, 0.0f, -fWidthPerDirection);
+                            g.DrawLine(directionalDataTypePens[i], 2.0f, 0.0f, 0.0f, -fWidthPerDirection);
+                            g.DrawLine(directionalDataTypePens[i], -2.0f, 0.0f, 0.0f, -fWidthPerDirection);
                         }
 
-                        fCentreY -= fHeightPerDirection;
                         fCentreX += fWidthPerDirection;
                         fTime += fTimeToIncrementPerDirection;                        
                     }
+                    fCentreY -= fHeightPerDirection;
                 }
+                g.ResetTransform();
             }
 
             for (int iEntry = iStartIndex; iEntry < iEndIndex; iEntry++)
@@ -767,7 +783,7 @@ namespace NMEAViewer
                         int iDataType = typesByRange[iRangeType][iDataTypeIndex];
                         double fPinValue = fLastValue[iRangeType][iDataTypeIndex];
                         double fValue = FixValueForGraph(m_Data.GetDataAtIndex(iStartIndex, iDataType), fPinValue, iDataType);
-                        double fValueY = (double)GraphSurface.ClientSize.Height * (1.0 - (fValue - fMins[iRangeType]) / (fMaxs[iRangeType] - fMins[iRangeType]));
+                        double fValueY = fAvailableHeight * (1.0 - (fValue - fMins[iRangeType]) / (fMaxs[iRangeType] - fMins[iRangeType]));
                         fLastY[iRangeType].Add(fValueY);
                         fLastValue[iRangeType][iDataTypeIndex] = fValue;
                         fCountY[iRangeType].Add(0.0);       //Prepping for later manipulation
@@ -794,7 +810,7 @@ namespace NMEAViewer
                             double fValue = FixValueForGraph(m_Data.GetDataAtIndex(iEntry, iDataType), fPinValue, iDataType);
                             fLastValue[iRangeType][iDataTypeIndex] = fValue;
 
-                            fValue = (double)GraphSurface.ClientSize.Height * (1.0 - (fValue - fMins[iRangeType]) / (fMaxs[iRangeType] - fMins[iRangeType]));
+                            fValue = fAvailableHeight * (1.0 - (fValue - fMins[iRangeType]) / (fMaxs[iRangeType] - fMins[iRangeType]));
 
                             fSummedY[iRangeType][iDataTypeIndex] = System.Math.Max(fSummedY[iRangeType][iDataTypeIndex], fValue);
                             //fSummedY[iRangeType][iDataTypeIndex] += fValue;
@@ -907,6 +923,13 @@ namespace NMEAViewer
                 m_ViewInfo.m_fEndTime = m_fSelectionEndTime;
                 RefreshGraph();
             }
+        }
+
+        private void directionsAsArrowsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            directionsAsArrowsToolStripMenuItem.Checked = !directionsAsArrowsToolStripMenuItem.Checked;
+
+            RefreshGraph();
         }
     }
 }
