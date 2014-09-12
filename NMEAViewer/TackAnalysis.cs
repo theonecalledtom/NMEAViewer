@@ -210,6 +210,9 @@ namespace NMEAViewer
 
         List<int> FindTackPoints(int iStartSearch, int iEndSearch)
         {
+            if (m_Data.GetDataCount() <= 0)
+                return null;
+
             List<int> tackPoints = new List<int>();
             int iToSearch = iEndSearch - 1;
             for (int i = iStartSearch; i < iToSearch - 1; i++)
@@ -567,25 +570,28 @@ namespace NMEAViewer
                 m_TackData.Clear();
             }
             List<int> tackPoints = FindTackPoints(iStartSearch, iEndSearch);
-            Console.WriteLine("--------------AnalyseSection------------------");
-            Console.WriteLine("Found {0:D} tack points", tackPoints.Count);
-            foreach (int iTackPoint in tackPoints)
+            if (tackPoints != null)
             {
-                TackAnalysisData newData = RunTackAnalysis(Math.Max(0, iTackPoint - 60), Math.Min(m_Data.GetDataCount(), iTackPoint + 60), bUseAWARange, fMaxAWAForTack, fMinAWAForGybe);
-                if (newData != null)
+                Console.WriteLine("--------------AnalyseSection------------------");
+                Console.WriteLine("Found {0:D} tack points", tackPoints.Count);
+                foreach (int iTackPoint in tackPoints)
                 {
-                    Console.WriteLine("--- Accepted {0:D}", iTackPoint);
-                    m_TackData.Add(newData);
+                    TackAnalysisData newData = RunTackAnalysis(Math.Max(0, iTackPoint - 60), Math.Min(m_Data.GetDataCount(), iTackPoint + 60), bUseAWARange, fMaxAWAForTack, fMinAWAForGybe);
+                    if (newData != null)
+                    {
+                        Console.WriteLine("--- Accepted {0:D}", iTackPoint);
+                        m_TackData.Add(newData);
+                    }
+                    else
+                    {
+                        Console.WriteLine("--- Rejected {0:D}", iTackPoint);
+                    }
                 }
-                else
-                {
-                    Console.WriteLine("--- Rejected {0:D}", iTackPoint);
-                }
-            }
-            Console.WriteLine("--------------------------------");
+                Console.WriteLine("--------------------------------");
 
-            //Send data to all windows
-            DockableDrawable.BroadcastNewTackData(this, m_TackData);
+                //Send data to all windows
+                DockableDrawable.BroadcastNewTackData(this, m_TackData);
+            }
         }
 
         public int GetNumTacks()
