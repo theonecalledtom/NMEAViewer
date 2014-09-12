@@ -721,6 +721,8 @@ namespace NMEAViewer
                     float fCentreX = fHeightPerDirection * 0.5f;
                     double fTime = m_fGraphStartTime;
                     int iDataType = directionalDataTypes[i];
+                    //TODO: Make the graph more accurate
+                    int iLastEntry = -1;
                     bool bInverted = m_MetaData.m_GraphStyleInfo.m_DataStyleList[iDataType].m_InvertedArrow;
                     //Draw strip of values at bottom of graph
                     while (fTime < m_fGraphEndTime)
@@ -728,7 +730,15 @@ namespace NMEAViewer
                         int iEntry = m_Data.GetIndexForTime(fTime);
                         if (iEntry >= 0)
                         {
-                            double value = m_Data.GetDataAtIndex(iEntry, iDataType);
+                            double value;
+                            if (iLastEntry > 0 && iLastEntry < iEntry)
+                            {
+                                value = m_Data.GetDataAverageInclusive(iLastEntry, iEntry, iDataType);
+                            }
+                            else
+                            {
+                                value = m_Data.GetDataAtIndex(iEntry, iDataType);
+                            }
                             //double dX = Math.Sin(value * DegToRad) * fWidthPerDirection;
                             //double dY = -Math.Cos(value * DegToRad) * fWidthPerDirection;
                             g.ResetTransform();
@@ -750,6 +760,7 @@ namespace NMEAViewer
                             }
                         }
 
+                        iLastEntry = iEntry;
                         fCentreX += fWidthPerDirection;
                         fTime += fTimeToIncrementPerDirection;                        
                     }
