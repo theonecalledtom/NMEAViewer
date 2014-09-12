@@ -295,6 +295,16 @@ namespace NMEAViewer
             return m_CrunchedData[iIndex].GetValue(iType);
         }
 
+        public double GetDataAverageInclusive(int iIndex0, int iIndex1, int iType)
+        {
+            double fValue = 0.0;
+            for (int iIndex = iIndex0; iIndex <= iIndex1; iIndex++ )
+            {
+                fValue += m_CrunchedData[iIndex].GetValue(iType);
+            }
+            return fValue / Math.Max(1, iIndex1 - iIndex0 + 1);
+        }
+
         public double GetDataAtIndex(int iIndex, DataTypes type)
         {
             return m_CrunchedData[iIndex].GetValue(type);
