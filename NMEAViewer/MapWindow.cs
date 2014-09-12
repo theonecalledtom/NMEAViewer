@@ -88,8 +88,6 @@ namespace NMEAViewer
         {
             InitializeComponent();
 
-            trackCurrentToolStripMenuItem.Checked = false;
-
             m_Data = data;
             m_MarkerToTackMap = new Dictionary<GMap.NET.WindowsForms.GMapMarker, TackAnalysisData>();
             gMapControl1.MapProvider = GMap.NET.MapProviders.ArcGIS_Topo_US_2D_MapProvider.Instance;
