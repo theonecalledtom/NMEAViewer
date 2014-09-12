@@ -180,6 +180,20 @@ namespace NMEAViewer
             }
         }
 
+        public static void BroadcastGraphStyleChanged()
+        {
+            if (allWindows != null)
+            {
+                foreach (DockableDrawable aDock in allWindows)
+                {
+                    //if (this != aDock)
+                    {
+                        aDock.OnNewGraphStyle();
+                    }
+                }
+            }
+        }
+
         protected void BroadcastOnTimeRangeSelected(double fTimeA, double fTimeB)
         {
             if (allWindows != null)
@@ -270,6 +284,11 @@ namespace NMEAViewer
         }
 
         protected virtual void OnEventData(List<double> eventTimes, List<string> eventNames, List<string> eventDescriptions)
+        {
+
+        }
+
+        protected virtual void OnNewGraphStyle()
         {
 
         }
