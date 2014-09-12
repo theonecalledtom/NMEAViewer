@@ -762,7 +762,7 @@ namespace NMEAViewer
             {
                 for (int iRangeType = 1; iRangeType < iNumDataRanges; iRangeType++)
                 {
-                    if ((typesByRange[iRangeType]) != null && (iRangeType != (int)NMEACruncher.DataRangeTypes.Direction))
+                    if ((typesByRange[iRangeType]) != null)// && (iRangeType != (int)NMEACruncher.DataRangeTypes.Direction))
                     {
                         for (int iDataTypeIndex = 0; iDataTypeIndex < typesByRange[iRangeType].Count; iDataTypeIndex++)
                         {
@@ -807,7 +807,7 @@ namespace NMEAViewer
             List<float>[] fLastDrawnX = new List<float>[iNumDataRanges];
             for (int iRangeType = 1; iRangeType < iNumDataRanges; iRangeType++)
             {
-                if ((typesByRange[iRangeType] != null) && (iRangeType != (int)NMEACruncher.DataRangeTypes.Direction))
+                if ((typesByRange[iRangeType] != null))// && (iRangeType != (int)NMEACruncher.DataRangeTypes.Direction))
                 {
                     fLastY[iRangeType] = new List<double>();
                     fCountY[iRangeType] = new List<double>();
@@ -834,7 +834,7 @@ namespace NMEAViewer
             {
                 for (int iRangeType = 1; iRangeType < iNumDataRanges; iRangeType++)
                 {
-                    if ((typesByRange[iRangeType] != null) && (iRangeType != (int)NMEACruncher.DataRangeTypes.Direction))
+                    if ((typesByRange[iRangeType] != null))// && (iRangeType != (int)NMEACruncher.DataRangeTypes.Direction))
                     {
                         for (int iDataTypeIndex = 0; iDataTypeIndex < typesByRange[iRangeType].Count; iDataTypeIndex++)
                         {
