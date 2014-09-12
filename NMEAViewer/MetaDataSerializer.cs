@@ -12,6 +12,7 @@ namespace NMEAViewer
     {
         public List<DockableDrawable.SerializedDataBase> m_ArrayOfWindowData;
         public Dictionary<string, DockableDrawable.StaticSerializedDataBase> m_DictonaryOfStaticData;
+        public TimeBasedGraphDataTypes.GraphStyleInfo m_GraphStyleInfo;
         public string InputDataFileName;
         public string OutputDataFileName;
         public string SimDataFileName;

@@ -441,17 +441,17 @@ namespace NMEAViewer
             m_fMaxValue = fMax;
 
             double fRange = fMax - fMin;
-            if (fRange <= 0.0f)
-            {
-                Console.WriteLine("**Histogram: No range to split into buckets**");
-                return false;
-            }
+            //if (fRange <= 0.0f)
+            //{
+            //    Console.WriteLine("**Histogram: No range to split into buckets**");
+            //    return false;
+            //}
 
             double fAvPort = 0.0f;
             double fAvStbd = 0.0f;
             int iCountPort = 0;
             int iCountStbd = 0;
-            double fScalar = ((double)(m_iCount + 1)) / fRange;
+            double fScalar = fRange > 0.0? ((double)(m_iCount + 1)) / fRange : 0.0;
             for (int i = iFirstSample; i < iLastSample; i++)
             {
                 double fValue = (bAbsOnly ? System.Math.Abs(m_Data.GetDataAtIndex(i, type)) : m_Data.GetDataAtIndex(i, type));

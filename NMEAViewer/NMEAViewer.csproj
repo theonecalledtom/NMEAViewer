@@ -101,7 +101,6 @@
       <DependentUpon>MetaDataWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="NMEACruncher.cs" />
-    <Compile Include="NMEADataViewInfo.cs" />
     <Compile Include="NMEAStreamReader.cs" />
     <Compile Include="PolarData.cs" />
     <Compile Include="Program.cs" />
@@ -118,6 +117,12 @@
     </Compile>
     <Compile Include="TimeBasedGraph.Designer.cs">
       <DependentUpon>TimeBasedGraph.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TimeBasedGraphDataTypes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TimeBasedGraphDataTypes.Designer.cs">
+      <DependentUpon>TimeBasedGraphDataTypes.cs</DependentUpon>
     </Compile>
     <Compile Include="VideoWindow.cs">
       <SubType>Form</SubType>
@@ -157,6 +162,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="TimeBasedGraph.resx">
       <DependentUpon>TimeBasedGraph.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TimeBasedGraphDataTypes.resx">
+      <DependentUpon>TimeBasedGraphDataTypes.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VideoWindow.resx">
       <DependentUpon>VideoWindow.cs</DependentUpon>

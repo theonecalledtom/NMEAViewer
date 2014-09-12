@@ -63,8 +63,8 @@ namespace NMEAViewer
 
             return fPadding[ iRangeType ];
         }
-    
-        public static System.Drawing.Color GetColorForType(int type)
+
+        public static System.Drawing.Color GetDefaultColorForType(int type)
         {
             System.Drawing.Color[] colors = {
                 System.Drawing.Color.Black,         //Time

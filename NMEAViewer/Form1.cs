@@ -15,7 +15,6 @@ namespace NMEAViewer
     public partial class PAMainWindow : Form
     {
         private NMEACruncher m_Data;
-        private NMEADataViewInfo m_DataView;
         private MetaDataSerializer m_MetaData;  //Don't really need to keep around in memory, using for debugging / development. Laugh at me when still here in 2017
         private DeserializeDockContent m_deserializeDockContent;
         private Connection PortConnection;
@@ -135,7 +134,6 @@ namespace NMEAViewer
         private void InitProjectData()
         {
             m_Data = new NMEACruncher();
-            m_DataView = new NMEADataViewInfo();
             m_MetaData = new MetaDataSerializer();
             m_Data.SetPolarData(m_PolarData);
         }
@@ -153,7 +151,7 @@ namespace NMEAViewer
             }
             else if (typeName == typeof(NMEAViewer.TimeBasedGraph).ToString())
             {
-                return new TimeBasedGraph(m_Data, m_DataView);
+                return new TimeBasedGraph(m_Data, m_MetaData);
             }
             else if (typeName == typeof(NMEAViewer.Histogram).ToString())
             {
@@ -283,6 +281,9 @@ namespace NMEAViewer
 
                         if (m_MetaData != null)
                         {
+                            //Make sure our graph style info is complete and up to date
+                            m_MetaData.m_GraphStyleInfo = TimeBasedGraphDataTypes.ValidateStyleInfo(m_MetaData.m_GraphStyleInfo);
+
                             //Possible TODO: Factory this?
                             //Load the static settings
                             if ((m_MetaData.m_DictonaryOfStaticData != null) && m_MetaData.m_DictonaryOfStaticData.ContainsKey(typeof(MetaDataWindow.StaticData).ToString()))
@@ -396,7 +397,7 @@ namespace NMEAViewer
 
         private void newGraphToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            HookupPanel(new TimeBasedGraph(m_Data, m_DataView));
+            HookupPanel(new TimeBasedGraph(m_Data, m_MetaData));
         }
 
         private void ReadInputData(bool bForceReprocessing)

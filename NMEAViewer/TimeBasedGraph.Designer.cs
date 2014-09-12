@@ -35,6 +35,7 @@
             this.trackSelectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.directionsAsArrowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.graphStyleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.GraphSurface)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -87,7 +88,8 @@
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.directionsAsArrowsToolStripMenuItem});
+            this.directionsAsArrowsToolStripMenuItem,
+            this.graphStyleToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(73, 24);
             this.optionsToolStripMenuItem.Text = "Options";
@@ -98,6 +100,13 @@
             this.directionsAsArrowsToolStripMenuItem.Size = new System.Drawing.Size(211, 24);
             this.directionsAsArrowsToolStripMenuItem.Text = "Directions as arrows";
             this.directionsAsArrowsToolStripMenuItem.Click += new System.EventHandler(this.directionsAsArrowsToolStripMenuItem_Click);
+            // 
+            // graphStyleToolStripMenuItem
+            // 
+            this.graphStyleToolStripMenuItem.Name = "graphStyleToolStripMenuItem";
+            this.graphStyleToolStripMenuItem.Size = new System.Drawing.Size(211, 24);
+            this.graphStyleToolStripMenuItem.Text = "Graph Style";
+            this.graphStyleToolStripMenuItem.Click += new System.EventHandler(this.graphStyleToolStripMenuItem_Click);
             // 
             // TimeBasedGraph
             // 
@@ -126,5 +135,6 @@
         private System.Windows.Forms.ToolStripMenuItem trackSelectionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem directionsAsArrowsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem graphStyleToolStripMenuItem;
     }
 }

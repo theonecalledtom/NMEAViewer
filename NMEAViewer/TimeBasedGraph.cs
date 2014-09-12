@@ -55,9 +55,9 @@ namespace NMEAViewer
 
             public List<string> CheckedButtons;
             public List<string> ActiveOverlays;
-            public double m_fSelectionStartTime = -1.0f;
-            public double m_fSelectionEndTime = -1.0f;
-            public double m_fSelectedTime = -1.0f;
+            //public double m_fSelectionStartTime = -1.0f;
+            //public double m_fSelectionEndTime = -1.0f;
+            //public double m_fSelectedTime = -1.0f;
             public double m_fGraphStartTime = -1.0;
             public double m_fGraphEndTime = -1.0;
             public bool m_bTrackSelection = false;
@@ -69,9 +69,9 @@ namespace NMEAViewer
             SerializedData data = new SerializedData(this);
             data.m_fGraphStartTime = m_fGraphStartTime;
             data.m_fGraphEndTime = m_fGraphEndTime;
-            data.m_fSelectedTime = m_fSelectedTime;
-            data.m_fSelectionStartTime = m_fSelectionStartTime;
-            data.m_fSelectionEndTime = m_fSelectionEndTime;
+            //data.m_fSelectedTime = m_fSelectedTime;
+            //data.m_fSelectionStartTime = m_fSelectionStartTime;
+            //data.m_fSelectionEndTime = m_fSelectionEndTime;
             data.m_bTrackSelection = trackSelectionToolStripMenuItem.Checked;
             data.CheckedButtons = new List<string>();
             data.m_bDirectionsAsArrows = directionsAsArrowsToolStripMenuItem.Checked;
@@ -97,9 +97,11 @@ namespace NMEAViewer
             SerializedData data = (SerializedData)data_base;
             m_fGraphStartTime = data.m_fGraphStartTime;
             m_fGraphEndTime = data.m_fGraphEndTime;
-            m_fSelectedTime = data.m_fSelectedTime;
-            m_fSelectionStartTime = data.m_fSelectionStartTime;
-            m_fSelectionEndTime = data.m_fSelectionEndTime;
+
+            //m_fSelectedTime = data.m_fSelectedTime;
+            //m_fSelectionStartTime = data.m_fSelectionStartTime;
+            //m_fSelectionEndTime = data.m_fSelectionEndTime;
+
             trackSelectionToolStripMenuItem.Checked = data.m_bTrackSelection;
             directionsAsArrowsToolStripMenuItem.Checked = data.m_bDirectionsAsArrows;
 
@@ -124,16 +126,15 @@ namespace NMEAViewer
                 }
             }
 
+            //if (m_fSelectedTime >= 0.0)
+            //{
+            //    BroadcastOnTimeSelected(this, m_fSelectedTime);
+            //}
 
-            if (m_fSelectedTime >= 0.0)
-            {
-                BroadcastOnTimeSelected(this, m_fSelectedTime);
-            }
-
-            if (m_fSelectionEndTime > m_fSelectionStartTime)
-            {
-                BroadcastOnTimeRangeSelected(m_fSelectionStartTime, m_fSelectionEndTime);
-            }
+            //if (m_fSelectionEndTime > m_fSelectionStartTime)
+            //{
+            //    BroadcastOnTimeRangeSelected(m_fSelectionStartTime, m_fSelectionEndTime);
+            //}
         }
 
         public override void PostInitFromSerializedData(SerializedDataBase data_base)
@@ -163,7 +164,7 @@ namespace NMEAViewer
 
         System.Windows.Forms.ContextMenu m_ContextMenu;
         NMEACruncher m_Data;
-        NMEADataViewInfo m_ViewInfo;
+        MetaDataSerializer m_MetaData;
         List<GraphOverlay> m_ActiveOverlays = new List<GraphOverlay>();
         double m_fMouseHoveredTime = -1.0f;
         double m_fSelectionStartTime = -1.0f;
@@ -174,7 +175,7 @@ namespace NMEAViewer
         bool m_bSliding = false;
         int m_SlidingLastMouseX;
 
-        public TimeBasedGraph(NMEACruncher data, NMEADataViewInfo viewInfo)
+        public TimeBasedGraph(NMEACruncher data, MetaDataSerializer metaData)
         {
             InitializeComponent();
 
@@ -193,7 +194,7 @@ namespace NMEAViewer
 
             //Set to the data object
             m_Data = data;
-            m_ViewInfo = viewInfo;
+            m_MetaData = metaData;
 
             m_ContextMenu = CreateContextMenu();
             ContextMenu = m_ContextMenu;
@@ -256,47 +257,45 @@ namespace NMEAViewer
         const double kfZoomPerClick = 1.25;
         const double kfMaxZoom = 211.75823681357508476708062516991;   //1.25 ^ 24
         double m_fCentreOffset;
+        bool m_bExpandWithData = true;
         void GraphSurface_MouseWheel(object sender, MouseEventArgs e)
         {
             if (e.Delta < 0)
             {
-                if (m_ViewInfo.m_fEndTime > 0.0)
+                if (m_fGraphEndTime > 0.0)
                 {
-                    double fCurrentTimeRange = m_ViewInfo.m_fEndTime - m_ViewInfo.m_fStartTime;
+                    double fCurrentTimeRange = m_fGraphEndTime - m_fGraphStartTime;
                     double fNewTimeRange = fCurrentTimeRange * kfZoomPerClick;
                     double fEdgeIncrease = (fNewTimeRange - fCurrentTimeRange) * 0.5;
-                    if (fCurrentTimeRange > m_Data.GetEndTime())
+                    if (fNewTimeRange > m_Data.GetEndTime())
                     {
-                        m_ViewInfo.m_fStartTime = -1.0;
-                        m_ViewInfo.m_fEndTime = -1.0;
+                        m_fGraphStartTime = 0.0;
+                        m_fGraphEndTime = m_Data.GetEndTime();
+                        m_bExpandWithData = true;
                     }
                     else
                     {
-                        m_ViewInfo.m_fStartTime = Math.Max(m_ViewInfo.m_fStartTime - fEdgeIncrease, 0.0);
-                        m_ViewInfo.m_fEndTime = Math.Min(m_ViewInfo.m_fEndTime + fEdgeIncrease, m_Data.GetEndTime());
-                        if ((m_ViewInfo.m_fEndTime >= m_Data.GetEndTime()) && (m_ViewInfo.m_fStartTime <= 0.0))
+                        m_fGraphStartTime = Math.Max(m_fGraphStartTime - fEdgeIncrease, 0.0);
+                        m_fGraphEndTime = Math.Min(m_fGraphEndTime + fEdgeIncrease, m_Data.GetEndTime());
+                        if ((m_fGraphEndTime >= m_Data.GetEndTime()) && (m_fGraphStartTime <= 0.0))
                         {
                             //Allow graph to expand with new data
-                            m_ViewInfo.m_fStartTime = -1.0;
-                            m_ViewInfo.m_fEndTime = -1.0;
+                            m_fGraphStartTime = 0.0;
+                            m_fGraphEndTime = m_Data.GetEndTime();
+                            m_bExpandWithData = true;
                         }
                     }
                 }
             }
             else
             {
-                if (m_ViewInfo.m_fEndTime <= 0.0)
-                {
-                    m_ViewInfo.m_fStartTime = 0.0;
-                    m_ViewInfo.m_fEndTime = m_Data.GetEndTime();
-                }
-
-                double fCurrentTimeRange = m_ViewInfo.m_fEndTime - m_ViewInfo.m_fStartTime;
+                double fCurrentTimeRange = m_fGraphEndTime - m_fGraphStartTime;
                 double fNewTimeRange = fCurrentTimeRange / kfZoomPerClick;
                 double fEdgeDecrease = (fCurrentTimeRange - fNewTimeRange) * 0.5;
 
-                m_ViewInfo.m_fStartTime += fEdgeDecrease;
-                m_ViewInfo.m_fEndTime -= fEdgeDecrease;
+                m_fGraphStartTime += fEdgeDecrease;
+                m_fGraphEndTime -= fEdgeDecrease;
+                m_bExpandWithData = false;
             }
             RefreshGraph();
         }
@@ -315,15 +314,17 @@ namespace NMEAViewer
             {
                 if (m_fSelectionEndTime > m_fSelectionStartTime)
                 {
-                    if ((m_ViewInfo.m_fStartTime == m_fSelectionStartTime) && (m_ViewInfo.m_fEndTime == m_fSelectionEndTime))
+                    if ((m_fGraphStartTime == m_fSelectionStartTime) && (m_fGraphEndTime == m_fSelectionEndTime))
                     {
-                        m_ViewInfo.m_fStartTime = -1.0;
-                        m_ViewInfo.m_fEndTime = -1.0;
+                        m_fGraphStartTime = 0.0;
+                        m_fGraphEndTime = m_Data.GetEndTime();
+                        m_bExpandWithData = true;
                     }
                     else 
                     {
-                        m_ViewInfo.m_fStartTime = m_fSelectionStartTime;
-                        m_ViewInfo.m_fEndTime = m_fSelectionEndTime;
+                        m_fGraphStartTime = m_fSelectionStartTime;
+                        m_fGraphEndTime = m_fSelectionEndTime;
+                        m_bExpandWithData = false;
                     }
                     RefreshGraph();
                 }
@@ -411,16 +412,14 @@ namespace NMEAViewer
             {
                 ContextMenu = null;
 
-                if (m_ViewInfo.m_fEndTime > 0.0)
-                {
-                    m_fCentreOffset += e.X - m_SlidingLastMouseX;
+                m_fCentreOffset += e.X - m_SlidingLastMouseX;
 
-                    double fDelta = ConvertScreenDXToTime(e.X - m_SlidingLastMouseX);
-                    m_ViewInfo.m_fEndTime = Math.Max(0.0, Math.Min(m_Data.GetEndTime(), m_ViewInfo.m_fEndTime - fDelta));
-                    m_ViewInfo.m_fStartTime = Math.Max(0.0, Math.Min(m_Data.GetEndTime(), m_ViewInfo.m_fStartTime - fDelta));
+                double fDelta = ConvertScreenDXToTime(e.X - m_SlidingLastMouseX);
+                m_fGraphEndTime = Math.Max(0.0, Math.Min(m_Data.GetEndTime(), m_fGraphEndTime - fDelta));
+                m_fGraphStartTime = Math.Max(0.0, Math.Min(m_Data.GetEndTime()-1.0, m_fGraphStartTime - fDelta));
                     
-                    RefreshGraph();
-                }
+                RefreshGraph();
+
                 m_SlidingLastMouseX = e.X;
 
             }
@@ -497,6 +496,11 @@ namespace NMEAViewer
             RefreshOverlay();
         }
 
+        protected override void OnNewGraphStyle()
+        {
+            RefreshGraph();
+        }
+
         protected override void OnTimeSelected(object sender, double fTime)
         {
             m_fSelectionStartTime = m_fSelectionEndTime = m_fSelectedTime = m_fMouseHoveredTime = fTime;
@@ -511,8 +515,8 @@ namespace NMEAViewer
 
             if (trackSelectionToolStripMenuItem.Checked)
             {
-                m_ViewInfo.m_fStartTime = m_fSelectionStartTime;
-                m_ViewInfo.m_fEndTime = m_fSelectionEndTime;
+                m_fGraphStartTime = m_fSelectionStartTime;
+                m_fGraphEndTime = m_fSelectionEndTime;
                 RefreshGraph();
             }
             else
@@ -583,6 +587,10 @@ namespace NMEAViewer
         {
             if (m_bDataAppended)
             {
+                if (m_bExpandWithData)
+                {
+                    m_fGraphEndTime = m_Data.GetEndTime();
+                }
                 RefreshGraph();
                 m_bDataAppended = false;
             }
@@ -593,6 +601,16 @@ namespace NMEAViewer
             //TODO: Should be able to allocate an extra bit of graph surface and draw into it for a while at same zoom factor
             m_bDataAppended = true;
             SetTimerFrequency(1.0);
+        }
+
+        System.Drawing.Color GetColorForType(int iType)
+        {
+            return m_MetaData.m_GraphStyleInfo.m_DataStyleList[iType].m_Color;
+        }
+
+        int GetWidthForType(int iType)
+        {
+            return m_MetaData.m_GraphStyleInfo.m_DataStyleList[iType].m_iThickness;
         }
 
         const double PI = 3.141592653589793;
@@ -609,10 +627,7 @@ namespace NMEAViewer
                 return;
             }
 
-            g.Clear(Color.LightGray);
-
-            m_fGraphStartTime = Math.Max(0.0, m_ViewInfo.m_fEndTime > m_ViewInfo.m_fStartTime ? m_ViewInfo.m_fStartTime : 0.0);
-            m_fGraphEndTime = Math.Min(m_Data.GetEndTime(), m_ViewInfo.m_fEndTime > m_ViewInfo.m_fStartTime ? m_ViewInfo.m_fEndTime : m_Data.GetEndTime());
+            g.Clear( m_MetaData.m_GraphStyleInfo.m_BackgroundColor );
 
             //Simple plot for N indices
             //TODO: Investigate making end points more accurate
@@ -633,7 +648,7 @@ namespace NMEAViewer
                 {
                     if (m_ContextMenu.MenuItems[iMenuEntry].Checked)
                     {
-                        bool bSkipDirectional = (directionsAsArrowsToolStripMenuItem.Checked) && (NMEACruncher.GetDataRangeForType(iType) == NMEACruncher.DataRangeTypes.Direction);
+                        bool bSkipDirectional = (directionsAsArrowsToolStripMenuItem.Checked) && m_MetaData.m_GraphStyleInfo.m_DataStyleList[iType].m_AsDirection;
                         if (!bSkipDirectional)
                         {
                             int iRangeType = (int)NMEACruncher.GetDataRangeForType(iType);
@@ -648,8 +663,8 @@ namespace NMEAViewer
                         else
                         {
                             directionalDataTypes.Add(iType);
-                            Pen newPen = new Pen(new SolidBrush(NMEACruncher.GetColorForType(iType)));
-                            newPen.Width = 2;
+                            Pen newPen = new Pen(new SolidBrush(GetColorForType(iType)));
+                            newPen.Width = GetWidthForType(iType);
                             directionalDataTypePens.Add(newPen);
                         }
                     }
@@ -675,8 +690,8 @@ namespace NMEAViewer
                     pens[iRangeType] = new List<Pen>();
                     for (int iDataTypeIndex = 0; iDataTypeIndex < typesByRange[iRangeType].Count; iDataTypeIndex++)
                     {
-                        Pen newPen = new Pen(new SolidBrush(NMEACruncher.GetColorForType(typesByRange[iRangeType][iDataTypeIndex])));
-                        newPen.Width = 2;
+                        Pen newPen = new Pen(new SolidBrush(GetColorForType(typesByRange[iRangeType][iDataTypeIndex])));
+                        newPen.Width = GetWidthForType(typesByRange[iRangeType][iDataTypeIndex]);
                         pens[iRangeType].Add(newPen);
                     }
                 }
@@ -698,6 +713,7 @@ namespace NMEAViewer
                     float fCentreX = fHeightPerDirection * 0.5f;
                     double fTime = m_fGraphStartTime;
                     int iDataType = directionalDataTypes[i];
+                    bool bInverted = m_MetaData.m_GraphStyleInfo.m_DataStyleList[iDataType].m_InvertedArrow;
                     //Draw strip of values at bottom of graph
                     while (fTime < m_fGraphEndTime)
                     {
@@ -710,9 +726,20 @@ namespace NMEAViewer
                             g.ResetTransform();
                             g.TranslateTransform(fCentreX, fCentreY);
                             g.RotateTransform((float)value);
-                            g.DrawLine(directionalDataTypePens[i], 0.0f, 0.0f, 0.0f, -fWidthPerDirection);
-                            g.DrawLine(directionalDataTypePens[i], 2.0f, 0.0f, 0.0f, -fWidthPerDirection);
-                            g.DrawLine(directionalDataTypePens[i], -2.0f, 0.0f, 0.0f, -fWidthPerDirection);
+
+                            Pen pen = directionalDataTypePens[i];
+                            if (bInverted)
+                            {
+                                g.DrawLine(pen, 0.0f, 0.0f, 0.0f, -fWidthPerDirection);
+                                g.DrawLine(pen, 0.0f, 0.0f, pen.Width, -fWidthPerDirection);
+                                g.DrawLine(pen, 0.0f, 0.0f, -pen.Width, -fWidthPerDirection);
+                            }
+                            else
+                            {
+                                g.DrawLine(pen, 0.0f, 0.0f, 0.0f, -fWidthPerDirection);
+                                g.DrawLine(pen, pen.Width, 0.0f, 0.0f, -fWidthPerDirection);
+                                g.DrawLine(pen, -pen.Width, 0.0f, 0.0f, -fWidthPerDirection);
+                            }
                         }
 
                         fCentreX += fWidthPerDirection;
@@ -794,8 +821,6 @@ namespace NMEAViewer
             }
 
             //Now draw lines for the graph
-            Pen drawPen = new Pen(new SolidBrush(Color.BlueViolet));
-            drawPen.Width = 2;
             float fX = fHorzPerEntry;
             for (int iEntry = iStartIndex + 1; iEntry < iEndIndex; iEntry++)
             {
@@ -903,7 +928,7 @@ namespace NMEAViewer
                                 dataValue += string.Format("{0:0.##}", fValue);
 
                                 System.Drawing.SizeF sizeOnScreenMin = e.Graphics.MeasureString(dataValue, font);
-                                System.Drawing.SolidBrush myBrush0 = new System.Drawing.SolidBrush(NMEACruncher.GetColorForType(dataType));
+                                System.Drawing.SolidBrush myBrush0 = new System.Drawing.SolidBrush(GetColorForType(dataType));
                                 e.Graphics.DrawString(dataValue, font, myBrush0, XOffset, 5.0f);
                                 XOffset += sizeOnScreenMin.Width;
                                 ++iCount;
@@ -919,8 +944,8 @@ namespace NMEAViewer
             trackSelectionToolStripMenuItem.Checked = !trackSelectionToolStripMenuItem.Checked;
             if (trackSelectionToolStripMenuItem.Checked)
             {
-                m_ViewInfo.m_fStartTime = m_fSelectionStartTime;
-                m_ViewInfo.m_fEndTime = m_fSelectionEndTime;
+                m_fGraphStartTime = m_fSelectionStartTime;
+                m_fGraphEndTime = m_fSelectionEndTime;
                 RefreshGraph();
             }
         }
@@ -930,6 +955,21 @@ namespace NMEAViewer
             directionsAsArrowsToolStripMenuItem.Checked = !directionsAsArrowsToolStripMenuItem.Checked;
 
             RefreshGraph();
+        }
+
+        TimeBasedGraphDataTypes GraphStyleWindow;
+        private void graphStyleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (TimeBasedGraphDataTypes.CanCreate())
+            {
+                GraphStyleWindow = new TimeBasedGraphDataTypes(m_MetaData);
+                GraphStyleWindow.Show();
+            }
+            else
+            {
+                //Assume we own it. Perhaps make a static?
+                GraphStyleWindow.Show();
+            }
         }
     }
 }

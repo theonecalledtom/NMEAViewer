@@ -284,6 +284,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "Connection";
             this.Text = "Connection";
+            this.TopMost = true;
             ((System.ComponentModel.ISupportInitialize)(this.BytesReadNumber)).EndInit();
             this.OutputFileGroupBox.ResumeLayout(false);
             this.OutputFileGroupBox.PerformLayout();
