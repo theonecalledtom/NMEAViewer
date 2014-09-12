@@ -36,6 +36,8 @@
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.directionsAsArrowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.graphStyleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.expandToLatestToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.moveToLatestToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.GraphSurface)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -73,7 +75,9 @@
             // timeToolStripMenuItem
             // 
             this.timeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.trackSelectionToolStripMenuItem});
+            this.trackSelectionToolStripMenuItem,
+            this.moveToLatestToolStripMenuItem,
+            this.expandToLatestToolStripMenuItem});
             this.timeToolStripMenuItem.Name = "timeToolStripMenuItem";
             this.timeToolStripMenuItem.Size = new System.Drawing.Size(54, 24);
             this.timeToolStripMenuItem.Text = "Time";
@@ -81,7 +85,7 @@
             // trackSelectionToolStripMenuItem
             // 
             this.trackSelectionToolStripMenuItem.Name = "trackSelectionToolStripMenuItem";
-            this.trackSelectionToolStripMenuItem.Size = new System.Drawing.Size(176, 24);
+            this.trackSelectionToolStripMenuItem.Size = new System.Drawing.Size(185, 24);
             this.trackSelectionToolStripMenuItem.Text = "Track selection";
             this.trackSelectionToolStripMenuItem.Click += new System.EventHandler(this.trackSelectionToolStripMenuItem_Click);
             // 
@@ -107,6 +111,20 @@
             this.graphStyleToolStripMenuItem.Size = new System.Drawing.Size(211, 24);
             this.graphStyleToolStripMenuItem.Text = "Graph Style";
             this.graphStyleToolStripMenuItem.Click += new System.EventHandler(this.graphStyleToolStripMenuItem_Click);
+            // 
+            // expandToLatestToolStripMenuItem
+            // 
+            this.expandToLatestToolStripMenuItem.Name = "expandToLatestToolStripMenuItem";
+            this.expandToLatestToolStripMenuItem.Size = new System.Drawing.Size(185, 24);
+            this.expandToLatestToolStripMenuItem.Text = "Expand to latest";
+            this.expandToLatestToolStripMenuItem.Click += new System.EventHandler(this.expandToLatestToolStripMenuItem_Click);
+            // 
+            // moveToLatestToolStripMenuItem
+            // 
+            this.moveToLatestToolStripMenuItem.Name = "moveToLatestToolStripMenuItem";
+            this.moveToLatestToolStripMenuItem.Size = new System.Drawing.Size(185, 24);
+            this.moveToLatestToolStripMenuItem.Text = "Move to latest";
+            this.moveToLatestToolStripMenuItem.Click += new System.EventHandler(this.moveToLatestToolStripMenuItem_Click);
             // 
             // TimeBasedGraph
             // 
@@ -136,5 +154,7 @@
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem directionsAsArrowsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem graphStyleToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem moveToLatestToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem expandToLatestToolStripMenuItem;
     }
 }

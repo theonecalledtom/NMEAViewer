@@ -61,6 +61,8 @@ namespace NMEAViewer
             public double m_fGraphStartTime = -1.0;
             public double m_fGraphEndTime = -1.0;
             public bool m_bTrackSelection = false;
+            public bool m_bExpandToLatest = false;
+            public bool m_bMoveToLatest = false;
             public bool m_bDirectionsAsArrows = false;
         };
 
@@ -73,6 +75,8 @@ namespace NMEAViewer
             //data.m_fSelectionStartTime = m_fSelectionStartTime;
             //data.m_fSelectionEndTime = m_fSelectionEndTime;
             data.m_bTrackSelection = trackSelectionToolStripMenuItem.Checked;
+            data.m_bExpandToLatest = expandToLatestToolStripMenuItem.Checked;
+            data.m_bMoveToLatest = moveToLatestToolStripMenuItem.Checked;
             data.CheckedButtons = new List<string>();
             data.m_bDirectionsAsArrows = directionsAsArrowsToolStripMenuItem.Checked;
             for (int i = 0; i < m_ContextMenu.MenuItems.Count; i++)
@@ -102,6 +106,8 @@ namespace NMEAViewer
             //m_fSelectionStartTime = data.m_fSelectionStartTime;
             //m_fSelectionEndTime = data.m_fSelectionEndTime;
 
+            moveToLatestToolStripMenuItem.Checked = data.m_bMoveToLatest;
+            expandToLatestToolStripMenuItem.Checked = data.m_bExpandToLatest;
             trackSelectionToolStripMenuItem.Checked = data.m_bTrackSelection;
             directionsAsArrowsToolStripMenuItem.Checked = data.m_bDirectionsAsArrows;
 
@@ -196,6 +202,11 @@ namespace NMEAViewer
             m_Data = data;
             m_MetaData = metaData;
 
+            if (m_MetaData.m_GraphStyleInfo == null)
+            {
+                m_MetaData.m_GraphStyleInfo = TimeBasedGraphDataTypes.CreateNewStyleInfo();
+            }
+
             m_ContextMenu = CreateContextMenu();
             ContextMenu = m_ContextMenu;
 
@@ -257,7 +268,6 @@ namespace NMEAViewer
         const double kfZoomPerClick = 1.25;
         const double kfMaxZoom = 211.75823681357508476708062516991;   //1.25 ^ 24
         double m_fCentreOffset;
-        bool m_bExpandWithData = true;
         void GraphSurface_MouseWheel(object sender, MouseEventArgs e)
         {
             if (e.Delta < 0)
@@ -271,7 +281,6 @@ namespace NMEAViewer
                     {
                         m_fGraphStartTime = 0.0;
                         m_fGraphEndTime = m_Data.GetEndTime();
-                        m_bExpandWithData = true;
                     }
                     else
                     {
@@ -282,7 +291,6 @@ namespace NMEAViewer
                             //Allow graph to expand with new data
                             m_fGraphStartTime = 0.0;
                             m_fGraphEndTime = m_Data.GetEndTime();
-                            m_bExpandWithData = true;
                         }
                     }
                 }
@@ -295,7 +303,6 @@ namespace NMEAViewer
 
                 m_fGraphStartTime += fEdgeDecrease;
                 m_fGraphEndTime -= fEdgeDecrease;
-                m_bExpandWithData = false;
             }
             RefreshGraph();
         }
@@ -318,13 +325,11 @@ namespace NMEAViewer
                     {
                         m_fGraphStartTime = 0.0;
                         m_fGraphEndTime = m_Data.GetEndTime();
-                        m_bExpandWithData = true;
                     }
                     else 
                     {
                         m_fGraphStartTime = m_fSelectionStartTime;
                         m_fGraphEndTime = m_fSelectionEndTime;
-                        m_bExpandWithData = false;
                     }
                     RefreshGraph();
                 }
@@ -587,10 +592,18 @@ namespace NMEAViewer
         {
             if (m_bDataAppended)
             {
-                if (m_bExpandWithData)
+                if (expandToLatestToolStripMenuItem.Checked)
                 {
                     m_fGraphEndTime = m_Data.GetEndTime();
                 }
+                else if (moveToLatestToolStripMenuItem.Checked)
+                {
+                    double delta = m_Data.GetEndTime() - m_fGraphEndTime;
+                    m_fGraphEndTime += delta;
+                    m_fGraphStartTime += delta;
+                }
+                m_fGraphEndTime = Math.Min(m_fGraphEndTime, m_Data.GetEndTime());
+                m_fGraphStartTime = Math.Max(m_fGraphStartTime, 0.0);
                 RefreshGraph();
                 m_bDataAppended = false;
             }
@@ -969,6 +982,24 @@ namespace NMEAViewer
             {
                 //Assume we own it. Perhaps make a static?
                 GraphStyleWindow.Show();
+            }
+        }
+
+        private void moveToLatestToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            moveToLatestToolStripMenuItem.Checked = !moveToLatestToolStripMenuItem.Checked;
+            if (moveToLatestToolStripMenuItem.Checked)
+            {
+                expandToLatestToolStripMenuItem.Checked = false;
+            }
+        }
+
+        private void expandToLatestToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            expandToLatestToolStripMenuItem.Checked = !expandToLatestToolStripMenuItem.Checked;
+            if (expandToLatestToolStripMenuItem.Checked)
+            {
+                moveToLatestToolStripMenuItem.Checked = false;
             }
         }
     }
