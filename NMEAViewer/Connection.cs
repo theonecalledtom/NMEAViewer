@@ -193,13 +193,30 @@ namespace NMEAViewer
         {
             if (OutputFileName.Text.Length > 0)
             {
+                if (System.IO.File.Exists(OutputFileName.Text))
+                {
+                    //confirm override
+                    DialogResult result = MessageBox.Show("Output file exists. Do you want to overwrite?", "Warning", MessageBoxButtons.YesNo);
+                    if (result == DialogResult.No)
+                    {
+                        SelectOutputFile();
+                    }
+                }
+            }
+            else
+            {
+                SelectOutputFile();
+            }
+
+            if (OutputFileName.Text.Length > 0)
+            {
                 OutputFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(OutputFileName.Text);
                 OutputFileDialog.FileName = System.IO.Path.GetFileName(OutputFileName.Text);
             }
+
             System.IO.Stream s = OutputFileDialog.OpenFile();
             if (s != null)
             {
-
                 m_DataWriter = new DataWriter();
                 m_DataWriter.Start(s);
                 return true;
