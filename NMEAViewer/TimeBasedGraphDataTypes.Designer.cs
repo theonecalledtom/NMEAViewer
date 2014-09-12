@@ -39,6 +39,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.InvertArrowCheckbox = new System.Windows.Forms.CheckBox();
+            this.GraphLineCheckBox = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -80,7 +81,7 @@
             "2",
             "3",
             "4"});
-            this.LineThicknessComboBox.Location = new System.Drawing.Point(56, 66);
+            this.LineThicknessComboBox.Location = new System.Drawing.Point(56, 91);
             this.LineThicknessComboBox.Name = "LineThicknessComboBox";
             this.LineThicknessComboBox.Size = new System.Drawing.Size(121, 24);
             this.LineThicknessComboBox.TabIndex = 3;
@@ -89,7 +90,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 67);
+            this.label2.Location = new System.Drawing.Point(12, 92);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(35, 17);
             this.label2.TabIndex = 4;
@@ -116,7 +117,7 @@
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.FieldColorPanel);
-            this.groupBox1.Location = new System.Drawing.Point(12, 100);
+            this.groupBox1.Location = new System.Drawing.Point(12, 125);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(165, 100);
             this.groupBox1.TabIndex = 7;
@@ -126,7 +127,7 @@
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.BackgroundColorPanel);
-            this.groupBox2.Location = new System.Drawing.Point(12, 207);
+            this.groupBox2.Location = new System.Drawing.Point(12, 232);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(165, 100);
             this.groupBox2.TabIndex = 8;
@@ -144,11 +145,25 @@
             this.InvertArrowCheckbox.UseVisualStyleBackColor = true;
             this.InvertArrowCheckbox.CheckedChanged += new System.EventHandler(this.InvertArrowCheckbox_CheckedChanged);
             // 
+            // checkBox1
+            // 
+            this.GraphLineCheckBox.AutoSize = true;
+            this.GraphLineCheckBox.Checked = true;
+            this.GraphLineCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.GraphLineCheckBox.Location = new System.Drawing.Point(15, 65);
+            this.GraphLineCheckBox.Name = "checkBox1";
+            this.GraphLineCheckBox.Size = new System.Drawing.Size(57, 21);
+            this.GraphLineCheckBox.TabIndex = 10;
+            this.GraphLineCheckBox.Text = "Line";
+            this.GraphLineCheckBox.UseVisualStyleBackColor = true;
+            this.GraphLineCheckBox.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
             // TimeBasedGraphDataTypes
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(189, 315);
+            this.ClientSize = new System.Drawing.Size(189, 343);
+            this.Controls.Add(this.GraphLineCheckBox);
             this.Controls.Add(this.InvertArrowCheckbox);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -183,6 +198,7 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.CheckBox InvertArrowCheckbox;
+        private System.Windows.Forms.CheckBox GraphLineCheckBox;
 
     }
 }

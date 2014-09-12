@@ -78,7 +78,6 @@ namespace NMEAViewer
             data.m_bExpandToLatest = expandToLatestToolStripMenuItem.Checked;
             data.m_bMoveToLatest = moveToLatestToolStripMenuItem.Checked;
             data.CheckedButtons = new List<string>();
-            data.m_bDirectionsAsArrows = directionsAsArrowsToolStripMenuItem.Checked;
             for (int i = 0; i < m_ContextMenu.MenuItems.Count; i++)
             {
                 if (m_ContextMenu.MenuItems[i].Checked)
@@ -109,8 +108,7 @@ namespace NMEAViewer
             moveToLatestToolStripMenuItem.Checked = data.m_bMoveToLatest;
             expandToLatestToolStripMenuItem.Checked = data.m_bExpandToLatest;
             trackSelectionToolStripMenuItem.Checked = data.m_bTrackSelection;
-            directionsAsArrowsToolStripMenuItem.Checked = data.m_bDirectionsAsArrows;
-
+            
             //Set the checked state
             for (int iMenu = 0; iMenu < m_ContextMenu.MenuItems.Count; iMenu++)
             {
@@ -209,8 +207,6 @@ namespace NMEAViewer
 
             m_ContextMenu = CreateContextMenu();
             ContextMenu = m_ContextMenu;
-
-            directionsAsArrowsToolStripMenuItem.Checked = true; //Will get set from any stored data, defaulting true for now
 
             overlayListToolStripMenuItem.DropDownOpening += overlayListToolStripMenuItem_DropDownOpening;
             //overlayListToolStripMenuItem.DropDownItemClicked += overlayListToolStripMenuItem_Click;
@@ -661,8 +657,7 @@ namespace NMEAViewer
                 {
                     if (m_ContextMenu.MenuItems[iMenuEntry].Checked)
                     {
-                        bool bSkipDirectional = (directionsAsArrowsToolStripMenuItem.Checked) && m_MetaData.m_GraphStyleInfo.m_DataStyleList[iType].m_AsDirection;
-                        if (!bSkipDirectional)
+                        if (m_MetaData.m_GraphStyleInfo.m_DataStyleList[iType].m_AsLine)
                         {
                             int iRangeType = (int)NMEACruncher.GetDataRangeForType(iType);
                             if (typesByRange[iRangeType] == null)
@@ -673,7 +668,7 @@ namespace NMEAViewer
                             typesByRange[iRangeType].Add(iType);
                             fLastValue[iRangeType].Add(0.0);    //For later manipulation
                         }
-                        else
+                        if (m_MetaData.m_GraphStyleInfo.m_DataStyleList[iType].m_AsDirection)
                         {
                             directionalDataTypes.Add(iType);
                             Pen newPen = new Pen(new SolidBrush(GetColorForType(iType)));
@@ -961,13 +956,6 @@ namespace NMEAViewer
                 m_fGraphEndTime = m_fSelectionEndTime;
                 RefreshGraph();
             }
-        }
-
-        private void directionsAsArrowsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            directionsAsArrowsToolStripMenuItem.Checked = !directionsAsArrowsToolStripMenuItem.Checked;
-
-            RefreshGraph();
         }
 
         TimeBasedGraphDataTypes GraphStyleWindow;

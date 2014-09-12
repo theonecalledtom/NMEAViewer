@@ -20,6 +20,7 @@ namespace NMEAViewer
             public System.Drawing.Color m_Color;
             public int m_iThickness;
             public bool m_AsDirection;
+            public bool m_AsLine = true;
             public bool m_InvertedArrow;
         }
 
@@ -155,6 +156,7 @@ namespace NMEAViewer
             DirectionArrowCheckBox.Enabled = rangeType == NMEACruncher.DataRangeTypes.Direction || rangeType == NMEACruncher.DataRangeTypes.RelativeAngle;
             GraphDataStyleInfo gdsi = m_GraphStyleInfo.m_DataStyleList[m_iSelectedDataType];
             DirectionArrowCheckBox.Checked = gdsi.m_AsDirection;
+            GraphLineCheckBox.Checked = gdsi.m_AsLine;
             FieldColorPanel.BackColor = gdsi.m_Color;
             InvertArrowCheckbox.Checked = gdsi.m_InvertedArrow;
 
@@ -254,6 +256,16 @@ namespace NMEAViewer
                 m_GraphStyleInfo.m_DataStyleList[m_iSelectedDataType].m_InvertedArrow = InvertArrowCheckbox.Checked;
                 DockableDrawable.BroadcastGraphStyleChanged();
             }
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (m_GraphStyleInfo.m_DataStyleList[m_iSelectedDataType].m_AsLine != GraphLineCheckBox.Checked)
+            {
+                m_GraphStyleInfo.m_DataStyleList[m_iSelectedDataType].m_AsLine = GraphLineCheckBox.Checked;
+                DockableDrawable.BroadcastGraphStyleChanged();
+            }
+            
         }
     }
 }
