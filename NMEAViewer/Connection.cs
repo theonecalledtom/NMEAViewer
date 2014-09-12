@@ -27,7 +27,9 @@ namespace NMEAViewer
         public delegate void OnNewData(string value, double fElapsedTime);
         public event OnNewConnectionType OnNewConnection;
         public event OnNewData OnDataRecieved;
-        
+
+        public static Connection sm_Connection = null;
+
         public Connection(MetaDataSerializer metaData)
         {
             InitializeComponent();
@@ -42,6 +44,14 @@ namespace NMEAViewer
 
             OutputFileName.Text = metaData.OutputDataFileName;
             SimulationFileName.Text = metaData.SimDataFileName;
+
+            sm_Connection = this;
+            Disposed += Connection_Disposed;
+        }
+
+        void Connection_Disposed(object sender, EventArgs e)
+        {
+            sm_Connection = null;
         }
 
         private void SetOpenCloseButtonState()

@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PAMainWindow));
             WeifenLuo.WinFormsUI.Docking.DockPanelSkin dockPanelSkin1 = new WeifenLuo.WinFormsUI.Docking.DockPanelSkin();
             WeifenLuo.WinFormsUI.Docking.AutoHideStripSkin autoHideStripSkin1 = new WeifenLuo.WinFormsUI.Docking.AutoHideStripSkin();
             WeifenLuo.WinFormsUI.Docking.DockPanelGradient dockPanelGradient1 = new WeifenLuo.WinFormsUI.Docking.DockPanelGradient();
@@ -51,9 +50,7 @@
             this.saveProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadRecordingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reprocessToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
-            this.openDialogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.disconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadPolarDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripComboBox2 = new System.Windows.Forms.ToolStripDropDownButton();
             this.newVideoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,13 +58,13 @@
             this.newHistogramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newTackingWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newMetaDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.connectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpProvider1 = new System.Windows.Forms.HelpProvider();
             this.OpenVideoFile = new System.Windows.Forms.OpenFileDialog();
             this.OpenRecording = new System.Windows.Forms.OpenFileDialog();
             this.OpenProjectFile = new System.Windows.Forms.OpenFileDialog();
             this.SaveProjectFile = new System.Windows.Forms.SaveFileDialog();
             this.MainDockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
-            this.loadPolarDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.OpenPolarFile = new System.Windows.Forms.OpenFileDialog();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -76,7 +73,6 @@
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripComboBox1,
-            this.toolStripDropDownButton1,
             this.toolStripComboBox2});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
@@ -133,30 +129,12 @@
             this.reprocessToolStripMenuItem.Text = "Reprocess";
             this.reprocessToolStripMenuItem.Click += new System.EventHandler(this.reprocessToolStripMenuItem_Click);
             // 
-            // toolStripDropDownButton1
+            // loadPolarDataToolStripMenuItem
             // 
-            this.toolStripDropDownButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openDialogToolStripMenuItem,
-            this.disconnectToolStripMenuItem});
-            this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
-            this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
-            this.toolStripDropDownButton1.Size = new System.Drawing.Size(76, 24);
-            this.toolStripDropDownButton1.Text = "Connect";
-            // 
-            // openDialogToolStripMenuItem
-            // 
-            this.openDialogToolStripMenuItem.Name = "openDialogToolStripMenuItem";
-            this.openDialogToolStripMenuItem.Size = new System.Drawing.Size(163, 24);
-            this.openDialogToolStripMenuItem.Text = "Open Dialog";
-            this.openDialogToolStripMenuItem.Click += new System.EventHandler(this.openDialogToolStripMenuItem_Click);
-            // 
-            // disconnectToolStripMenuItem
-            // 
-            this.disconnectToolStripMenuItem.Name = "disconnectToolStripMenuItem";
-            this.disconnectToolStripMenuItem.Size = new System.Drawing.Size(163, 24);
-            this.disconnectToolStripMenuItem.Text = "Disconnect";
+            this.loadPolarDataToolStripMenuItem.Name = "loadPolarDataToolStripMenuItem";
+            this.loadPolarDataToolStripMenuItem.Size = new System.Drawing.Size(185, 24);
+            this.loadPolarDataToolStripMenuItem.Text = "Load Polar Data";
+            this.loadPolarDataToolStripMenuItem.Click += new System.EventHandler(this.loadPolarDataToolStripMenuItem_Click);
             // 
             // toolStripComboBox2
             // 
@@ -167,7 +145,8 @@
             this.newMapToolStripMenuItem,
             this.newHistogramToolStripMenuItem,
             this.newTackingWindowToolStripMenuItem,
-            this.newMetaDataToolStripMenuItem});
+            this.newMetaDataToolStripMenuItem,
+            this.connectionToolStripMenuItem});
             this.toolStripComboBox2.Name = "toolStripComboBox2";
             this.toolStripComboBox2.Size = new System.Drawing.Size(77, 24);
             this.toolStripComboBox2.Text = "Window";
@@ -213,6 +192,13 @@
             this.newMetaDataToolStripMenuItem.Size = new System.Drawing.Size(222, 24);
             this.newMetaDataToolStripMenuItem.Text = "New Meta Data";
             this.newMetaDataToolStripMenuItem.Click += new System.EventHandler(this.newMetaDataToolStripMenuItem_Click);
+            // 
+            // connectionToolStripMenuItem
+            // 
+            this.connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
+            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(222, 24);
+            this.connectionToolStripMenuItem.Text = "Connection";
+            this.connectionToolStripMenuItem.Click += new System.EventHandler(this.connectionToolStripMenuItem_Click);
             // 
             // OpenVideoFile
             // 
@@ -293,13 +279,6 @@
             this.MainDockPanel.Skin = dockPanelSkin1;
             this.MainDockPanel.TabIndex = 5;
             // 
-            // loadPolarDataToolStripMenuItem
-            // 
-            this.loadPolarDataToolStripMenuItem.Name = "loadPolarDataToolStripMenuItem";
-            this.loadPolarDataToolStripMenuItem.Size = new System.Drawing.Size(185, 24);
-            this.loadPolarDataToolStripMenuItem.Text = "Load Polar Data";
-            this.loadPolarDataToolStripMenuItem.Click += new System.EventHandler(this.loadPolarDataToolStripMenuItem_Click);
-            // 
             // OpenPolarFile
             // 
             this.OpenPolarFile.FileName = "myPolarFile";
@@ -328,9 +307,6 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripDropDownButton toolStripComboBox1;
         private System.Windows.Forms.ToolStripMenuItem loadRecordingToolStripMenuItem;
-        private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
-        private System.Windows.Forms.ToolStripMenuItem openDialogToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem disconnectToolStripMenuItem;
         private System.Windows.Forms.HelpProvider helpProvider1;
         private System.Windows.Forms.OpenFileDialog OpenVideoFile;
         private System.Windows.Forms.ToolStripMenuItem newProjectToolStripMenuItem;
@@ -350,6 +326,7 @@
         private System.Windows.Forms.ToolStripMenuItem newMetaDataToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadPolarDataToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog OpenPolarFile;
+        private System.Windows.Forms.ToolStripMenuItem connectionToolStripMenuItem;
 
     }
 }

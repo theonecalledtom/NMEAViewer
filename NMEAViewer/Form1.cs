@@ -17,7 +17,6 @@ namespace NMEAViewer
         private NMEACruncher m_Data;
         private MetaDataSerializer m_MetaData;  //Don't really need to keep around in memory, using for debugging / development. Laugh at me when still here in 2017
         private DeserializeDockContent m_deserializeDockContent;
-        private Connection PortConnection;
         private NMEAStreamReader m_Reader;
         private bool m_bSavedOnExit;
         private ApplicationSettings AppSettings;
@@ -73,9 +72,7 @@ namespace NMEAViewer
                 {
                     this.DesktopBounds = new Rectangle(AppSettings.MainWindowLocation, AppSettings.MainWindowSize);
                 }
-
             }
-
         }
 
         void PAMainWindow_LocationChanged(object sender, EventArgs e)
@@ -134,7 +131,7 @@ namespace NMEAViewer
         private void InitProjectData()
         {
             m_Data = new NMEACruncher();
-            m_MetaData = new MetaDataSerializer();
+            //m_MetaData = new MetaDataSerializer();
             m_Data.SetPolarData(m_PolarData);
         }
 
@@ -499,21 +496,6 @@ namespace NMEAViewer
             }
         }
 
-        private void openDialogToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (PortConnection == null)
-            {
-                PortConnection = new Connection(m_MetaData);
-                PortConnection.OnNewConnection += PortConnection_OnNewConnection;
-                PortConnection.OnDataRecieved += OnDataRecieved;
-                PortConnection.Show();
-            }
-            else
-            {
-                PortConnection.BringToFront();
-            }
-        }
-
         void PortConnection_OnNewConnection()
         {
             //Blitz everything we have.
@@ -584,6 +566,21 @@ namespace NMEAViewer
                 AppSettings.Save();
                 m_PolarData.Load(AppSettings.PolarDataName);
                 m_Data.SetPolarData(m_PolarData);
+            }
+        }
+
+        private void connectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Connection.sm_Connection == null)
+            {
+                Connection.sm_Connection = new Connection(m_MetaData);
+                Connection.sm_Connection.OnNewConnection += PortConnection_OnNewConnection;
+                Connection.sm_Connection.OnDataRecieved += OnDataRecieved;
+                Connection.sm_Connection.Show();
+            }
+            else
+            {
+                Connection.sm_Connection.BringToFront();
             }
         }
     }
