@@ -41,6 +41,10 @@
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.historyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.followSelectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toSelectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.HistogramSurface)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -63,7 +67,8 @@
             this.menuStrip1.Font = new System.Drawing.Font("Segoe UI", 4.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.rangeToolStripMenuItem,
-            this.numBucketsToolStripMenuItem});
+            this.numBucketsToolStripMenuItem,
+            this.optionsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 235);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(282, 20);
@@ -74,7 +79,9 @@
             // 
             this.rangeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toCurrentToolStripMenuItem,
-            this.followCurrentToolStripMenuItem});
+            this.followCurrentToolStripMenuItem,
+            this.toSelectionToolStripMenuItem,
+            this.followSelectionToolStripMenuItem});
             this.rangeToolStripMenuItem.Name = "rangeToolStripMenuItem";
             this.rangeToolStripMenuItem.Size = new System.Drawing.Size(42, 16);
             this.rangeToolStripMenuItem.Text = "Range";
@@ -82,7 +89,7 @@
             // toCurrentToolStripMenuItem
             // 
             this.toCurrentToolStripMenuItem.Name = "toCurrentToolStripMenuItem";
-            this.toCurrentToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
+            this.toCurrentToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
             this.toCurrentToolStripMenuItem.Text = "ToCurrent";
             this.toCurrentToolStripMenuItem.Click += new System.EventHandler(this.toCurrentToolStripMenuItem_Click);
             // 
@@ -91,7 +98,7 @@
             this.followCurrentToolStripMenuItem.Checked = true;
             this.followCurrentToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.followCurrentToolStripMenuItem.Name = "followCurrentToolStripMenuItem";
-            this.followCurrentToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
+            this.followCurrentToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
             this.followCurrentToolStripMenuItem.Text = "FollowCurrent";
             this.followCurrentToolStripMenuItem.Click += new System.EventHandler(this.followCurrentToolStripMenuItem_Click);
             // 
@@ -112,51 +119,80 @@
             // toolStripMenuItem8
             // 
             this.toolStripMenuItem8.Name = "toolStripMenuItem8";
-            this.toolStripMenuItem8.Size = new System.Drawing.Size(175, 22);
+            this.toolStripMenuItem8.Size = new System.Drawing.Size(85, 22);
             this.toolStripMenuItem8.Text = "100";
             this.toolStripMenuItem8.Click += new System.EventHandler(this.toolStripNumBuckets);
             // 
             // toolStripMenuItem7
             // 
             this.toolStripMenuItem7.Name = "toolStripMenuItem7";
-            this.toolStripMenuItem7.Size = new System.Drawing.Size(175, 22);
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(85, 22);
             this.toolStripMenuItem7.Text = "50";
             this.toolStripMenuItem7.Click += new System.EventHandler(this.toolStripNumBuckets);
             // 
             // toolStripMenuItem6
             // 
             this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-            this.toolStripMenuItem6.Size = new System.Drawing.Size(175, 22);
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(85, 22);
             this.toolStripMenuItem6.Text = "25";
             this.toolStripMenuItem6.Click += new System.EventHandler(this.toolStripNumBuckets);
             // 
             // toolStripMenuItem5
             // 
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(175, 22);
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(85, 22);
             this.toolStripMenuItem5.Text = "20";
             this.toolStripMenuItem5.Click += new System.EventHandler(this.toolStripNumBuckets);
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(175, 22);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(85, 22);
             this.toolStripMenuItem4.Text = "15";
             this.toolStripMenuItem4.Click += new System.EventHandler(this.toolStripNumBuckets);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(175, 22);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(85, 22);
             this.toolStripMenuItem3.Text = "10";
             this.toolStripMenuItem3.Click += new System.EventHandler(this.toolStripNumBuckets);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(175, 22);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(85, 22);
             this.toolStripMenuItem2.Text = "5";
             this.toolStripMenuItem2.Click += new System.EventHandler(this.toolStripNumBuckets);
+            // 
+            // optionsToolStripMenuItem
+            // 
+            this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.historyToolStripMenuItem});
+            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(48, 16);
+            this.optionsToolStripMenuItem.Text = "Options";
+            // 
+            // historyToolStripMenuItem
+            // 
+            this.historyToolStripMenuItem.Name = "historyToolStripMenuItem";
+            this.historyToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.historyToolStripMenuItem.Text = "History";
+            this.historyToolStripMenuItem.Click += new System.EventHandler(this.historyToolStripMenuItem_Click);
+            // 
+            // followSelectionToolStripMenuItem
+            // 
+            this.followSelectionToolStripMenuItem.Name = "followSelectionToolStripMenuItem";
+            this.followSelectionToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.followSelectionToolStripMenuItem.Text = "Follow Selection";
+            this.followSelectionToolStripMenuItem.Click += new System.EventHandler(this.followSelectionToolStripMenuItem_Click);
+            // 
+            // toSelectionToolStripMenuItem
+            // 
+            this.toSelectionToolStripMenuItem.Name = "toSelectionToolStripMenuItem";
+            this.toSelectionToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.toSelectionToolStripMenuItem.Text = "To Selection";
+            this.toSelectionToolStripMenuItem.Click += new System.EventHandler(this.toSelectionToolStripMenuItem_Click);
             // 
             // Histogram
             // 
@@ -191,5 +227,9 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem3;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem historyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toSelectionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem followSelectionToolStripMenuItem;
     }
 }

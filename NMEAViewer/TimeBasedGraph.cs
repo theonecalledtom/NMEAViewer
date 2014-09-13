@@ -640,8 +640,8 @@ namespace NMEAViewer
 
             //Simple plot for N indices
             //TODO: Investigate making end points more accurate
-            int iStartIndex = m_Data.GetIndexForTime(m_fGraphStartTime);
-            int iEndIndex = m_Data.GetIndexForTime(m_fGraphEndTime);
+            int iStartIndex = Math.Max(0, m_Data.GetIndexForTime(m_fGraphStartTime));
+            int iEndIndex = Math.Min(m_Data.GetDataCount()-1, m_Data.GetIndexForTime(m_fGraphEndTime));
 
             //Find the number of ranges we need to plot over, then get mins and maxes 
             int iNumDataRanges = NMEACruncher.GetNumDataRanges();

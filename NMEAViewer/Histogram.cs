@@ -39,7 +39,8 @@ namespace NMEAViewer
             public double m_fStartTime;
             public double m_fEndTime;
             public int m_iCount = 15;
-            public bool m_bFollow;
+            public bool m_bFollowSelection;
+            public bool m_bFollowCurrent;
         };
 
         public override DockableDrawable.SerializedDataBase CreateSerializedData()
@@ -49,7 +50,8 @@ namespace NMEAViewer
             data.m_fStartTime = m_fStartTime;
             data.m_fEndTime = m_fEndTime;
             data.m_iCount = m_iCount;
-            data.m_bFollow = followCurrentToolStripMenuItem.Checked;
+            data.m_bFollowSelection = followSelectionToolStripMenuItem.Checked;
+            data.m_bFollowCurrent = followCurrentToolStripMenuItem.Checked;
             return data;
         }
 
@@ -64,7 +66,8 @@ namespace NMEAViewer
             m_iCount = data.m_iCount;
             m_CurrentSelectedType = data.m_CurrentSelectedType;
             m_bHasHoveredValue = false;
-            followCurrentToolStripMenuItem.Checked = data.m_bFollow;
+            followCurrentToolStripMenuItem.Checked = data.m_bFollowCurrent;
+            followSelectionToolStripMenuItem.Checked = data.m_bFollowSelection;
 
             if (ContextMenu != null)
             {
@@ -87,7 +90,30 @@ namespace NMEAViewer
         {
             InitializeComponent();
 
+            SetTimerFrequency(10.0); //?? Make dynamic ?
+
             m_Data = data;
+        }
+
+        protected override void OnTimer(object sender, EventArgs e)
+        {
+            base.OnTimer(sender, e);
+
+            if (followCurrentToolStripMenuItem.Checked)
+            {
+                double delta = m_fEndTime - m_fStartTime;
+                if (delta <= 0.0)
+                {
+                    delta = 60.0;   //TODO:edit
+                }
+
+                if (delta > 0.0)
+                {
+                    m_fEndTime = m_Data.GetEndTime();
+                    m_fStartTime = Math.Max(0.0, m_fEndTime - delta);
+                    RebuildHistogram(m_fStartTime, m_fEndTime);
+                }
+            }
         }
 
         private void Histogram_Load(object sender, EventArgs e)
@@ -178,6 +204,17 @@ namespace NMEAViewer
         float m_fCentreOffset;
         private void DrawGraph()
         {
+            Bitmap lastSurface = null;
+            System.Drawing.Color clearColor = System.Drawing.Color.Gray;
+            if (historyToolStripMenuItem.Checked && (m_SurfaceForLines != null))
+            {
+                //Cache off old surface...? 
+                lastSurface = new Bitmap(m_SurfaceForLines);
+
+                //Fade out lastSurface - tend to clearColor
+
+            }
+
             ValidateGraphSurface();
 
             Graphics g = Graphics.FromImage(m_SurfaceForLines);
@@ -188,7 +225,8 @@ namespace NMEAViewer
                 return;
             }
 
-            g.Clear(System.Drawing.Color.Gray);
+            g.Clear(clearColor);
+            
 
             int iMaxHorz = 0;
             int iMaxPort = 0;
@@ -366,7 +404,7 @@ namespace NMEAViewer
         {
             m_fUserSelectedStartTime = fTimeA;
             m_fUserSelectedEndTime = fTimeB;
-            if (followCurrentToolStripMenuItem.Checked)
+            if (followSelectionToolStripMenuItem.Checked)
             {
                 m_fStartTime = fTimeA;
                 m_fEndTime = fTimeB;
@@ -521,6 +559,37 @@ namespace NMEAViewer
 
         private void toCurrentToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            double delta = m_fEndTime - m_fStartTime;
+            if (delta > 0.0)
+            {
+                m_fEndTime = m_Data.GetEndTime();
+                m_fStartTime = Math.Max(0.0, m_fEndTime - delta);
+                RebuildHistogram(m_fStartTime, m_fEndTime);
+            }
+        }
+
+        private void followCurrentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            followCurrentToolStripMenuItem.Checked = !followCurrentToolStripMenuItem.Checked;
+            if (followCurrentToolStripMenuItem.Checked)
+            {
+                followSelectionToolStripMenuItem.Checked = false;
+            }
+        }
+
+        private void toolStripNumBuckets(object sender, EventArgs e)
+        {
+            m_iCount = Convert.ToInt32(sender.ToString());
+            RebuildHistogram(m_fStartTime, m_fEndTime);
+        }
+
+        private void historyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            historyToolStripMenuItem.Checked = !historyToolStripMenuItem.Checked;
+        }
+
+        private void toSelectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             if (!followCurrentToolStripMenuItem.Checked)
             {
                 if (m_fUserSelectedEndTime != m_fUserSelectedStartTime)
@@ -532,15 +601,13 @@ namespace NMEAViewer
             }
         }
 
-        private void followCurrentToolStripMenuItem_Click(object sender, EventArgs e)
+        private void followSelectionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            followCurrentToolStripMenuItem.Checked = !followCurrentToolStripMenuItem.Checked;
-        }
-
-        private void toolStripNumBuckets(object sender, EventArgs e)
-        {
-            m_iCount = Convert.ToInt32(sender.ToString());
-            RebuildHistogram(m_fStartTime, m_fEndTime);
+            followSelectionToolStripMenuItem.Checked = !followSelectionToolStripMenuItem.Checked;
+            if (followSelectionToolStripMenuItem.Checked)
+            {
+                followCurrentToolStripMenuItem.Checked = false;
+            }
         }
     }
 }
