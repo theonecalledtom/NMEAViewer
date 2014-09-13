@@ -31,6 +31,7 @@ namespace NMEAViewer
             public List<GraphDataStyleInfo> m_DataStyleList;
         }
 
+        MetaDataSerializer m_MetaData;
         GraphStyleInfo m_GraphStyleInfo;
         static bool smb_Created;
         int m_iSelectedDataType;
@@ -39,6 +40,7 @@ namespace NMEAViewer
             InitializeComponent();
 
             //Make sure we're setup to save the data
+            m_MetaData = metaData;
             m_GraphStyleInfo = metaData.m_GraphStyleInfo;
 
             //Further edits are done on the serialized data directly
@@ -183,6 +185,12 @@ namespace NMEAViewer
             }
         }
 
+        private void OnChange()
+        {
+            DockableDrawable.BroadcastGraphStyleChanged();
+            m_MetaData.MarkForAutoSave();
+        }
+
         void BackgroundColorPanel_Click(object sender, EventArgs e)
         {
             colorDialog1.SolidColorOnly = false;
@@ -193,7 +201,7 @@ namespace NMEAViewer
                 m_GraphStyleInfo.m_BackgroundColor = colorDialog1.Color;
                 BackgroundColorPanel.BackColor = m_GraphStyleInfo.m_BackgroundColor;
 
-                DockableDrawable.BroadcastGraphStyleChanged();
+                OnChange();
             }
         }
 
@@ -207,7 +215,7 @@ namespace NMEAViewer
                 m_GraphStyleInfo.m_DataStyleList[m_iSelectedDataType].m_Color = colorDialog1.Color;
                 FieldColorPanel.BackColor = colorDialog1.Color;
 
-                DockableDrawable.BroadcastGraphStyleChanged();
+                OnChange();
             }
         }
 
@@ -221,7 +229,7 @@ namespace NMEAViewer
                 {
                     SelectDataType(iDataIndex);
 
-                    //DockableDrawable.BroadcastGraphStyleChanged();
+                    //OnChange();
                 }
             }
         }
@@ -232,7 +240,7 @@ namespace NMEAViewer
             {
                 m_GraphStyleInfo.m_DataStyleList[m_iSelectedDataType].m_AsDirection = DirectionArrowCheckBox.Checked;
 
-                DockableDrawable.BroadcastGraphStyleChanged();
+                OnChange();
             }
         }
 
@@ -244,7 +252,7 @@ namespace NMEAViewer
                 if (iThickness != m_GraphStyleInfo.m_DataStyleList[m_iSelectedDataType].m_iThickness)
                 {
                     m_GraphStyleInfo.m_DataStyleList[m_iSelectedDataType].m_iThickness = iThickness;
-                    DockableDrawable.BroadcastGraphStyleChanged();
+                    OnChange();
                 }
             }
         }
@@ -254,7 +262,7 @@ namespace NMEAViewer
             if (m_GraphStyleInfo.m_DataStyleList[m_iSelectedDataType].m_InvertedArrow != InvertArrowCheckbox.Checked)
             {
                 m_GraphStyleInfo.m_DataStyleList[m_iSelectedDataType].m_InvertedArrow = InvertArrowCheckbox.Checked;
-                DockableDrawable.BroadcastGraphStyleChanged();
+                OnChange();
             }
         }
 
@@ -263,7 +271,8 @@ namespace NMEAViewer
             if (m_GraphStyleInfo.m_DataStyleList[m_iSelectedDataType].m_AsLine != GraphLineCheckBox.Checked)
             {
                 m_GraphStyleInfo.m_DataStyleList[m_iSelectedDataType].m_AsLine = GraphLineCheckBox.Checked;
-                DockableDrawable.BroadcastGraphStyleChanged();
+
+                OnChange();
             }
             
         }

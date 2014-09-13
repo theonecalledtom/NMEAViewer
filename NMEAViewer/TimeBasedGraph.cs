@@ -603,6 +603,11 @@ namespace NMEAViewer
                 RefreshGraph();
                 m_bDataAppended = false;
             }
+            else
+            {
+                m_fGraphEndTime = Math.Min(m_fGraphEndTime, m_Data.GetEndTime());
+                m_fGraphStartTime = Math.Max(m_fGraphStartTime, 0.0);
+            }
         }
 
         protected override void OnDataAppended()
@@ -634,6 +639,13 @@ namespace NMEAViewer
                 g.Clear(Color.LightGray);
                 //g.DrawString("No Data", )
                 return;
+            }
+
+            if (m_fGraphEndTime < 0.0)
+            {
+                m_fGraphStartTime = 0.0;
+                m_fGraphEndTime = m_Data.GetEndTime();
+                expandToLatestToolStripMenuItem.Checked = true;
             }
 
             g.Clear( m_MetaData.m_GraphStyleInfo.m_BackgroundColor );

@@ -17,6 +17,14 @@ namespace NMEAViewer
         public string OutputDataFileName;
         public string SimDataFileName;
         public string VideoFilePath;
+
+        public const double kTimeToAutoSave = 10.0;
+        public double m_fTimeToAutoSave = 0.0;
+
+        public void MarkForAutoSave()
+        {
+            m_fTimeToAutoSave = kTimeToAutoSave;
+        }
         
         public void ParseProjectMetaData()
         {

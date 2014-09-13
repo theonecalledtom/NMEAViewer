@@ -176,7 +176,7 @@ namespace NMEAViewer
             if (OutputFileName.Text.Length > 0)
             {
                 OutputFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(OutputFileName.Text);
-                OutputFileDialog.FileName = System.IO.Path.GetFileName(OutputFileName.Text);
+                OutputFileDialog.FileName = OutputFileName.Text;
             }
             OutputFileDialog.OverwritePrompt = true;
             if (OutputFileDialog.ShowDialog() == DialogResult.OK)
@@ -211,7 +211,7 @@ namespace NMEAViewer
             if (OutputFileName.Text.Length > 0)
             {
                 OutputFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(OutputFileName.Text);
-                OutputFileDialog.FileName = System.IO.Path.GetFileName(OutputFileName.Text);
+                OutputFileDialog.FileName = OutputFileName.Text;
             }
 
             System.IO.Stream s = OutputFileDialog.OpenFile();

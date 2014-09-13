@@ -15,7 +15,7 @@ namespace NMEAViewer
     public partial class PAMainWindow : Form
     {
         private NMEACruncher m_Data;
-        private MetaDataSerializer m_MetaData;  //Don't really need to keep around in memory, using for debugging / development. Laugh at me when still here in 2017
+        private MetaDataSerializer m_MetaData;
         private DeserializeDockContent m_deserializeDockContent;
         private NMEAStreamReader m_Reader;
         private bool m_bSavedOnExit;
@@ -23,8 +23,6 @@ namespace NMEAViewer
         private PolarData m_PolarData;
         Timer m_UpdateTick;
 
-        const double kTimeToAutoSave = 10.0;
-        double m_fTimeToAutoSave = 0.0;
         double m_fTimeToAutoSaveSettings = 0.0;
 
         public PAMainWindow()
@@ -81,7 +79,7 @@ namespace NMEAViewer
             {
                 AppSettings.MainWindowState = Enum.GetName(typeof(FormWindowState), this.WindowState);
                 AppSettings.MainWindowLocation = Location;
-                m_fTimeToAutoSaveSettings = kTimeToAutoSave;
+                m_fTimeToAutoSaveSettings = MetaDataSerializer.kTimeToAutoSave;
             }
         }
 
@@ -91,16 +89,16 @@ namespace NMEAViewer
             {
                 AppSettings.MainWindowState = Enum.GetName(typeof(FormWindowState), this.WindowState);
                 AppSettings.MainWindowSize = ClientSize;
-                m_fTimeToAutoSaveSettings = kTimeToAutoSave;
+                m_fTimeToAutoSaveSettings = MetaDataSerializer.kTimeToAutoSave;
             }
         }
 
         void m_UpdateTick_Tick(object sender, EventArgs e)
         {
-            if (m_fTimeToAutoSave > 0.0)
+            if (m_MetaData.m_fTimeToAutoSave > 0.0)
             {
-                m_fTimeToAutoSave -= ((double)m_UpdateTick.Interval) * 0.001;
-                if (m_fTimeToAutoSave <= 0.0)
+                m_MetaData.m_fTimeToAutoSave -= ((double)m_UpdateTick.Interval) * 0.001;
+                if (m_MetaData.m_fTimeToAutoSave <= 0.0)
                 {
                     if (AppSettings.ProjectName != null)
                     {
@@ -372,7 +370,7 @@ namespace NMEAViewer
             newPanel.SetMDICloseCallback(new DockableDrawable.VoidConsumer(OnMDIWindowClose));
 
             //Trigger save
-            m_fTimeToAutoSave = kTimeToAutoSave;
+            m_MetaData.MarkForAutoSave();
         }
 
         private void newVideoToolStripMenuItem_Click(object sender, EventArgs e)
@@ -415,7 +413,7 @@ namespace NMEAViewer
                 DockableDrawable.BroadcastDataReplaced(m_Data);
 
                 //Trigger save
-                m_fTimeToAutoSave = kTimeToAutoSave;
+                m_MetaData.MarkForAutoSave();
             }
         }
 
