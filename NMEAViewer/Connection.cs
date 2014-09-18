@@ -185,6 +185,10 @@ namespace NMEAViewer
                 if (m_MetaData != null)
                 {
                     m_MetaData.OutputDataFileName = OutputFileDialog.FileName;
+
+                    //We'll want to load thiat back up!
+                    m_MetaData.InputDataFileName = OutputFileDialog.FileName;
+                    m_MetaData.MarkForAutoSave();
                 }
             }
         }
