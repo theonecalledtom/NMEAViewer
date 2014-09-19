@@ -128,7 +128,7 @@ namespace NMEAViewer
 
         private void InitProjectData()
         {
-            m_Data = new NMEACruncher();
+            m_Data = new NMEACruncher(1.0);
             //m_MetaData = new MetaDataSerializer();
             m_Data.SetPolarData(m_PolarData);
         }

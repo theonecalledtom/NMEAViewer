@@ -12,11 +12,19 @@ namespace NMEAViewer
         //8     == plus Polar data      --  Shouldn't need to save...
         //9     == plus Polar % data    --  Shouldn't need to save
         //                              --  Also shouldn't need to save TWA as it's calculated
-        int iProcessedVersion = 9;
+        //10    == record data at given rate, not just the rate it arrives
+        int iProcessedVersion = 10;
         List<SOutputData> m_CrunchedData;
         double m_fTimePerEntry = 0.0;
+        double m_fMinTimePerEntry = 1.0;
         public double m_fTimeOfLastEntry = 0.0;
         PolarData m_BoatPolars;
+
+        public NMEACruncher(double fMinTimePerEntry)
+        {
+            m_fMinTimePerEntry = fMinTimePerEntry;
+        }
+
         public enum DataTypes
         {
             Time,
@@ -272,12 +280,29 @@ namespace NMEAViewer
                 return -1;
             }
 
-            if (fTime > m_fTimeOfLastEntry)
+            if (fTime >= m_fTimeOfLastEntry)
             {
                 return m_CrunchedData.Count - 1;
             }
 
-            return System.Math.Min((int)(fTime * ((double)m_CrunchedData.Count) / m_fTimeOfLastEntry), m_CrunchedData.Count-1);
+            double fTimePerIndex = ((double)m_CrunchedData.Count) / m_fTimeOfLastEntry;
+            int nMaxIndex = m_CrunchedData.Count - 1;
+            int iStartIndex = System.Math.Min((int)(fTime * fTimePerIndex), nMaxIndex);
+
+            //We don't currently have packets in linear time so let's fix up
+            int iGuessedOffset;
+            int iMaxGuessedOffsetSize = m_CrunchedData.Count;
+            do{ double dTimeError = fTime - m_CrunchedData[iStartIndex].GetValue(DataTypes.Time);
+                iGuessedOffset = (int)((double)(dTimeError / fTimePerIndex));
+                if (Math.Abs(iGuessedOffset) > iMaxGuessedOffsetSize)
+                {
+                    iGuessedOffset = iGuessedOffset < 0 ? -iMaxGuessedOffsetSize : iMaxGuessedOffsetSize;
+                }
+                iStartIndex += iGuessedOffset;
+                iMaxGuessedOffsetSize = Math.Abs(iGuessedOffset) >> 1;
+            } while (iGuessedOffset != 0 && iStartIndex >= 0 && iStartIndex <= nMaxIndex);
+
+            return Math.Max(0, Math.Min(iStartIndex, m_CrunchedData.Count - 1));
         }
 
         public bool HasDataAtIndex(int iIndex, DataTypes dataType)
@@ -295,14 +320,42 @@ namespace NMEAViewer
             return m_CrunchedData[iIndex].GetValue(iType);
         }
 
+        public static bool IsAngle(int iType)
+        {
+            switch(GetDataRangeForType(iType))
+            {
+                case DataRangeTypes.RelativeAngle:
+                case DataRangeTypes.Direction:
+                    return true;
+                default:
+                    break;
+            }
+            return false;
+        }
+
         public double GetDataAverageInclusive(int iIndex0, int iIndex1, int iType)
         {
-            double fValue = 0.0;
-            for (int iIndex = iIndex0; iIndex <= iIndex1; iIndex++ )
+            //TODO: Angle averages!
+            double fValue = m_CrunchedData[iIndex0].GetValue(iType);
+            if (IsAngle(iType))
             {
-                fValue += m_CrunchedData[iIndex].GetValue(iType);
+                double fPin = fValue;
+                for (int i = iIndex0 + 1; i <= iIndex1; i++)
+                {
+                    double fInputAngle = m_CrunchedData[i].GetValue(iType);
+                    while (fInputAngle - fPin > 180.0f) fInputAngle -= 360.0f;
+                    while (fInputAngle - fPin < -180.0f) fInputAngle += 360.0f;
+                    fValue += fInputAngle;
+                }
             }
-            return fValue / Math.Max(1, iIndex1 - iIndex0 + 1);
+            else
+            {
+                for (int iIndex = iIndex0+1; iIndex <= iIndex1; iIndex++)
+                {
+                    fValue += m_CrunchedData[iIndex].GetValue(iType);
+                }
+            }
+            return fValue / Math.Max(1, (iIndex1 - iIndex0) + 1);
         }
 
         public double GetDataAtIndex(int iIndex, DataTypes type)
@@ -406,15 +459,18 @@ namespace NMEAViewer
         {
             streamReader.ProcessData(sdata.ToCharArray(), fElapsedTime);
 
-            SOutputData newData = new SOutputData();
-            if (m_CrunchedData == null)
+            if ((m_fTimeOfLastEntry <= 0.0) || (fElapsedTime - m_fTimeOfLastEntry) >= m_fMinTimePerEntry)
             {
-                m_CrunchedData = new List<SOutputData>();
-            }
-            m_CrunchedData.Add(newData);
-            streamReader.ProcessCurrentData(newData, m_BoatPolars, fElapsedTime);
+                SOutputData newData = new SOutputData();
+                if (m_CrunchedData == null)
+                {
+                    m_CrunchedData = new List<SOutputData>();
+                }
+                m_CrunchedData.Add(newData);
+                streamReader.ProcessCurrentData(newData, m_BoatPolars, fElapsedTime);
 
-            m_fTimeOfLastEntry = Math.Max(m_fTimeOfLastEntry, fElapsedTime);
+                m_fTimeOfLastEntry = Math.Max(m_fTimeOfLastEntry, fElapsedTime);
+            }
         }
 
         public void SetPolarData(PolarData data)
@@ -439,7 +495,7 @@ namespace NMEAViewer
                     {
                         double fPercentage = 100.0 * outputData.GetValue(DataTypes.BoatSpeed) / fPolarSpd;
 
-                        outputData.SetValue(DataTypes.PropPolarSpeed, Math.Min(100.0, fPercentage));
+                        outputData.SetValue(DataTypes.PropPolarSpeed, Math.Min(200.0, fPercentage));
                     }
                 }
             }
@@ -461,17 +517,22 @@ namespace NMEAViewer
             {
                 //For now just crunch all the data into it's processed form
                 while (data.ReadSection())
-                { 
-                    SOutputData newData = new SOutputData();
-                    m_CrunchedData.Add(newData);
-                    streamReader.ProcessData(data.GetData().ToCharArray(), data.m_fElapsedTime);
-                    streamReader.ProcessCurrentData(newData, m_BoatPolars, data.m_fElapsedTime);
-                }
-
-                if (m_CrunchedData.Count > 0)
                 {
-                    m_fTimeOfLastEntry = m_CrunchedData[m_CrunchedData.Count - 1].GetValue(0);
-                    m_fTimePerEntry = m_fTimeOfLastEntry / (double)m_CrunchedData.Count;
+                    streamReader.ProcessData(data.GetData().ToCharArray(), data.m_fElapsedTime);
+
+                    if ((m_fTimeOfLastEntry <= 0.0) || (data.m_fElapsedTime - m_fTimeOfLastEntry) >= m_fMinTimePerEntry)
+                    {
+                        SOutputData newData = new SOutputData();
+                        m_CrunchedData.Add(newData);
+
+                        streamReader.ProcessCurrentData(newData, m_BoatPolars, data.m_fElapsedTime);
+
+                        if (m_CrunchedData.Count > 0)
+                        {
+                            m_fTimeOfLastEntry = m_CrunchedData[m_CrunchedData.Count - 1].GetValue(0);
+                            m_fTimePerEntry = m_fTimeOfLastEntry / (double)m_CrunchedData.Count;
+                        }
+                    }
                 }
             }
 
