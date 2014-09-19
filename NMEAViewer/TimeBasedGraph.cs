@@ -662,7 +662,7 @@ namespace NMEAViewer
             int iMenuEntry = 0;
             List<double>[] fLastValue = new List<double>[iNumDataRanges];
             List<int> directionalDataTypes = new List<int>();
-            List<Pen> directionalDataTypePens = new List<Pen>();
+            List<Brush> directionalDataTypePens = new List<Brush>();
             for (int iType = 0; iType < iTypeCount; iType++)
             {
                 if (m_Data.HasDataForEntry(iType) && (NMEACruncher.GetDataRangeForType(iType) != NMEACruncher.DataRangeTypes.NoGraph))
@@ -683,9 +683,9 @@ namespace NMEAViewer
                         if (m_MetaData.m_GraphStyleInfo.m_DataStyleList[iType].m_AsDirection)
                         {
                             directionalDataTypes.Add(iType);
-                            Pen newPen = new Pen(new SolidBrush(GetColorForType(iType)));
-                            newPen.Width = GetWidthForType(iType);
-                            directionalDataTypePens.Add(newPen);
+                            Brush newBrush = new SolidBrush(GetColorForType(iType));
+                            //newPen.Width = GetWidthForType(iType);
+                            directionalDataTypePens.Add(newBrush);
                         }
                     }
                     iMenuEntry++;
@@ -728,7 +728,23 @@ namespace NMEAViewer
                 float fCount = Math.Max(1.0f, ((float)GraphSurface.ClientSize.Width) / fWidthPerDirection);
                 double fTimeToIncrementPerDirection = (m_fGraphEndTime - m_fGraphStartTime) / fCount;
                 fAvailableHeight -= (double)fHeightPerDirection * (double)directionalDataTypes.Count;
-                for(int i=0 ; i<directionalDataTypes.Count ; i++)
+                Point[] points = new Point[3];
+                Point[] pointsInv = new Point[3];
+                int iWidth = Math.Max(1, (int)(fWidthPerDirection * 0.2f));
+                int iArrowLength = (int)fWidthPerDirection;
+                pointsInv[0].X = 0;
+                pointsInv[0].Y = 0;
+                pointsInv[2].X = iWidth;
+                pointsInv[2].Y = iArrowLength;
+                pointsInv[1].X = -iWidth;
+                pointsInv[1].Y = -iArrowLength;
+                points[0].X = 0;
+                points[0].Y = -iArrowLength;
+                points[1].X = iWidth;
+                points[1].Y = 0;
+                points[2].X = -iWidth;
+                points[2].Y = 0;
+                for (int i = 0; i < directionalDataTypes.Count; i++)
                 {
                     float fCentreX = fHeightPerDirection * 0.5f;
                     double fTime = m_fGraphStartTime;
@@ -740,35 +756,22 @@ namespace NMEAViewer
                     while (fTime < m_fGraphEndTime)
                     {
                         int iEntry = m_Data.GetIndexForTime(fTime);
-                        if (iEntry >= 0)
+                        if (iLastEntry >= 0 && iLastEntry <= iEntry)
                         {
-                            double value;
-                            if (iLastEntry > 0 && iLastEntry < iEntry)
-                            {
-                                value = m_Data.GetDataAverageInclusive(iLastEntry, iEntry, iDataType);
-                            }
-                            else
-                            {
-                                value = m_Data.GetDataAtIndex(iEntry, iDataType);
-                            }
-                            //double dX = Math.Sin(value * DegToRad) * fWidthPerDirection;
-                            //double dY = -Math.Cos(value * DegToRad) * fWidthPerDirection;
+                            double value = m_Data.GetDataAverageInclusive(iLastEntry, iEntry, iDataType);
+
                             g.ResetTransform();
                             g.TranslateTransform(fCentreX, fCentreY);
                             g.RotateTransform((float)value);
 
-                            Pen pen = directionalDataTypePens[i];
+                            var pen = directionalDataTypePens[i];
                             if (bInverted)
                             {
-                                g.DrawLine(pen, 0.0f, 0.0f, 0.0f, -fWidthPerDirection);
-                                g.DrawLine(pen, 0.0f, 0.0f, pen.Width, -fWidthPerDirection);
-                                g.DrawLine(pen, 0.0f, 0.0f, -pen.Width, -fWidthPerDirection);
+                                g.FillPolygon(pen, pointsInv, System.Drawing.Drawing2D.FillMode.Alternate);
                             }
                             else
                             {
-                                g.DrawLine(pen, 0.0f, 0.0f, 0.0f, -fWidthPerDirection);
-                                g.DrawLine(pen, pen.Width, 0.0f, 0.0f, -fWidthPerDirection);
-                                g.DrawLine(pen, -pen.Width, 0.0f, 0.0f, -fWidthPerDirection);
+                                g.FillPolygon(pen, points, System.Drawing.Drawing2D.FillMode.Winding);
                             }
                         }
 
