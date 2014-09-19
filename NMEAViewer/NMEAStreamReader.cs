@@ -161,7 +161,7 @@ namespace NMEAViewer
                 if (fPolarSpd > 0.0)
                 {
                     double fPercentage = 100.0 * outputData.GetValue(NMEACruncher.DataTypes.BoatSpeed) / fPolarSpd;
-                    outputData.SetValue(NMEACruncher.DataTypes.PropPolarSpeed, Math.Min(100.0, fPercentage));
+                    outputData.SetValue(NMEACruncher.DataTypes.PropPolarSpeed, Math.Min(200.0, fPercentage));
                 }
             }
 
