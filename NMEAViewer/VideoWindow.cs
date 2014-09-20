@@ -152,6 +152,8 @@ namespace NMEAViewer
         protected override void OnTimeSelected(object sender, double fTime)
         {
             m_fCurrentSelectedTime = fTime;
+            if (WMPPlayer.currentMedia == null)
+                return;
 
             if (m_fSecondExternalSyncPoint > -1.0 && m_fFirstExternalSyncPoint > -1.0 && m_fSecondExternalSyncPoint > m_fFirstExternalSyncPoint)
             {
@@ -170,7 +172,7 @@ namespace NMEAViewer
 
                     //Push through to media player
                     WMPPlayer.Ctlcontrols.currentPosition = fMediaTime;
-                    if ((WMPPlayer.currentMedia != null) && (WMPPlayer.Ctlcontrols.currentPosition < WMPPlayer.currentMedia.duration))
+                    if (WMPPlayer.Ctlcontrols.currentPosition < WMPPlayer.currentMedia.duration)
                     {
                         if (WMPPlayer.playState != WMPLib.WMPPlayState.wmppsPlaying)
                         {
