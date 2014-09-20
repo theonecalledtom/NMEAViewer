@@ -20,6 +20,7 @@ namespace NMEAViewer
         List<int> m_SectionEnds;
         double m_fStartSelection = -1.0;
         double m_fEndSelection = -1.0;
+        bool m_bNeedsBuild;
 
         [JsonObject(MemberSerialization.OptOut)]
         private class SerializedData : DockableDrawable.SerializedDataBase
@@ -124,13 +125,11 @@ namespace NMEAViewer
             m_TackAnalysis.UseSOG = UseSOG.Checked;
             m_TackAnalysis.OnDataReplaced(newData);
             //m_TackAnalysis.AnalyseSection(0, newData.GetDataCount(), false);
-
-            VisibleColumns.ItemCheck += VisibleColumns_ItemCheck;
         }
 
         void VisibleColumns_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            BuildActiveColumnList();
+            m_bNeedsBuild = true;
         }
 
         void BuildActiveColumnList()
@@ -163,6 +162,9 @@ namespace NMEAViewer
                     DownwindDataGrid.Columns[i].Visible = m_ActiveDataColumns[i];
                 }
             }
+
+            UpwindDataGrid.Refresh();
+            DownwindDataGrid.Refresh();
         }
 
         public TackingWindow(NMEACruncher data)
@@ -175,10 +177,23 @@ namespace NMEAViewer
             UpwindDataGrid.CellMouseUp += UpwindDataGrid_CellClick;
             DownwindDataGrid.CellClick += DownwindDataGrid_CellClick;
 
+            VisibleColumns.ItemCheck += VisibleColumns_ItemCheck;
+            VisibleColumns.CheckOnClick = true;
+
+            DataSelectionTab.Leave += DataSelectionTab_Leave;
+
             for (int i = 0; i < TackAnalysisData.GetNumValues(); i++)
             {
                 VisibleColumns.Items.Add(TackAnalysisData.GetValueName(i));
-                //DataSelectionMenu.Items.Add();
+            }
+        }
+
+        void DataSelectionTab_Leave(object sender, EventArgs e)
+        {
+            if (m_bNeedsBuild)
+            {
+                BuildActiveColumnList();
+                m_bNeedsBuild = false;
             }
         }
 
