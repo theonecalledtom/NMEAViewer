@@ -586,15 +586,24 @@ namespace NMEAViewer
                 Console.WriteLine("Found {0:D} tack points", tackPoints.Count);
                 foreach (int iTackPoint in tackPoints)
                 {
-                    TackAnalysisData newData = RunTackAnalysis(Math.Max(0, iTackPoint - 60), Math.Min(m_Data.GetDataCount(), iTackPoint + 60), bUseAWARange, fMaxAWAForTack, fMinAWAForGybe);
-                    if (newData != null)
+                    double fTackTime = m_Data.GetDataAtIndex(iTackPoint, NMEACruncher.DataTypes.Time);
+                    int iStartIndex = m_Data.GetIndexForTime(fTackTime - 60.0);
+                    if (iStartIndex >= 0)
                     {
-                        Console.WriteLine("--- Accepted {0:D}", iTackPoint);
-                        m_TackData.Add(newData);
-                    }
-                    else
-                    {
-                        Console.WriteLine("--- Rejected {0:D}", iTackPoint);
+                        int iEndIndex = m_Data.GetIndexForTime(fTackTime + 60.0);
+                        if (iEndIndex >= iStartIndex)
+                        {
+                            TackAnalysisData newData = RunTackAnalysis(iStartIndex, iEndIndex, bUseAWARange, fMaxAWAForTack, fMinAWAForGybe);
+                            if (newData != null)
+                            {
+                                Console.WriteLine("--- Accepted {0:D}", iTackPoint);
+                                m_TackData.Add(newData);
+                            }
+                            else
+                            {
+                                Console.WriteLine("--- Rejected {0:D}", iTackPoint);
+                            }
+                        }
                     }
                 }
                 Console.WriteLine("--------------------------------");
