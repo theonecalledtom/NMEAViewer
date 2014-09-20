@@ -275,9 +275,14 @@ namespace NMEAViewer
 
         public int GetIndexForTime(double fTime)
         {
-            if (m_CrunchedData == null)
+            if (m_CrunchedData == null || m_CrunchedData.Count == 0)
             {
                 return -1;
+            }
+
+            if (fTime <= m_CrunchedData[0].GetValue(DataTypes.Time))
+            {
+                return 0;
             }
 
             if (fTime >= m_fTimeOfLastEntry)
@@ -511,6 +516,7 @@ namespace NMEAViewer
             }
 
             m_CrunchedData = new List<SOutputData>();
+            m_fTimeOfLastEntry = 0.0;
 
             DataReader data = new DataReader();
             if (data.StartRead(s.BaseStream))
