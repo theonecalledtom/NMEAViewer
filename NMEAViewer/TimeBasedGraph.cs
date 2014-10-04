@@ -634,7 +634,7 @@ namespace NMEAViewer
             Graphics g = Graphics.FromImage(m_SurfaceForLines);
             // get a Graphics object via which we will draw to the image
             //var g = Graphics.FromImage(m_SurfaceForLines);
-            if (m_Data.GetEndTime() <= 0.0)
+            if ((m_Data.GetEndTime() <= 0.0) || (m_Data.GetDataCount() <= 0))
             {
                 g.Clear(Color.LightGray);
                 //g.DrawString("No Data", )
@@ -854,49 +854,117 @@ namespace NMEAViewer
                 }
             }
 
-            //Now draw lines for the graph
-            float fX = fHorzPerEntry;
-            for (int iEntry = iStartIndex + 1; iEntry < iEndIndex; iEntry++)
+            const int nPixelsPerLine = 4;
+            int nItems = Math.Max(GraphSurface.Width, 2) / nPixelsPerLine;
+            double fDTime = (m_fGraphEndTime - m_fGraphStartTime) / (double)nItems;
+            float fLastX = 0.0f;
+            float fCurrentX = fLastX + (float)nPixelsPerLine;
+            int iLastDataIndex = Math.Max(0,m_Data.GetIndexForTime(m_fGraphStartTime));
+            double fLineTime = m_fGraphStartTime + fDTime;
+            bool bHasPreceeding = false;
+            while (fLineTime < m_fGraphEndTime)
             {
-                for (int iRangeType = 1; iRangeType < iNumDataRanges; iRangeType++)
+                int iDataIndexEnd = m_Data.GetIndexForTime(fLineTime);
+                if (iDataIndexEnd > iLastDataIndex)
                 {
-                    if ((typesByRange[iRangeType] != null))// && (iRangeType != (int)NMEACruncher.DataRangeTypes.Direction))
+                    //We have values to average, 
+                    for (int iDataIndex = iLastDataIndex; iDataIndex < iDataIndexEnd; iDataIndex++)
                     {
-                        for (int iDataTypeIndex = 0; iDataTypeIndex < typesByRange[iRangeType].Count; iDataTypeIndex++)
+                        for (int iRangeType = 1; iRangeType < iNumDataRanges; iRangeType++)
                         {
-                            int iDataType = typesByRange[iRangeType][iDataTypeIndex];
-                            double fPinValue = fLastValue[iRangeType][iDataTypeIndex];
-                            double fValue = FixValueForGraph(m_Data.GetDataAtIndex(iEntry, iDataType), fPinValue, iDataType);
-                            fLastValue[iRangeType][iDataTypeIndex] = fValue;
-
-                            fValue = fAvailableHeight * (1.0 - (fValue - fMins[iRangeType]) / (fMaxs[iRangeType] - fMins[iRangeType]));
-
-                            fSummedY[iRangeType][iDataTypeIndex] = System.Math.Max(fSummedY[iRangeType][iDataTypeIndex], fValue);
-                            //fSummedY[iRangeType][iDataTypeIndex] += fValue;
-                            fCountY[iRangeType][iDataTypeIndex] += 1.0;
-
-                            const double kPixelsPadding = 1.0;
-                            if (System.Math.Floor(fX) > System.Math.Floor(fLastDrawnX[iRangeType][iDataTypeIndex] + kPixelsPadding))
+                            if ((typesByRange[iRangeType] != null))
                             {
-                                double fDrawnValue = fSummedY[iRangeType][iDataTypeIndex];
-                                g.DrawLine(
-                                        pens[iRangeType][iDataTypeIndex],
-                                        (float)fLastDrawnX[iRangeType][iDataTypeIndex], (float)fLastY[iRangeType][iDataTypeIndex],
-                                        (float)fX, (float)fDrawnValue
-                                    );
+                                for (int iDataTypeIndex = 0; iDataTypeIndex < typesByRange[iRangeType].Count; iDataTypeIndex++)
+                                {
+                                    int iDataType = typesByRange[iRangeType][iDataTypeIndex];
+                                    double fPinValue = fLastValue[iRangeType][iDataTypeIndex];
+                                    double fNewValue = m_Data.GetDataAtIndex(iDataIndex, iDataType);
+                                    fSummedY[iRangeType][iDataTypeIndex] += FixValueForGraph(fNewValue, fPinValue, iDataType);
+                                }
+                            }
+                        }
+                    }
 
-                                fLastDrawnX[iRangeType][iDataTypeIndex] = fX;
+                    //Now draw the lines we have and update fLastValue
+                    double fInvForAverage = 1.0 / (double)(iDataIndexEnd - iLastDataIndex); //May want too max / min, draw polygons or something
+                    for (int iRangeType = 1; iRangeType < iNumDataRanges; iRangeType++)
+                    {
+                        if ((typesByRange[iRangeType] != null))
+                        {
+                            for (int iDataTypeIndex = 0; iDataTypeIndex < typesByRange[iRangeType].Count; iDataTypeIndex++)
+                            {
+                                double fNewValue = fSummedY[iRangeType][iDataTypeIndex] * fInvForAverage;
+                                double fYValue = fAvailableHeight * (1.0 - (fNewValue - fMins[iRangeType]) / (fMaxs[iRangeType] - fMins[iRangeType]));
 
-                                //Store for next time
-                                fLastY[iRangeType][iDataTypeIndex] = fDrawnValue;
-                                fCountY[iRangeType][iDataTypeIndex] = 0.0;
+                                if (bHasPreceeding)
+                                {
+                                    g.DrawLine(
+                                            pens[iRangeType][iDataTypeIndex],
+                                            fLastX, (float)fLastY[iRangeType][iDataTypeIndex],
+                                            fCurrentX, (float)fYValue
+                                        );
+                                }
+
+                                fLastY[iRangeType][iDataTypeIndex] = fYValue;
+                                fLastValue[iRangeType][iDataTypeIndex] = fNewValue;
                                 fSummedY[iRangeType][iDataTypeIndex] = 0.0;
                             }
                         }
                     }
+
+                    bHasPreceeding = true;
+                    iLastDataIndex = iDataIndexEnd;
+                    fLastX = fCurrentX;
                 }
-                fX += fHorzPerEntry;
+                fCurrentX += nPixelsPerLine;
+                fLineTime += fDTime;
             }
+
+            //Now draw lines for the graph
+            //float fX = fHorzPerEntry;
+            //for (int iEntry = iStartIndex + 1; iEntry < iEndIndex; iEntry++)
+            //{
+            //    for (int iRangeType = 1; iRangeType < iNumDataRanges; iRangeType++)
+            //    {
+            //        if ((typesByRange[iRangeType] != null))// && (iRangeType != (int)NMEACruncher.DataRangeTypes.Direction))
+            //        {
+            //            for (int iDataTypeIndex = 0; iDataTypeIndex < typesByRange[iRangeType].Count; iDataTypeIndex++)
+            //            {   //fix this so that we account for uneven time steps, full width on bc_2 data and you can see the 
+            //                //hovered values do not agree with the graph lines
+                            
+            //                int iDataType = typesByRange[iRangeType][iDataTypeIndex];
+            //                double fPinValue = fLastValue[iRangeType][iDataTypeIndex];
+            //                double fValue = FixValueForGraph(m_Data.GetDataAtIndex(iEntry, iDataType), fPinValue, iDataType);
+            //                fLastValue[iRangeType][iDataTypeIndex] = fValue;
+
+            //                fValue = fAvailableHeight * (1.0 - (fValue - fMins[iRangeType]) / (fMaxs[iRangeType] - fMins[iRangeType]));
+
+            //                fSummedY[iRangeType][iDataTypeIndex] = System.Math.Max(fSummedY[iRangeType][iDataTypeIndex], fValue);
+            //                //fSummedY[iRangeType][iDataTypeIndex] += fValue;
+            //                fCountY[iRangeType][iDataTypeIndex] += 1.0;
+
+            //                const double kPixelsPadding = 1.0;
+            //                if (System.Math.Floor(fX) > System.Math.Floor(fLastDrawnX[iRangeType][iDataTypeIndex] + kPixelsPadding))
+            //                {
+            //                    double fDrawnValue = fSummedY[iRangeType][iDataTypeIndex];
+            //                    g.DrawLine(
+            //                            pens[iRangeType][iDataTypeIndex],
+            //                            (float)fLastDrawnX[iRangeType][iDataTypeIndex], (float)fLastY[iRangeType][iDataTypeIndex],
+            //                            (float)fX, (float)fDrawnValue
+            //                        );
+
+            //                    fLastDrawnX[iRangeType][iDataTypeIndex] = fX;
+
+            //                    //Store for next time
+            //                    fLastY[iRangeType][iDataTypeIndex] = fDrawnValue;
+            //                    fCountY[iRangeType][iDataTypeIndex] = 0.0;
+            //                    fSummedY[iRangeType][iDataTypeIndex] = 0.0;
+            //                }
+            //            }
+            //        }
+            //    }
+            //    fX += fHorzPerEntry;
+            //}
         }
 
         private void GraphSurfacePaint(object sender, PaintEventArgs e)
