@@ -30,6 +30,12 @@ namespace NMEAViewer
         string m_CurrentSelectedType;
         static string m_LastSelectedType = "BoatSpeed";
 
+        //To map the old values in behind new values
+        System.Drawing.Rectangle m_OldPortRect;
+        System.Drawing.Rectangle m_OldStbdRect;
+        double m_fOldMinValue;
+        double m_fOldMaxValue;
+
         [JsonObject(MemberSerialization.OptOut)]
         private class SerializedData : DockableDrawable.SerializedDataBase
         {
@@ -41,6 +47,7 @@ namespace NMEAViewer
             public int m_iCount = 15;
             public bool m_bFollowSelection;
             public bool m_bFollowCurrent;
+            public bool m_bShowHistory;
         };
 
         public override DockableDrawable.SerializedDataBase CreateSerializedData()
@@ -52,6 +59,7 @@ namespace NMEAViewer
             data.m_iCount = m_iCount;
             data.m_bFollowSelection = followSelectionToolStripMenuItem.Checked;
             data.m_bFollowCurrent = followCurrentToolStripMenuItem.Checked;
+            data.m_bShowHistory = historyToolStripMenuItem.Checked;
             return data;
         }
 
@@ -68,6 +76,7 @@ namespace NMEAViewer
             m_bHasHoveredValue = false;
             followCurrentToolStripMenuItem.Checked = data.m_bFollowCurrent;
             followSelectionToolStripMenuItem.Checked = data.m_bFollowSelection;
+            historyToolStripMenuItem.Checked = data.m_bShowHistory;
 
             if (ContextMenu != null)
             {
@@ -210,9 +219,6 @@ namespace NMEAViewer
             {
                 //Cache off old surface...? 
                 lastSurface = new Bitmap(m_SurfaceForLines);
-
-                //Fade out lastSurface - tend to clearColor
-
             }
 
             ValidateGraphSurface();
@@ -227,7 +233,6 @@ namespace NMEAViewer
 
             g.Clear(clearColor);
             
-
             int iMaxHorz = 0;
             int iMaxPort = 0;
             int iMaxStbd = 0;
@@ -270,6 +275,46 @@ namespace NMEAViewer
             m_fTopOfBuckets = fTopOfBuckets;
             m_fBottomOfBuckets = fBottomOfBuckets;
 
+            if (lastSurface != null)
+            {
+                // Create a new color matrix and set the alpha value to 0.5
+                System.Drawing.Imaging.ColorMatrix cm = new System.Drawing.Imaging.ColorMatrix();
+                cm.Matrix00 = cm.Matrix11 = cm.Matrix22 = cm.Matrix44 = 1.0f;
+                cm.Matrix33 = 0.25f;
+
+                // Create a new image attribute object and set the color matrix to
+                // the one just created
+                System.Drawing.Imaging.ImageAttributes ia = new System.Drawing.Imaging.ImageAttributes();
+                ia.SetColorMatrix(cm);
+
+                // Draw the original image with the image attributes specified, remap the coordinates to match current port / starboard and value range
+                double fOldMinProp = (m_fOldMinValue - m_fMinValue) / (m_fMaxValue - m_fMinValue);
+                double fRemappedBottom = m_fBottomOfBuckets + fOldMinProp * (m_fTopOfBuckets - m_fBottomOfBuckets);
+
+                double fOldMaxProp = (m_fOldMaxValue - m_fMinValue) / (m_fMaxValue - m_fMinValue);
+                double fRemappedTop = m_fBottomOfBuckets + fOldMaxProp * (m_fTopOfBuckets - m_fBottomOfBuckets);
+
+                // First the port side
+                g.DrawImage(lastSurface,
+                    new Rectangle(0, (int)fRemappedTop, (int)m_fCentreOffset, (int)fRemappedBottom),
+                    m_OldPortRect.Left, m_OldPortRect.Top, m_OldPortRect.Width, m_OldPortRect.Height, GraphicsUnit.Pixel,
+                    ia);
+
+                // Then the starboard
+                g.DrawImage(lastSurface,
+                    new Rectangle((int)m_fCentreOffset, (int)fRemappedTop, HistogramSurface.Width, (int)fRemappedBottom),
+                    m_OldStbdRect.Left, m_OldStbdRect.Top, m_OldStbdRect.Width, m_OldStbdRect.Height, GraphicsUnit.Pixel,
+                    ia);
+
+                //m_OldPortRect.Location = new System.Drawing.Point((int)(m_fCentreOffset - fPortSize), (int)m_fTopOfBuckets);
+                //m_OldPortRect.Size = new System.Drawing.Size((int)fPortSize, (int)(m_fBottomOfBuckets - m_fTopOfBuckets));
+                //m_OldStbdRect.Location = new System.Drawing.Point((int)(m_fCentreOffset), (int)m_fTopOfBuckets);
+                //m_OldStbdRect.Size = new System.Drawing.Size((int)fStbdSize, (int)(m_fBottomOfBuckets - m_fTopOfBuckets));
+                //m_fOldMinValue = m_fMinValue;
+                //m_fOldMaxValue = m_fMaxValue;
+
+            }
+
             //Create brushes
             System.Drawing.SolidBrush myBrush0 = new System.Drawing.SolidBrush(System.Drawing.Color.Red);
             System.Drawing.SolidBrush myBrush1 = new System.Drawing.SolidBrush(System.Drawing.Color.DarkRed);
@@ -285,6 +330,19 @@ namespace NMEAViewer
 
                 fBucketBottom -= fBucketHeight;
             }
+
+            //Store values for mapping the history image next time around
+            //m_OldPortRect.Location = new System.Drawing.Point((int)(m_fCentreOffset - fPortSize), (int)m_fTopOfBuckets);
+            //m_OldPortRect.Size = new System.Drawing.Size((int)fPortSize, (int)(m_fBottomOfBuckets - m_fTopOfBuckets));
+            //m_OldStbdRect.Location = new System.Drawing.Point((int)(m_fCentreOffset), (int)m_fTopOfBuckets);
+            //m_OldStbdRect.Size = new System.Drawing.Size((int)fStbdSize, (int)(m_fBottomOfBuckets - m_fTopOfBuckets));
+            m_OldPortRect.Location = new System.Drawing.Point(0, (int)m_fTopOfBuckets);
+            m_OldPortRect.Size = new System.Drawing.Size((int)m_fCentreOffset, (int)(m_fBottomOfBuckets - m_fTopOfBuckets));
+            m_OldStbdRect.Location = new System.Drawing.Point((int)(m_fCentreOffset), (int)m_fTopOfBuckets);
+            m_OldStbdRect.Size = new System.Drawing.Size(HistogramSurface.Width - (int)m_fCentreOffset, (int)(m_fBottomOfBuckets - m_fTopOfBuckets));
+            m_fOldMinValue = m_fMinValue;
+            m_fOldMaxValue = m_fMaxValue;
+
 
             //Print the min
             float fLeftMin = m_fCentreOffset - sizeOnScreenMin.Width * 0.5f;
@@ -586,6 +644,7 @@ namespace NMEAViewer
         private void historyToolStripMenuItem_Click(object sender, EventArgs e)
         {
             historyToolStripMenuItem.Checked = !historyToolStripMenuItem.Checked;
+            RebuildHistogram(m_fStartTime, m_fEndTime);
         }
 
         private void toSelectionToolStripMenuItem_Click(object sender, EventArgs e)
