@@ -132,11 +132,29 @@ namespace NMEAViewer
             SetTimerFrequency(0.5);
 
             gMapControl1.MouseDown += MapMouseDown;
+            gMapControl1.DoubleClick += gMapControl1_DoubleClick;
             gMapControl1.MouseMove += MapMouseMove;
             gMapControl1.MouseUp += MapMouseUp;
             gMapControl1.MouseLeave += MapMouseLeave;
 
             BringPathUpToDate();
+        }
+
+        void gMapControl1_DoubleClick(object sender, EventArgs e)
+        {
+            if (m_fMarkedTime >= 0.0)
+            {
+                BroadcastOnTimeSelected(this, m_fMarkedTime);
+            }
+            //GMap.NET.PointLatLng worldpnt = gMapControl1.FromLocalToLatLng(e.X, e.Y);
+
+            //int iNearDataIndex = m_Data.FindDataNearLatAndLong(worldpnt.Lat, worldpnt.Lng, 100.0);
+            //if (iNearDataIndex >= 0)
+            //{
+            //    double fTime = m_Data.GetDataAtIndex(iNearDataIndex, NMEACruncher.DataTypes.Time);
+            //    BroadcastOnTimeSelected(this, fTime);
+            //    SelectTime(fTime);
+            //}
         }
 
 
@@ -158,7 +176,7 @@ namespace NMEAViewer
                 if (iNearDataIndex >= 0)
                 {
                     double fTime = m_Data.GetDataAtIndex(iNearDataIndex, NMEACruncher.DataTypes.Time);
-                    BroadcastOnTimeSelected(this, fTime);
+                    //BroadcastOnTimeSelected(this, fTime);
                     SelectTime(fTime);
                 }
             }
