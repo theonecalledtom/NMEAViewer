@@ -212,7 +212,7 @@
             // OpenRecording
             // 
             this.OpenRecording.FileName = "MyRecording.dat";
-            this.OpenRecording.Filter = "dat files (*.dat)|*.dat";
+            this.OpenRecording.Filter = "input files (*.dat, *.prc)|*.dat;*.prc";
             this.OpenRecording.ReadOnlyChecked = true;
             // 
             // OpenProjectFile

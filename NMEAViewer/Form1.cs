@@ -350,10 +350,10 @@ namespace NMEAViewer
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            HookupPanel(new DockableDrawable());
+            HookupUserAddedPanel(new DockableDrawable());
         }
 
-        private void HookupPanel(DockableDrawable newPanel)
+        private void HookupUserAddedPanel(DockableDrawable newPanel)
         {
             if (MainDockPanel.DocumentStyle == DocumentStyle.SystemMdi)
             {
@@ -385,14 +385,14 @@ namespace NMEAViewer
                     OpenVideoFile.InitialDirectory = System.IO.Path.GetDirectoryName(OpenVideoFile.FileName);
                     m_MetaData.VideoFilePath = System.IO.Path.GetDirectoryName(OpenVideoFile.FileName);
                     //HookupPanel(new VideoWindow(OpenVideoFile.SafeFileName, OpenVideoFile.FileName));
-                    HookupPanel(new VideoWindow(OpenVideoFile.SafeFileName, OpenVideoFile.FileName));
+                    HookupUserAddedPanel(new VideoWindow(OpenVideoFile.SafeFileName, OpenVideoFile.FileName));
                 }
             }
         }
 
         private void newGraphToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            HookupPanel(new TimeBasedGraph(m_Data, m_MetaData));
+            HookupUserAddedPanel(new TimeBasedGraph(m_Data, m_MetaData));
         }
 
         private void ReadInputData(bool bForceReprocessing)
@@ -432,7 +432,20 @@ namespace NMEAViewer
             {
                 m_MetaData.InputDataFileName = OpenRecording.FileName;
 
-                ReadInputData(false);
+                if (System.IO.Path.GetExtension(m_MetaData.InputDataFileName) == "prc")
+                {
+                    m_Data.ReadProcessedData(m_MetaData.InputDataFileName + ".prc");
+
+                    //Get windows to refresh their data
+                    DockableDrawable.BroadcastDataReplaced(m_Data);
+
+                    //Trigger save
+                    m_MetaData.MarkForAutoSave();
+                }
+                else
+                {
+                    ReadInputData(false);
+                }
             }
         }
 
@@ -450,7 +463,7 @@ namespace NMEAViewer
 
         private void newMapToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            HookupPanel(new MapWindow(m_Data));
+            HookupUserAddedPanel(new MapWindow(m_Data));
         }
 
         private void saveProjectToolStripMenuItem_Click(object sender, EventArgs e)
@@ -506,7 +519,7 @@ namespace NMEAViewer
 
         private void newHistogramToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            HookupPanel(new Histogram(m_Data));
+            HookupUserAddedPanel(new Histogram(m_Data));
         }
 
         private void newProjectToolStripMenuItem_Click(object sender, EventArgs e)
@@ -544,12 +557,12 @@ namespace NMEAViewer
 
         private void newTackingWindowToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            HookupPanel( new TackingWindow(m_Data) );
+            HookupUserAddedPanel( new TackingWindow(m_Data) );
         }
 
         private void newMetaDataToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            HookupPanel(new MetaDataWindow());
+            HookupUserAddedPanel(new MetaDataWindow());
         }
 
         private void loadPolarDataToolStripMenuItem_Click(object sender, EventArgs e)
