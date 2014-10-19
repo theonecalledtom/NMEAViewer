@@ -154,6 +154,9 @@ namespace NMEAViewer
                        {
                            if (!m_ActiveOverlays.Contains(go))
                            {
+                               go.OnRemoved += overlayCLicked_OverlayChanged;
+                               go.OnDataChanged += overlayCLicked_OverlayChanged;
+
                                m_ActiveOverlays.Add(go);
                            }
                        }
@@ -191,6 +194,7 @@ namespace NMEAViewer
             GraphSurface.MouseUp += GraphMouseUp;
             GraphSurface.MouseWheel += GraphSurface_MouseWheel;
             GraphSurface.MouseMove += GraphSurface_MouseMove;
+            GraphSurface.DoubleClick += GraphSurface_DoubleClick;
             MouseWheel += GraphSurface_MouseWheel;
             //GraphSurface.KeyPress += KeyPressHandler;
             KeyDown += KeyDownHandler;
@@ -214,6 +218,13 @@ namespace NMEAViewer
             ValidateGraphLineSurface();
 
             RefreshGraph();
+        }
+
+        void GraphSurface_DoubleClick(object sender, EventArgs e)
+        {
+            //Send the time over as a sync point for all instruments
+            m_fSelectedTime = m_fMouseHoveredTime;
+            BroadcastOnTimeSelected(this, m_fMouseHoveredTime);
         }
 
         void overlayListToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
@@ -470,10 +481,6 @@ namespace NMEAViewer
                 m_fSelectionStartTime = m_fMouseHoveredTime;
                 m_fSelectionEndTime = m_fMouseHoveredTime;
                 m_bSelecting = true;
-
-                //Send the time over as a sync point for all instruments
-                m_fSelectedTime = m_fMouseHoveredTime;
-                BroadcastOnTimeSelected(this, m_fMouseHoveredTime);
             }
 
             if ((e.Button & System.Windows.Forms.MouseButtons.Right) != 0)
@@ -729,15 +736,8 @@ namespace NMEAViewer
                 double fTimeToIncrementPerDirection = (m_fGraphEndTime - m_fGraphStartTime) / fCount;
                 fAvailableHeight -= (double)fHeightPerDirection * (double)directionalDataTypes.Count;
                 Point[] points = new Point[3];
-                Point[] pointsInv = new Point[3];
                 int iWidth = Math.Max(1, (int)(fWidthPerDirection * 0.2f));
                 int iArrowLength = (int)fWidthPerDirection;
-                pointsInv[0].X = 0;
-                pointsInv[0].Y = 0;
-                pointsInv[2].X = iWidth;
-                pointsInv[2].Y = iArrowLength;
-                pointsInv[1].X = -iWidth;
-                pointsInv[1].Y = -iArrowLength;
                 points[0].X = 0;
                 points[0].Y = -iArrowLength;
                 points[1].X = iWidth;
@@ -762,17 +762,9 @@ namespace NMEAViewer
 
                             g.ResetTransform();
                             g.TranslateTransform(fCentreX, fCentreY);
-                            g.RotateTransform((float)value);
+                            g.RotateTransform((float)(bInverted ? value + 180.0 : value));
 
-                            var pen = directionalDataTypePens[i];
-                            if (bInverted)
-                            {
-                                g.FillPolygon(pen, pointsInv, System.Drawing.Drawing2D.FillMode.Alternate);
-                            }
-                            else
-                            {
-                                g.FillPolygon(pen, points, System.Drawing.Drawing2D.FillMode.Winding);
-                            }
+                            g.FillPolygon(directionalDataTypePens[i], points, System.Drawing.Drawing2D.FillMode.Winding);
                         }
 
                         iLastEntry = iEntry;

@@ -93,12 +93,14 @@
             this.moveToLatestToolStripMenuItem.Name = "moveToLatestToolStripMenuItem";
             this.moveToLatestToolStripMenuItem.Size = new System.Drawing.Size(185, 24);
             this.moveToLatestToolStripMenuItem.Text = "Move to latest";
+            this.moveToLatestToolStripMenuItem.Click += new System.EventHandler(this.moveToLatestToolStripMenuItem_Click);
             // 
             // expandToLatestToolStripMenuItem
             // 
             this.expandToLatestToolStripMenuItem.Name = "expandToLatestToolStripMenuItem";
             this.expandToLatestToolStripMenuItem.Size = new System.Drawing.Size(185, 24);
             this.expandToLatestToolStripMenuItem.Text = "Expand to latest";
+            this.expandToLatestToolStripMenuItem.Click += new System.EventHandler(this.expandToLatestToolStripMenuItem_Click);
             // 
             // optionsToolStripMenuItem
             // 
