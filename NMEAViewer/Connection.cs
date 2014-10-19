@@ -34,13 +34,12 @@ namespace NMEAViewer
         {
             InitializeComponent();
 
+            m_MetaData = metaData;
+
             SearchForPorts();
 
             serialPort1.DataReceived += SerialPort_DataReceived;
             serialPort1.ErrorReceived += SerialPort_ErrorReceived;
-
-            //m_Reader = reader;
-            m_MetaData = metaData;
 
             OutputFileName.Text = metaData.OutputDataFileName;
             SimulationFileName.Text = metaData.SimDataFileName;
@@ -82,12 +81,24 @@ namespace NMEAViewer
         {
             //show list of valid com ports
             OpenPortComboList.Items.Clear();
-            foreach (string s in System.IO.Ports.SerialPort.GetPortNames())
-            {
-                OpenPortComboList.Items.Add(s);
-            }
 
-            if (OpenPortComboList.Items.Count > 0)
+            bool bHasSelected = false;
+            for (int i = 0; i < System.IO.Ports.SerialPort.GetPortNames().Count(); i++ )
+            {
+                OpenPortComboList.Items.Add(System.IO.Ports.SerialPort.GetPortNames()[i]);
+
+                if ((m_MetaData!=null) && (m_MetaData.LastPortConnected != null) && (System.IO.Ports.SerialPort.GetPortNames()[i] == m_MetaData.LastPortConnected))
+                {
+                    bHasSelected = true;
+                    OpenPortComboList.SelectedItem = OpenPortComboList.Items[i];
+                }
+            }
+            //foreach (string s in System.IO.Ports.SerialPort.GetPortNames())
+            //    {
+            //        OpenPortComboList.Items.Add(s);
+            //    }
+
+            if (!bHasSelected && (OpenPortComboList.Items.Count > 0))
             {
                 OpenPortComboList.SelectedItem = OpenPortComboList.Items[0];
             }
@@ -120,6 +131,10 @@ namespace NMEAViewer
                 }
 
                 serialPort1.PortName = OpenPortComboList.SelectedItem.ToString();
+                
+                m_MetaData.LastPortConnected = serialPort1.PortName;
+                m_MetaData.MarkForAutoSave();
+
                 serialPort1.Open();
                 m_iBytesRead = 0;
                 m_StartTime = DateTime.UtcNow;
@@ -216,6 +231,9 @@ namespace NMEAViewer
             {
                 OutputFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(OutputFileName.Text);
                 OutputFileDialog.FileName = OutputFileName.Text;
+
+                //Default simulation name to this output file
+                SimulationFileName = OutputFileName;
             }
 
             System.IO.Stream s = OutputFileDialog.OpenFile();
@@ -254,7 +272,6 @@ namespace NMEAViewer
                 OpenRecordingDialog.Title = "Open simulation file";
                 if (SimulationFileName.Text.Length > 0)
                 {
-
                     OpenRecordingDialog.InitialDirectory = System.IO.Path.GetDirectoryName(SimulationFileName.Text);
                     OpenRecordingDialog.FileName = System.IO.Path.GetFileName(SimulationFileName.Text);
                 }
