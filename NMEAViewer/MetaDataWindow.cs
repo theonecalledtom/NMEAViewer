@@ -228,9 +228,34 @@ namespace NMEAViewer
 
             LegsDataGrid.CellEndEdit += OnCellEndEdit;
             EventsDataGrid.CellEndEdit += OnCellEndEdit;
+            EventsDataGrid.DoubleClick += EventsDataGrid_DoubleClick;
+            LegsDataGrid.DoubleClick += LegsDataGrid_DoubleClick;
 
             InitFromStaticSerializedData();
         }
+
+        void EventsDataGrid_DoubleClick(object sender, EventArgs e)
+        {
+            if (EventsDataGrid.CurrentRow != null)
+            {
+                double fTimeSelected = Convert.ToDouble(EventsDataGrid.CurrentRow.Cells[TimeOfEvent.Index].Value);
+                BroadcastOnTimeSelected(this, fTimeSelected);
+            }
+        }
+
+        void LegsDataGrid_DoubleClick(object sender, EventArgs e)
+        {
+            if (LegsDataGrid.CurrentRow != null)
+            {
+                double fStartTime = Convert.ToDouble(LegsDataGrid.CurrentRow.Cells[StartTime.Index].Value);
+                double fEndTime = Convert.ToDouble(LegsDataGrid.CurrentRow.Cells[EndTime.Index].Value);
+                if (fStartTime >= 0.0 && fEndTime > fStartTime)
+                {
+                    BroadcastOnTimeRangeSelected(fStartTime, fEndTime);
+                }
+            }
+        }
+
 
         void OnCellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
@@ -264,6 +289,9 @@ namespace NMEAViewer
                 {
                     LegsDataGrid.Rows[LegsDataGrid.SelectedCells[i].RowIndex].Cells[StartTime.Index].Value = m_fSelectedTime;
                 }
+
+                CreateStaticSerializedData();
+                sm_LegsGraphOverlay.NotifyDataChanged();
             }
         }
 
@@ -279,6 +307,9 @@ namespace NMEAViewer
                 {
                     LegsDataGrid.Rows[LegsDataGrid.SelectedCells[i].RowIndex].Cells[EndTime.Index].Value = m_fSelectedTime;
                 }
+
+                CreateStaticSerializedData();
+                sm_LegsGraphOverlay.NotifyDataChanged();
             }
         }
 
@@ -296,12 +327,15 @@ namespace NMEAViewer
                     LegsDataGrid.Rows[LegsDataGrid.SelectedCells[i].RowIndex].Cells[StartTime.Index].Value = m_fSelectionStartTime;
                     LegsDataGrid.Rows[LegsDataGrid.SelectedCells[i].RowIndex].Cells[EndTime.Index].Value = m_fSelectionEndTime;
                 }
+
+                CreateStaticSerializedData();
+                sm_LegsGraphOverlay.NotifyDataChanged();
             }
         }
 
         private void toCurrentTimeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (m_fSelectionEndTime >= 0.0)
+            if (m_fSelectedTime >= 0.0)
             {
                 for (int i = 0; i < EventsDataGrid.SelectedRows.Count; i++)
                 {
@@ -311,6 +345,9 @@ namespace NMEAViewer
                 {
                     EventsDataGrid.Rows[EventsDataGrid.SelectedCells[i].RowIndex].Cells[TimeOfEvent.Index].Value = m_fSelectedTime;
                 }
+
+                CreateStaticSerializedData();
+                sm_EventsGraphOverlay.NotifyDataChanged();
             }
         }
 
