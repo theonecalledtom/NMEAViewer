@@ -15,6 +15,7 @@ namespace NMEAViewer
         public TimeBasedGraphDataTypes.GraphStyleInfo m_GraphStyleInfo;
         public string InputDataFileName;
         public string OutputDataFileName;
+        public string LastPortConnected;
         public string SimDataFileName;
         public string VideoFilePath;
 
