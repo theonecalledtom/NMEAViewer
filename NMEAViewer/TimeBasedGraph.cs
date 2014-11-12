@@ -984,7 +984,7 @@ namespace NMEAViewer
                     );
             }
 
-            if (m_fMouseHoveredTime >= 0.0f)
+            if (m_fMouseHoveredTime >= 0.0f && (m_fGraphEndTime > m_fGraphStartTime))
             {
                 float fMousePoint = (float)((m_fMouseHoveredTime - m_fGraphStartTime) * GraphSurface.ClientSize.Width / (m_fGraphEndTime - m_fGraphStartTime));
                 Pen overlayPen = new Pen(new SolidBrush(Color.DarkOliveGreen));

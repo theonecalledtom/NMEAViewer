@@ -15,6 +15,7 @@ namespace NMEAViewer
         public System.Drawing.Size MainWindowSize;
         public System.Drawing.Point MainWindowLocation;
         public string MainWindowState;
+        public string LastPortConnected;
         const string AppSettingsLocation = "c:/users/tom/nmeaviewerappsettings.json";
         public static ApplicationSettings Load()
         {

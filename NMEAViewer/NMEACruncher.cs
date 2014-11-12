@@ -15,6 +15,11 @@ namespace NMEAViewer
         //10    == record data at given rate, not just the rate it arrives
         int iProcessedVersion = 10;
         List<SOutputData> m_CrunchedData;
+
+        //Generated to match m_CrunchedData
+        //int[] m_SmoothedDataMap;
+        //double[][] m_SmoothedData;
+
         double m_fTimePerEntry = 0.0;
         double m_fMinTimePerEntry = 1.0;
         public double m_fTimeOfLastEntry = 0.0;
@@ -569,6 +574,63 @@ namespace NMEAViewer
             bwriter.Close();
         }
 
+        int GetAverageType(int iDataType)
+        {
+            switch((NMEACruncher.DataTypes)iDataType)
+            {
+                case NMEACruncher.DataTypes.TWA:
+                case NMEACruncher.DataTypes.TWD:
+                case NMEACruncher.DataTypes.AWA:
+                    return 10;
+                case NMEACruncher.DataTypes.BoatSpeed:
+                case NMEACruncher.DataTypes.BoatHeading:
+                    return 5;
+            }
+            return 0;
+        }
+
+        double GetSmoothedValue(int iDataType, int iCoreIndex)
+        {
+            int iRange = GetAverageType(iDataType);
+            if (iRange > 0)
+            {
+                int iStart = Math.Max(0, iCoreIndex - (iRange >> 1));
+                int iEnd = Math.Min(m_CrunchedData.Count, iCoreIndex + (iRange >> 1));
+                if (iEnd > iStart)
+                {
+                    switch ((NMEACruncher.DataTypes)iDataType)
+                    {
+                        case NMEACruncher.DataTypes.TWD:
+                            {
+                                double fAvAngle = AngleUtil.CalculateAngleAverage(this, (NMEACruncher.DataTypes)iDataType, iStart, iEnd);
+                                return AngleUtil.ContainAngle0To360(fAvAngle);
+                            }
+                        case NMEACruncher.DataTypes.TWA:
+                        case NMEACruncher.DataTypes.AWA:
+                            {
+                                double fAvAngle = AngleUtil.CalculateAngleAverage(this, (NMEACruncher.DataTypes)iDataType, iStart, iEnd);
+                                return AngleUtil.ContainAngleMinus180To180(fAvAngle);
+                            }
+                        case NMEACruncher.DataTypes.BoatSpeed:
+                        case NMEACruncher.DataTypes.BoatHeading:
+                            return AngleUtil.CalculateAverage(this, (NMEACruncher.DataTypes)iDataType, iStart, iEnd);
+                    }
+                }
+            }
+            return m_CrunchedData[iCoreIndex].GetValue(iDataType);
+        }
+
+        public void SmoothData()
+        {
+            for (int iIndex = 0; iIndex < m_CrunchedData.Count; iIndex++)
+            {
+                for (int iDataType = 0; iDataType < GetNumDataTypes(); iDataType++)
+                {
+                    m_CrunchedData[iIndex].SetValue(iDataType, GetSmoothedValue(iDataType, iIndex));
+                }
+            }
+        }
+
         public void ReadProcessedData(string fileName)
         {
             System.IO.BinaryReader breader = new System.IO.BinaryReader(new System.IO.FileStream(fileName, System.IO.FileMode.Open));
@@ -609,6 +671,8 @@ namespace NMEAViewer
                 }
             }
             breader.Close();
+
+            SmoothData();   //TODO: MOVE THIS!!!
         }
     }
 }

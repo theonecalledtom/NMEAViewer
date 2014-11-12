@@ -192,7 +192,7 @@ namespace NMEAViewer
         }
     }
 
-    class TackAnalysis
+    public class TackAnalysis
     {
         NMEACruncher m_Data;
         List<TackAnalysisData> m_TackData;
@@ -302,6 +302,24 @@ namespace NMEAViewer
 
         const double DegToRad = (2.0 * Math.PI / 360.0); //TODO: This is in MapWindow.cs also
 
+        //TackAnalysisData RunTackAnalysis2(int iFirstSample, int iLastSample, bool bUseAWARange, double fAWAMin, double fAWAMax)
+        //{
+        //    TackAnalysisData rOutData = new TackAnalysisData(); //Might be discarded
+        //    iFirstSample = Math.Max(0, iFirstSample);
+        //    iLastSample = Math.Min(m_Data.GetDataCount() - 1, iLastSample);
+
+        //    rOutData.SetValue(TackAnalysisData.eTackDataTypes.InitialHeading,
+        //                        AngleUtil.ContainAngle0To360(m_Data.GetDataAtIndex(iFirstSample, NMEACruncher.DataTypes.BoatHeading))
+        //            );
+        //    rOutData.SetValue(TackAnalysisData.eTackDataTypes.WindDirectionAtStart,
+        //                        TWD(iFirstSample)
+        //             );
+
+
+
+        //    return null;
+        //}
+
         TackAnalysisData RunTackAnalysis(int iFirstSample, int iLastSample, bool bUseAWARange, double fAWAMin, double fAWAMax)
         {
             TackAnalysisData rOutData = new TackAnalysisData(); //Might be discarded
@@ -366,39 +384,47 @@ namespace NMEAViewer
             double fStartOfTurn = SampleTime(iStartOfTurn);
             int iEndOfTurn = iThroughWind + 1;
             int kMaxSearchForEnd = Math.Min(iLastSample + 10, m_Data.GetDataCount()); //? Could use zero and do the sample range automatically
-            const int kSamplesToCheckForChange = 4;
+            const int kGrooveCount = 4;
+            const int kSamplesToCheckForChange = 10;
+            const double kfAvAWAForGroove = 2.0;
+            int iGrooveCount = 0;
             fDelta = AngleUtil.ShortAngle(m_Data.GetDataAtIndex(iStartOfTurn, NMEACruncher.DataTypes.AWA), m_Data.GetDataAtIndex(iThroughWind, NMEACruncher.DataTypes.AWA));
             while (iEndOfTurn < kMaxSearchForEnd)
             {
+                //TODO:
+
                 int iStartOfSampleOne = Math.Max(0, iEndOfTurn - kSamplesToCheckForChange);
                 int iEndOfSampleTwo = Math.Min(m_Data.GetDataCount(), iEndOfTurn + kSamplesToCheckForChange);
                 double fEarlierAWAAv = AvAWAInRange(iStartOfSampleOne, iEndOfTurn);
                 double fLaterAWAAv = AvAWAInRange(iEndOfTurn, iEndOfSampleTwo);
                 double fPriorDelta = AngleUtil.ShortAngle(fEarlierAWAAv, fLaterAWAAv);
-                if ((fPriorDelta > 0.0f) ^ (fDelta > 0.0f))
-                {
-                    //Counter steering!....
-                    //... however let's go further. It's typical to turn beyond the desired point and then come back to target
-                    //See if we can find how long we do this for
-                    rOutData.SetValue(TackAnalysisData.eTackDataTypes.TimeToInitialTurnEnd, SampleTime(iEndOfTurn) - fStartOfTurn);
-                    ++iEndOfTurn;
-                    while (iEndOfTurn < kMaxSearchForEnd)	//? Could use zero and do the sample range automatically eventually
-                    {
-                        iStartOfSampleOne = Math.Max(0, iEndOfTurn - kSamplesToCheckForChange);
-                        iEndOfSampleTwo = Math.Min(m_Data.GetDataCount(), iEndOfTurn + 4);
-                        fEarlierAWAAv = AvAWAInRange(iStartOfSampleOne, iEndOfTurn);
-                        fLaterAWAAv = AvAWAInRange(iEndOfTurn, iEndOfSampleTwo);
 
-                        double fNewPriorDelta = AngleUtil.ShortAngle(fEarlierAWAAv, fLaterAWAAv);
-                        if ((fDelta > 0.0f) == (fNewPriorDelta > 0.0f))
+                if (Math.Abs(fPriorDelta) < kfAvAWAForGroove)
+                {
+                    ++iGrooveCount;
+                    if (iGrooveCount == kGrooveCount)
+                    {
+                        //Search back to find any period we're above the AWA for consistently
+                        int iEndOfCounterSteer = kMaxSearchForEnd;
+                        while (iEndOfCounterSteer > iThroughWind)
                         {
-                            //End of counter steering!
-                            rOutData.SetValue(TackAnalysisData.eTackDataTypes.TimeToCounterSteerEnd, SampleTime(iEndOfTurn) - fStartOfTurn);
-                            break;
+                            double fNewAWA = Math.Abs(AvAWAInRange(iEndOfCounterSteer - kSamplesToCheckForChange, iEndOfCounterSteer));
+                            if (rOutData.IsTack() ? 
+                                        (fNewAWA > Math.Abs(fLaterAWAAv) + kfAvAWAForGroove) 
+                                    :   (fNewAWA < Math.Abs(fLaterAWAAv) - kfAvAWAForGroove)
+                                )
+                            {
+                                rOutData.SetValue(TackAnalysisData.eTackDataTypes.TimeToCounterSteerEnd, SampleTime(iEndOfCounterSteer) - fStartOfTurn);
+                                break;
+                            }
+                            --iEndOfCounterSteer;
                         }
-                        ++iEndOfTurn;
+                        break;
                     }
-                    break;
+                }
+                else
+                {
+                    iGrooveCount = 0;
                 }
                 ++iEndOfTurn;
             }

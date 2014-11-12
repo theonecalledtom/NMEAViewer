@@ -11,9 +11,72 @@ using Newtonsoft.Json;
 
 namespace NMEAViewer
 {
+
     public partial class TackingWindow : DockableDrawable
     {
+        public class TacksGraphOverlay : TimeBasedGraph.GraphOverlay
+        {
+            TackAnalysis m_TackAnalysis;
+            static int counter = 0;
+
+            public TacksGraphOverlay(TackAnalysis ta)
+            {
+                m_TackAnalysis = ta;
+                counter++;
+                OverlayName = "Tacks " + counter;
+            }
+
+            public override void Draw(Graphics g, double fLeftTime, double fRightTime)
+            {
+                if (fRightTime <= fLeftTime)
+                    return;
+
+                double height = (double)g.Clip.GetBounds(g).Height;
+                double width = (double)g.Clip.GetBounds(g).Width;
+
+                double fY = height * 0.8;
+
+                Pen tackPen = new Pen(new SolidBrush(Color.Yellow));
+                tackPen.Width = 3;
+
+                Pen gybePen = new Pen(new SolidBrush(Color.Blue));
+                gybePen.Width = 3;
+
+                Pen counterPen = new Pen(new SolidBrush(Color.Red));
+                counterPen.Width = 1;
+
+                for (int i = 0; i < m_TackAnalysis.GetNumTacks(); i++)
+                {
+                    TackAnalysisData data = m_TackAnalysis.GetData(i);
+                    Pen drawPen = data.IsTack() ? tackPen : gybePen;
+
+                    double fStartOfTurn = data.GetValue(TackAnalysisData.eTackDataTypes.TimeOfStartOfTurn);
+
+                    double startX = width * (fStartOfTurn - fLeftTime) / (fRightTime - fLeftTime);
+                    double endX = width * (data.GetValue(TackAnalysisData.eTackDataTypes.TimeOfEndOfTurn) - fLeftTime) / (fRightTime - fLeftTime);
+
+                    double depth = Math.Max(10.0, (endX - startX) * 0.1);
+
+
+                    g.DrawLine(drawPen, (float)startX, (float)fY, (float)endX, (float)fY);
+                    g.DrawLine(drawPen, (float)startX, (float)fY, (float)startX, (float)(fY + depth));
+                    g.DrawLine(drawPen, (float)endX, (float)fY, (float)endX, (float)(fY + depth));
+
+                    double headX = width * (fStartOfTurn + data.GetValue(TackAnalysisData.eTackDataTypes.TimeToHeadToWind) - fLeftTime) / (fRightTime - fLeftTime);
+                    g.DrawLine(drawPen, (float)headX, (float)fY, (float)headX, (float)(fY + depth));
+
+                    double timeToCounterSteerEnd = data.GetValue(TackAnalysisData.eTackDataTypes.TimeToCounterSteerEnd);
+                    if (timeToCounterSteerEnd > 0.0)
+                    {
+                        double counterX = width * ((fStartOfTurn + timeToCounterSteerEnd) - fLeftTime) / (fRightTime - fLeftTime);
+                        g.DrawLine(counterPen, (float)counterX, (float)fY, (float)counterX, (float)(fY + depth));
+                    }
+                }
+            }
+        }
+
         TackAnalysis m_TackAnalysis;    //TODO: Move central ownership of this someplace sharable? Or keep separate?
+        TacksGraphOverlay m_GraphOverlay;
         NMEACruncher m_Data;
         List<bool> m_ActiveDataColumns = new List<bool>();
         List<int> m_SectionStarts;
@@ -173,6 +236,7 @@ namespace NMEAViewer
 
             m_Data = data;
             m_TackAnalysis = new TackAnalysis(m_Data);
+            m_GraphOverlay = new TacksGraphOverlay(m_TackAnalysis);
 
             UpwindDataGrid.CellMouseUp += UpwindDataGrid_CellClick;
             DownwindDataGrid.CellClick += DownwindDataGrid_CellClick;
@@ -186,6 +250,11 @@ namespace NMEAViewer
             {
                 VisibleColumns.Items.Add(TackAnalysisData.GetValueName(i));
             }
+        }
+
+        ~TackingWindow()
+        {
+            m_GraphOverlay.Remove();
         }
 
         void DataSelectionTab_Leave(object sender, EventArgs e)
@@ -336,6 +405,9 @@ namespace NMEAViewer
 
             DownwindDataGrid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
             UpwindDataGrid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+
+            //Make sure the overlay is updated too
+            m_GraphOverlay.NotifyDataChanged();
         }
 
         private void checkBox2_RestrictByAWA_CheckedChanged(object sender, EventArgs e)

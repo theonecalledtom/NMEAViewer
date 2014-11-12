@@ -23,8 +23,14 @@ namespace NMEAViewer
 
         public DataSegment(System.IO.BinaryReader reader)
         {
-            m_TimeOfData = DateTime.FromBinary( reader.ReadInt64() );
-            m_Data = reader.ReadString();
+            try
+            {
+                m_TimeOfData = DateTime.FromBinary(reader.ReadInt64());
+                m_Data = reader.ReadString();
+            }
+            catch// (System.IO.EndOfStreamException)
+            {
+            }
         }
 
         public void Write(System.IO.BinaryWriter writer)
@@ -116,6 +122,9 @@ namespace NMEAViewer
         }
         public bool StartRead(System.IO.Stream s)
         {
+            if (s.Length < 32)  //Arbitrary safety check.... make sure we have data! TODO: better format verification
+                return false;
+
             m_DataReader = new System.IO.BinaryReader(s);
             if (m_DataReader == null)
                 return false;
@@ -162,10 +171,14 @@ namespace NMEAViewer
                 return false;
             }
 
-            if (m_iVersion == kConnectionDataVersion)
+            if (m_iVersion >= kMinConnectionDataVersion)
             {
                 //Current format
                 DataSegment newSegment = new DataSegment(m_DataReader);
+                if (newSegment.m_Data == null)
+                {
+                    return false;
+                }
                 m_iDataRead += newSegment.m_Data.Length;
                 m_fElapsedTime = (newSegment.m_TimeOfData - m_StartTime).TotalSeconds;
                 m_LastTime = newSegment.m_TimeOfData;

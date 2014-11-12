@@ -16,6 +16,7 @@ namespace NMEAViewer
         //NMEAStreamReader m_Reader;
         DataWriter m_DataWriter;
         MetaDataSerializer m_MetaData;
+        ApplicationSettings m_AppSettings;
         DateTime m_StartTime;
         System.IO.Stream m_SimulationStream;
         DataReader m_SimulationDataReader;
@@ -30,11 +31,12 @@ namespace NMEAViewer
 
         public static Connection sm_Connection = null;
 
-        public Connection(MetaDataSerializer metaData)
+        public Connection(MetaDataSerializer metaData, ApplicationSettings appSettings)
         {
             InitializeComponent();
 
             m_MetaData = metaData;
+            m_AppSettings = appSettings;
 
             SearchForPorts();
 
@@ -87,7 +89,7 @@ namespace NMEAViewer
             {
                 OpenPortComboList.Items.Add(System.IO.Ports.SerialPort.GetPortNames()[i]);
 
-                if ((m_MetaData!=null) && (m_MetaData.LastPortConnected != null) && (System.IO.Ports.SerialPort.GetPortNames()[i] == m_MetaData.LastPortConnected))
+                if ((m_AppSettings != null) && (m_AppSettings.LastPortConnected != null) && (System.IO.Ports.SerialPort.GetPortNames()[i] == m_AppSettings.LastPortConnected))
                 {
                     bHasSelected = true;
                     OpenPortComboList.SelectedItem = OpenPortComboList.Items[i];
@@ -131,9 +133,14 @@ namespace NMEAViewer
                 }
 
                 serialPort1.PortName = OpenPortComboList.SelectedItem.ToString();
-                
-                m_MetaData.LastPortConnected = serialPort1.PortName;
-                m_MetaData.MarkForAutoSave();
+
+                if (m_AppSettings.LastPortConnected != serialPort1.PortName)
+                {
+                    m_AppSettings.LastPortConnected = serialPort1.PortName;
+                    m_AppSettings.Save();
+                }
+
+//                serialPort1.ReadTimeout = 5000;
 
                 serialPort1.Open();
                 m_iBytesRead = 0;

@@ -22,6 +22,9 @@ namespace NMEAViewer
 
             public override void Draw(Graphics g, double fLeftTime, double fRightTime)
             {
+                if (fRightTime <= fLeftTime)
+                    return;
+
                 double height = (double)g.Clip.GetBounds(g).Height;
                 double width = (double)g.Clip.GetBounds(g).Width;
 

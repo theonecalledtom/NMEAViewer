@@ -19,7 +19,7 @@ namespace NMEAViewer
         private DeserializeDockContent m_deserializeDockContent;
         private NMEAStreamReader m_Reader;
         private bool m_bSavedOnExit;
-        private ApplicationSettings AppSettings;
+        private ApplicationSettings m_AppSettings;
         private PolarData m_PolarData;
         Timer m_UpdateTick;
 
@@ -45,50 +45,50 @@ namespace NMEAViewer
             LocationChanged += PAMainWindow_LocationChanged;
 
             m_PolarData = new PolarData();
-            AppSettings = ApplicationSettings.Load();
-            if (AppSettings == null)
+            m_AppSettings = ApplicationSettings.Load();
+            if (m_AppSettings == null)
             {
-                AppSettings = new ApplicationSettings();
-                AppSettings.ProjectName = "c:\\Users\\Tom\\lastlayout.xml";
+                m_AppSettings = new ApplicationSettings();
+                m_AppSettings.ProjectName = "c:\\Users\\Tom\\lastlayout.xml";
             }
             else
             {
-                if ((AppSettings.PolarDataName != null) && (AppSettings.PolarDataName.Length > 0))
+                if ((m_AppSettings.PolarDataName != null) && (m_AppSettings.PolarDataName.Length > 0))
                 {
-                    m_PolarData.Load(AppSettings.PolarDataName);
+                    m_PolarData.Load(m_AppSettings.PolarDataName);
                 }
 
-                if ((AppSettings.MainWindowState != null) && (AppSettings.MainWindowState.Length > 0))
+                if ((m_AppSettings.MainWindowState != null) && (m_AppSettings.MainWindowState.Length > 0))
                 {
                     WindowState = (FormWindowState)Enum.Parse(
                             typeof(FormWindowState),
-                            AppSettings.MainWindowState
+                            m_AppSettings.MainWindowState
                             );
                 }
 
-                if (AppSettings.MainWindowLocation != null && AppSettings.MainWindowSize != null)
+                if (m_AppSettings.MainWindowLocation != null && m_AppSettings.MainWindowSize != null)
                 {
-                    this.DesktopBounds = new Rectangle(AppSettings.MainWindowLocation, AppSettings.MainWindowSize);
+                    this.DesktopBounds = new Rectangle(m_AppSettings.MainWindowLocation, m_AppSettings.MainWindowSize);
                 }
             }
         }
 
         void PAMainWindow_LocationChanged(object sender, EventArgs e)
         {
-            if (AppSettings.MainWindowLocation != Location)
+            if (m_AppSettings.MainWindowLocation != Location)
             {
-                AppSettings.MainWindowState = Enum.GetName(typeof(FormWindowState), this.WindowState);
-                AppSettings.MainWindowLocation = Location;
+                m_AppSettings.MainWindowState = Enum.GetName(typeof(FormWindowState), this.WindowState);
+                m_AppSettings.MainWindowLocation = Location;
                 m_fTimeToAutoSaveSettings = MetaDataSerializer.kTimeToAutoSave;
             }
         }
 
         void PAMainWindow_ClientSizeChanged(object sender, EventArgs e)
         {
-            if (AppSettings.MainWindowSize != ClientSize)
+            if (m_AppSettings.MainWindowSize != ClientSize)
             {
-                AppSettings.MainWindowState = Enum.GetName(typeof(FormWindowState), this.WindowState);
-                AppSettings.MainWindowSize = ClientSize;
+                m_AppSettings.MainWindowState = Enum.GetName(typeof(FormWindowState), this.WindowState);
+                m_AppSettings.MainWindowSize = ClientSize;
                 m_fTimeToAutoSaveSettings = MetaDataSerializer.kTimeToAutoSave;
             }
         }
@@ -100,9 +100,9 @@ namespace NMEAViewer
                 m_MetaData.m_fTimeToAutoSave -= ((double)m_UpdateTick.Interval) * 0.001;
                 if (m_MetaData.m_fTimeToAutoSave <= 0.0)
                 {
-                    if (AppSettings.ProjectName != null)
+                    if (m_AppSettings.ProjectName != null)
                     {
-                        SaveProject(AppSettings.ProjectName);
+                        SaveProject(m_AppSettings.ProjectName);
                     }
                     else 
                     {
@@ -116,7 +116,7 @@ namespace NMEAViewer
                 m_fTimeToAutoSaveSettings -= ((double)m_UpdateTick.Interval) * 0.001;
                 if (m_fTimeToAutoSaveSettings <= 0.0)
                 {
-                    AppSettings.Save();
+                    m_AppSettings.Save();
                 }
             }
         }
@@ -240,11 +240,11 @@ namespace NMEAViewer
 
         void SetProjectName(string name)
         {
-            AppSettings.ProjectName = name;
+            m_AppSettings.ProjectName = name;
             string nameNoExt = System.IO.Path.GetFileNameWithoutExtension(name);
             this.Text = nameNoExt;
             
-            AppSettings.Save();
+            m_AppSettings.Save();
         }
 
         protected void LoadProject(string projectXmlName)
@@ -338,12 +338,12 @@ namespace NMEAViewer
             if (!m_bSavedOnExit)
             {
                 m_bSavedOnExit = true;
-                SaveProject(AppSettings.ProjectName);
+                SaveProject(m_AppSettings.ProjectName);
 
                 if (m_fTimeToAutoSaveSettings >= 0.0)
                 {
                     //Had a pending save!
-                    AppSettings.Save();
+                    m_AppSettings.Save();
                 }
             }
         }
@@ -478,17 +478,17 @@ namespace NMEAViewer
 
         private void loadProjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if ((AppSettings.ProjectName != null) && (AppSettings.ProjectName.Length > 0))
+            if ((m_AppSettings.ProjectName != null) && (m_AppSettings.ProjectName.Length > 0))
             {
-                OpenProjectFile.InitialDirectory = System.IO.Path.GetDirectoryName(AppSettings.ProjectName);
+                OpenProjectFile.InitialDirectory = System.IO.Path.GetDirectoryName(m_AppSettings.ProjectName);
             }
 
             if (OpenProjectFile.ShowDialog() == DialogResult.OK)
             {
                 //Save the current project
-                if (AppSettings.ProjectName != null)
+                if (m_AppSettings.ProjectName != null)
                 {
-                    SaveProject(AppSettings.ProjectName);
+                    SaveProject(m_AppSettings.ProjectName);
                 }
 
                 LoadProject(OpenProjectFile.FileName);
@@ -497,9 +497,9 @@ namespace NMEAViewer
 
         private void PAMainWindow_Load(object sender, EventArgs e)
         {
-            if (AppSettings.ProjectName != null)
+            if (m_AppSettings.ProjectName != null)
             {
-                LoadProject(AppSettings.ProjectName);
+                LoadProject(m_AppSettings.ProjectName);
             }
             else
             {
@@ -548,10 +548,16 @@ namespace NMEAViewer
                 SaveProject(SaveProjectFile.FileName);
 
                 //And auto set the connection output name
-                m_MetaData.OutputDataFileName = AppSettings.ProjectName + ".dat";
+                m_MetaData.OutputDataFileName = m_AppSettings.ProjectName + ".dat";
+                
+                //And make sure we auto read it next time (TODO: Do we need input and output names?)
+                m_MetaData.InputDataFileName = m_AppSettings.ProjectName + ".dat";
+
+                //Make sure we get saved with our new data
+                m_MetaData.MarkForAutoSave();
 
                 //Set the name
-                this.Name = System.IO.Path.GetFileNameWithoutExtension(AppSettings.ProjectName);
+                this.Name = System.IO.Path.GetFileNameWithoutExtension(m_AppSettings.ProjectName);
             }
         }
 
@@ -567,15 +573,15 @@ namespace NMEAViewer
 
         private void loadPolarDataToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if ((AppSettings.PolarDataName != null) && (AppSettings.PolarDataName.Length > 0))
+            if ((m_AppSettings.PolarDataName != null) && (m_AppSettings.PolarDataName.Length > 0))
             {
-                OpenPolarFile.InitialDirectory = System.IO.Path.GetDirectoryName(AppSettings.PolarDataName);
+                OpenPolarFile.InitialDirectory = System.IO.Path.GetDirectoryName(m_AppSettings.PolarDataName);
             }
             if (OpenPolarFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                AppSettings.PolarDataName = OpenPolarFile.FileName;
-                AppSettings.Save();
-                m_PolarData.Load(AppSettings.PolarDataName);
+                m_AppSettings.PolarDataName = OpenPolarFile.FileName;
+                m_AppSettings.Save();
+                m_PolarData.Load(m_AppSettings.PolarDataName);
                 m_Data.SetPolarData(m_PolarData);
             }
         }
@@ -584,7 +590,7 @@ namespace NMEAViewer
         {
             if (Connection.sm_Connection == null)
             {
-                Connection.sm_Connection = new Connection(m_MetaData);
+                Connection.sm_Connection = new Connection(m_MetaData, m_AppSettings);
                 Connection.sm_Connection.OnNewConnection += PortConnection_OnNewConnection;
                 Connection.sm_Connection.OnDataRecieved += OnDataRecieved;
                 Connection.sm_Connection.Show();
