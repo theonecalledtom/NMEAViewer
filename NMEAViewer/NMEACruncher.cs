@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace NMEAViewer
 {
@@ -514,6 +515,11 @@ namespace NMEAViewer
         public bool ProcessFile(System.String fileName, NMEAStreamReader streamReader)
         { 
             //Load file into memory... 
+            if (!System.IO.File.Exists(fileName))
+            {
+                MessageBox.Show("Input file '" + fileName + "' not found");
+                return false;
+            }
             System.IO.StreamReader s = new System.IO.StreamReader(fileName);
             if (s == null)
             {

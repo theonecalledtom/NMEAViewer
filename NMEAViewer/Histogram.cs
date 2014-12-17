@@ -438,7 +438,7 @@ namespace NMEAViewer
             e.Graphics.DrawImage(m_SurfaceForLines, 0, 0);
 
             //Draw the overlay information
-            if (m_bHasHoveredValue && (m_fMaxValue > m_fMinValue))
+            if (m_bHasHoveredValue && (m_fMaxValue > (m_fMinValue+1.0)))
             {
                 float fLeft, fRight;
                 if (m_bHoverOnPort)
