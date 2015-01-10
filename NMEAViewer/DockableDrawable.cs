@@ -132,9 +132,9 @@ namespace NMEAViewer
             mapOfWindows.Remove(m_ID);
         }
 
-        ~DockableDrawable()
-        {
-        }
+        //~DockableDrawable()
+        //{
+        //}
 
         //Funcionality
         protected virtual void OnTimer(object sender, EventArgs e) { }

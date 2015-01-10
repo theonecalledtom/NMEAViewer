@@ -147,9 +147,9 @@ namespace NMEAViewer
             return !smb_Created;
         }
 
-        ~TimeBasedGraphDataTypes()
-        {
-        }
+        //~TimeBasedGraphDataTypes()
+        //{
+        //}
 
         void SelectDataType(int iDataType)
         {
