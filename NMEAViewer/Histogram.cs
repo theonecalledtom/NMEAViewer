@@ -36,6 +36,15 @@ namespace NMEAViewer
         double m_fOldMinValue;
         double m_fOldMaxValue;
 
+        double m_fTopOfBuckets;
+        double m_fBottomOfBuckets;
+        float m_fCentreOffset;
+        bool m_bHasHoveredValue;
+        double m_fHoveredValue;
+        bool m_bHoverOnPort;
+        double m_fAnchor = 0.0;
+        bool m_bAngleConstraint = false;
+
         [JsonObject(MemberSerialization.OptOut)]
         private class SerializedData : DockableDrawable.SerializedDataBase
         {
@@ -208,9 +217,7 @@ namespace NMEAViewer
             }
         }
 
-        double m_fTopOfBuckets;
-        double m_fBottomOfBuckets;
-        float m_fCentreOffset;
+
         private void DrawGraph()
         {
             Bitmap lastSurface = null;
@@ -255,12 +262,18 @@ namespace NMEAViewer
                 return;
             }
 
+            int type = NMEACruncher.GetIndexOfDataType(m_CurrentSelectedType);
+            if (type < 0)
+            {
+                return;
+            }
+
             System.Drawing.Font font = new System.Drawing.Font("Arial", 10);
             System.String minString = "Min: ";
-            minString += String.Format("{0:F2}", m_fMinValue);
+            minString += String.Format("{0:F2}", m_bAngleConstraint ? AngleUtil.ContainAngle0To360(m_fMinValue) : m_fMinValue);
             System.Drawing.SizeF sizeOnScreenMin = g.MeasureString(minString, font);
             System.String maxString = "Max: ";
-            maxString += String.Format("{0:F2}", m_fMaxValue);
+            maxString += String.Format("{0:F2}", m_bAngleConstraint ? AngleUtil.ContainAngle0To360(m_fMaxValue) : m_fMaxValue);
             System.Drawing.SizeF sizeOnScreenMax = g.MeasureString(maxString, font);
 
             float fImageWidth = (float)HistogramSurface.Right - (float)HistogramSurface.Left;
@@ -383,7 +396,7 @@ namespace NMEAViewer
                     g.DrawLine(pen, m_fCentreOffset, fAveragePortY, 0.0f, fAveragePortY);
 
                     System.String avStringPort = "Av: ";
-                    avStringPort += String.Format("{0:F2}", m_fAverageValuePort);
+                    avStringPort += String.Format("{0:F2}", m_bAngleConstraint ? AngleUtil.ContainAngle0To360(m_fAverageValuePort) : m_fAverageValuePort);
                     g.DrawString(avStringPort, font, System.Drawing.Brushes.LightGray, 10.0f, fAveragePortY);
                 }
 
@@ -394,16 +407,12 @@ namespace NMEAViewer
                     g.DrawLine(pen, m_fCentreOffset, fAverageStbdY, (float)(HistogramSurface.Right - HistogramSurface.Left), fAverageStbdY);
 
                     System.String avStringStbd = "Av: ";
-                    avStringStbd += String.Format("{0:F2}", m_fAverageValueStbd);
+                    avStringStbd += String.Format("{0:F2}", m_bAngleConstraint ? AngleUtil.ContainAngle0To360(m_fAverageValueStbd) : m_fAverageValueStbd);
                     System.Drawing.SizeF sizeOnScreenAvStbd = g.MeasureString(avStringStbd, font);
                     g.DrawString(avStringStbd, font, System.Drawing.Brushes.LightGray, (float)(HistogramSurface.Right - HistogramSurface.Left) - (10.0f + sizeOnScreenAvStbd.Width), fAverageStbdY);
                 }
             }
         }
-
-        bool m_bHasHoveredValue;
-        double m_fHoveredValue;
-        bool m_bHoverOnPort;
 
         protected override void OnTimeHovered(object sender, double fTime)
         {
@@ -451,7 +460,15 @@ namespace NMEAViewer
                     fLeft = m_fCentreOffset;
                     fRight = HistogramSurface.Right;
                 }
-                double fHoveredProp = (m_fHoveredValue - m_fMinValue) / (m_fMaxValue - m_fMinValue);
+
+                double useValue = m_fHoveredValue;
+                if (m_bAngleConstraint)
+                {
+                    while (useValue - m_fAnchor > 180.0f) useValue -= 360.0f;
+                    while (useValue - m_fAnchor < -180.0f) useValue += 360.0f;
+                }
+
+                double fHoveredProp = (useValue - m_fMinValue) / (m_fMaxValue - m_fMinValue);
                 float fHoveredY = (float)(m_fBottomOfBuckets + (m_fTopOfBuckets - m_fBottomOfBuckets) * fHoveredProp);
                 System.Drawing.Pen pen = new System.Drawing.Pen(System.Drawing.Color.LightSteelBlue, 1);
                 g.DrawLine(pen, fLeft, fHoveredY, fRight, fHoveredY);
@@ -481,6 +498,7 @@ namespace NMEAViewer
             }
             bool bAbsOnly = false;
             bool bMinimumAngle = false;
+            m_bAngleConstraint = false;
             switch (type)
             {
                 case (int)NMEACruncher.DataTypes.AWA:
@@ -490,8 +508,11 @@ namespace NMEAViewer
                     bAbsOnly = true;
                     bMinimumAngle = true;
                     break;
+                case (int)NMEACruncher.DataTypes.GPSHeading:
+                case (int)NMEACruncher.DataTypes.BoatHeading:
                 case (int)NMEACruncher.DataTypes.TWD:
                     bMinimumAngle = true;
+                    m_bAngleConstraint = true;
                     break;
             }
 
@@ -507,21 +528,38 @@ namespace NMEAViewer
                 return false;
 
             //Find range to split buckets over (even split for port and starboard tack data)
-            double fAnchor = bAbsOnly ? System.Math.Abs(m_Data.GetDataAtIndex(iFirstSample, type)) : m_Data.GetDataAtIndex(iFirstSample, type);
-            double fMin = fAnchor;
-            double fMax = fAnchor;
+            m_fAnchor = bAbsOnly ? System.Math.Abs(m_Data.GetDataAtIndex(iFirstSample, type)) : m_Data.GetDataAtIndex(iFirstSample, type);
+            double fMin = m_fAnchor;
+            double fMax = m_fAnchor;
 
             //Store
             m_fDataStartTime = m_Data.GetDataAtIndex(iFirstSample, 0);
             m_fDataEndTime = m_Data.GetDataAtIndex(iLastSample, 0);
+
+            //ReAnchor to the average, 
+            double fAverage = 0.0;
+            if (bMinimumAngle)
+            {
+                int tmpCount = 0;
+                for (int i = iFirstSample + 1; i < iLastSample; i++)
+                {
+                    double fValue = (bAbsOnly ? System.Math.Abs(m_Data.GetDataAtIndex(i, type)) : m_Data.GetDataAtIndex(i, type));
+                    while (fValue - m_fAnchor > 180.0f) fValue -= 360.0f;
+                    while (fValue - m_fAnchor < -180.0f) fValue += 360.0f;
+                    fAverage += fValue;
+                    tmpCount++;
+                }
+                fAverage *= 1.0f / (double)(iLastSample - (iFirstSample + 1));
+                m_fAnchor = fAverage;
+            }
 
             for (int i = iFirstSample + 1; i < iLastSample; i++)
             {
                 double fValue = (bAbsOnly ? System.Math.Abs(m_Data.GetDataAtIndex(i, type)) : m_Data.GetDataAtIndex(i, type));
                 if (bMinimumAngle)
                 {
-                    while (fValue - fAnchor > 180.0f) fValue -= 360.0f;
-                    while (fValue - fAnchor < -180.0f) fValue += 360.0f;
+                    while (fValue - m_fAnchor > 180.0f) fValue -= 360.0f;
+                    while (fValue - m_fAnchor < -180.0f) fValue += 360.0f;
                 }
                 if (fValue < fMin)
                 {
@@ -553,8 +591,8 @@ namespace NMEAViewer
                 double fValue = (bAbsOnly ? System.Math.Abs(m_Data.GetDataAtIndex(i, type)) : m_Data.GetDataAtIndex(i, type));
                 if (bMinimumAngle)
                 {
-                    while (fValue - fAnchor > 180.0f) fValue -= 360.0f;
-                    while (fValue - fAnchor < -180.0f) fValue += 360.0f;
+                    while (fValue - m_fAnchor > 180.0f) fValue -= 360.0f;
+                    while (fValue - m_fAnchor < -180.0f) fValue += 360.0f;
                 }
                 bool bPort = m_Data.GetDataAtIndex(i, NMEACruncher.DataTypes.AWA) < 0.0;
                 int iBucket = (int)((float)(fValue - fMin) * fScalar);
