@@ -499,21 +499,28 @@ namespace NMEAViewer
             bool bAbsOnly = false;
             bool bMinimumAngle = false;
             m_bAngleConstraint = false;
-            switch (type)
+
+            if (NMEACruncher.GetDataRangeForType(type) == NMEACruncher.DataRangeTypes.Direction)
             {
-                case (int)NMEACruncher.DataTypes.AWA:
-                    bAbsOnly = true;
-                    break;
-                case (int)NMEACruncher.DataTypes.TWA:
-                    bAbsOnly = true;
-                    bMinimumAngle = true;
-                    break;
-                case (int)NMEACruncher.DataTypes.GPSHeading:
-                case (int)NMEACruncher.DataTypes.BoatHeading:
-                case (int)NMEACruncher.DataTypes.TWD:
-                    bMinimumAngle = true;
-                    m_bAngleConstraint = true;
-                    break;
+                //case (int)NMEACruncher.DataTypes.EstCurrentDir:
+                //case (int)NMEACruncher.DataTypes.GPSHeading:
+                //case (int)NMEACruncher.DataTypes.BoatHeading:
+                //case (int)NMEACruncher.DataTypes.TWD:
+                bMinimumAngle = true;
+                m_bAngleConstraint = true;
+            }
+            else
+            {
+                switch (type)
+                {
+                    case (int)NMEACruncher.DataTypes.AWA:
+                        bAbsOnly = true;
+                        break;
+                    case (int)NMEACruncher.DataTypes.TWA:
+                        bAbsOnly = true;
+                        bMinimumAngle = true;   //TODO: Why this and not 
+                        break;
+                }
             }
 
             fStartTime = fEndTime > fStartTime ? fStartTime : 0.0f;
