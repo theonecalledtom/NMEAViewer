@@ -14,7 +14,8 @@ namespace NMEAViewer
         //9     == plus Polar % data    --  Shouldn't need to save
         //                              --  Also shouldn't need to save TWA as it's calculated
         //10    == record data at given rate, not just the rate it arrives
-        int iProcessedVersion = 10;
+        //12    == estimated current
+        int iProcessedVersion = 12;
         List<SOutputData> m_CrunchedData;
 
         //Generated to match m_CrunchedData
@@ -45,8 +46,10 @@ namespace NMEAViewer
             GPSLat,
             BoatSpeed,
             BoatHeading,
+            EstCurrentSpeed,
+            EstCurrentDir,
             PolarSpeed,
-            PropPolarSpeed
+            PropPolarSpeed,
         };
 
         public enum DataRangeTypes
@@ -93,8 +96,10 @@ namespace NMEAViewer
                 System.Drawing.Color.Black,         //GPSLat
                 System.Drawing.Color.Blue,          //BoatSpeed
                 System.Drawing.Color.DarkSeaGreen,  //BoatHeading
+                System.Drawing.Color.Azure,         //EstCurrentSpd
+                System.Drawing.Color.Beige,         //EstCurrentDir
                 System.Drawing.Color.LightGray,     //PolarSpeed
-                System.Drawing.Color.DarkGray       //PropPolarSpeed
+                System.Drawing.Color.DarkGray,      //PropPolarSpeed
             };
             return colors[type];
         }
@@ -113,8 +118,10 @@ namespace NMEAViewer
                     DataRangeTypes.NoGraph,       //GPS_Lat,            
                     DataRangeTypes.BoatSpeed,     //"BoatSpeed",
                     DataRangeTypes.Direction,     //"BoatHeading"
+                    DataRangeTypes.BoatSpeed,     //EstCurrentSpd
+                    DataRangeTypes.Direction,     //EstCurrentDir
                     DataRangeTypes.BoatSpeed,     //"PolarSpeed"
-                    DataRangeTypes.Percentage     //"PropPolarSpeed"
+                    DataRangeTypes.Percentage,    //"PropPolarSpeed"
                 };
 
             if (type >= 0 && type < GetNumDataTypes())
@@ -484,6 +491,41 @@ namespace NMEAViewer
             }
         }
 
+        public void PostProcess()
+        {
+            if (m_CrunchedData != null)
+            {
+                foreach (SOutputData outputData in m_CrunchedData)
+                {
+                    //Compare GPS speed and direction with boat speed and direction
+                    //Assumes boat speed and direction are accurate, but really they're not!
+                    double fBoatHeading = outputData.GetValue(DataTypes.BoatHeading);
+                    double fBoatSpeed = outputData.GetValue(DataTypes.BoatSpeed);
+                    double fGPSHeading = outputData.GetValue(DataTypes.GPSHeading);
+                    double fGPSSpeed = outputData.GetValue(DataTypes.GPSSOG);
+
+                    //Convert to a vector like value
+                    fBoatHeading += 13.0f;  //TODO: Data drive magnetic deviation
+                    double fBoatdX = Math.Sin(fBoatHeading * AngleUtil.DegToRad) * fBoatSpeed;
+                    double fBoatdY = Math.Cos(fBoatHeading * AngleUtil.DegToRad) * fBoatSpeed;
+                    double fGPSdX = Math.Sin(fGPSHeading * AngleUtil.DegToRad) * fGPSSpeed;
+                    double fGPSdY = Math.Cos(fGPSHeading * AngleUtil.DegToRad) * fGPSSpeed;
+
+                    //Delta
+                    double fdX = fGPSdX - fBoatdX;
+                    double fdY = fGPSdY - fBoatdY;
+
+                    //Convert back to speed and direction
+                    double fAngle = AngleUtil.ContainAngle0To360(Math.Atan2(fdY, fdX) * AngleUtil.RadToDeg);
+                    double fSpeed = Math.Sqrt(fdY * fdY + fdX * fdX);
+
+                    //Store it off
+                    outputData.SetValue(DataTypes.EstCurrentDir, fAngle);
+                    outputData.SetValue(DataTypes.EstCurrentSpeed, fSpeed);
+                }
+            }
+        }
+
         public void SetPolarData(PolarData data)
         {
             m_BoatPolars = data;
@@ -508,6 +550,9 @@ namespace NMEAViewer
 
                         outputData.SetValue(DataTypes.PropPolarSpeed, Math.Min(200.0, fPercentage));
                     }
+
+                    //EstCurrentSpeed,
+                    //EstCurrentDir,
                 }
             }
         }
@@ -551,6 +596,8 @@ namespace NMEAViewer
                         }
                     }
                 }
+
+                PostProcess();
             }
 
             WriteProcessedData(fileName + ".prc");
