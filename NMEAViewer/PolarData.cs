@@ -64,7 +64,7 @@ namespace NMEAViewer
 
         public double GetBestPolarSpeed(double fWindSpeed, double fAngleToWind)
         {
-            if (m_Rows.Length == 0)
+            if ((m_Rows == null) || (m_Rows.Length == 0))
                 return 0.0;
 
             if (fWindSpeed <= m_Rows[0].m_fWindSpeed)
