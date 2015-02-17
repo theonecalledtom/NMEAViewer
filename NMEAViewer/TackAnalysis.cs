@@ -8,6 +8,10 @@ namespace NMEAViewer
 {
     class AngleUtil
     {
+        public const double PI = 3.141592653589793;
+        public const double DegToRad = (2.0 * PI / 360.0);
+        public const double RadToDeg = 1.0f / DegToRad;
+
         public static void Swap(ref double rA, ref double rB)
         {
             double fTmp = rA;

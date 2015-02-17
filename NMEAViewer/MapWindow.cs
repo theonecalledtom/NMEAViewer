@@ -347,17 +347,15 @@ namespace NMEAViewer
             m_bDirty = true;
         }
 
-        const double PI = 3.141592653589793;
-        const double DegToRad = (2.0 * PI / 360.0);
         const double R = 6371.0 * 1000.0;    // m
         const double kMinMoveForGPS = 1.0;   // m
 
         public static double CalculateDistanceBetweenLongsAndLats(double fFromLong, double fFromLat, double fToLong, double fToLat)
         {
-	        double dLat = (fFromLat - fToLat) * DegToRad;
-	        double dLon = (fFromLong - fToLong) * DegToRad;
-	        double lat1 = fToLat * DegToRad;
-	        double lat2 = fFromLat * DegToRad;
+	        double dLat = (fFromLat - fToLat) * AngleUtil.DegToRad;
+            double dLon = (fFromLong - fToLong) * AngleUtil.DegToRad;
+            double lat1 = fToLat * AngleUtil.DegToRad;
+            double lat2 = fFromLat * AngleUtil.DegToRad;
 	        double fDLatOver2 = dLat * 0.5f;
 	        double fDLongOver2 = dLon * 0.5f;
 	        double a = Math.Sin(fDLatOver2) * Math.Sin(fDLatOver2) +
