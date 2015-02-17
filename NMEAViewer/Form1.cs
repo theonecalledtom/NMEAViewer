@@ -49,7 +49,7 @@ namespace NMEAViewer
             if (m_AppSettings == null)
             {
                 m_AppSettings = new ApplicationSettings();
-                m_AppSettings.ProjectName = "c:\\Users\\Tom\\lastlayout.xml";
+                m_AppSettings.ProjectName = "lastlayout.xml";
             }
             else
             {
@@ -106,7 +106,7 @@ namespace NMEAViewer
                     }
                     else 
                     {
-                        SaveProject("c:\\Users\\Tom\\lastlayout.xml");
+                        SaveProject("lastlayout.xml");
                     }
                 }
             }
@@ -131,6 +131,7 @@ namespace NMEAViewer
             m_Data = new NMEACruncher(1.0);
             //m_MetaData = new MetaDataSerializer();
             m_Data.SetPolarData(m_PolarData);
+            m_Data.PostProcess();
         }
 
         //TODO: Make a factory!
@@ -247,7 +248,7 @@ namespace NMEAViewer
             m_AppSettings.Save();
         }
 
-        protected void LoadProject(string projectXmlName)
+        protected bool LoadProject(string projectXmlName)
         {
             if (System.IO.File.Exists(projectXmlName))
             {
@@ -329,7 +330,9 @@ namespace NMEAViewer
                 }
 
                 MainDockPanel.ResumeLayout(true, true);
+                return m_MetaData != null;
             }
+            return false;
         }
 
         private void OnMDIWindowClose()
@@ -503,7 +506,12 @@ namespace NMEAViewer
             }
             else
             {
-                LoadProject("c:\\Users\\Tom\\lastlayout.xml");
+                LoadProject("lastlayout.xml");
+            }
+
+            if (m_MetaData == null)
+            {
+                m_MetaData = new MetaDataSerializer();
             }
         }
 
@@ -531,7 +539,7 @@ namespace NMEAViewer
             DockableDrawable.BroadcastDataReplaced(m_Data);
 
             //TODO: Setup default windows - graph, map, tacks?
-            LoadProject("c:\\Users\\Tom\\DefaultNewProjectLayout.xml");
+            LoadProject("DefaultNewProjectLayout.xml");
             //MapWindow mapWindow = new MapWindow(m_Data);
             //HookupPanel(new MapWindow(m_Data));
             //TimeBasedGraph graph = new TimeBasedGraph(m_Data, m_DataView);
