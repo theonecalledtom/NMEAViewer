@@ -36,11 +36,6 @@ namespace NMEAViewer
             m_deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
             m_Reader = new NMEAStreamReader();
 
-            m_UpdateTick = new Timer();
-            m_UpdateTick.Enabled = true;
-            m_UpdateTick.Interval = 1000;   //Think about stuff every second
-            m_UpdateTick.Tick += m_UpdateTick_Tick;
-
             ClientSizeChanged += PAMainWindow_ClientSizeChanged;
             LocationChanged += PAMainWindow_LocationChanged;
 
@@ -71,6 +66,12 @@ namespace NMEAViewer
                     this.DesktopBounds = new Rectangle(m_AppSettings.MainWindowLocation, m_AppSettings.MainWindowSize);
                 }
             }
+
+            //Start the update tick late - if the user gets dialogs during startup we don't want to drive the update until after they are cleared
+            m_UpdateTick = new Timer();
+            m_UpdateTick.Enabled = true;
+            m_UpdateTick.Interval = 1000;   //Think about stuff every second
+            m_UpdateTick.Tick += m_UpdateTick_Tick;
         }
 
         void PAMainWindow_LocationChanged(object sender, EventArgs e)

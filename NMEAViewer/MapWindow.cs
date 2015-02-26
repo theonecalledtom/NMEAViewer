@@ -58,6 +58,13 @@ namespace NMEAViewer
             return data;
         }
 
+        enum eMapProviders
+        {
+            OpenSeaMap,
+            Bing,
+            GoogleEarth,
+        }
+
         public override void InitFromSerializedData(SerializedDataBase data_base)
         {
             SerializedData data = (SerializedData)data_base;
@@ -67,8 +74,16 @@ namespace NMEAViewer
             selectionToolStripMenuItem.Checked = data.m_TrackSelection;
             m_fStartSelection = data.m_StartSelectionTime;
             m_fEndSelection = data.m_EndSelectionTime;
-            //TODO: Not sure how to get the provider from the string
-            //data.m_MapProvider = gMapControl1.MapProvider.Name;
+
+            gMapControl1.MapProvider = GMap.NET.MapProviders.OpenSeaMapHybridProvider.Instance;
+            foreach (var v in GMap.NET.MapProviders.GMapProviders.List)
+            {
+                if (v.Name == data.m_MapProvider)
+                {
+                    gMapControl1.MapProvider = v;
+                    break;
+                }
+            }
         }
 
         public override void PostInitFromSerializedData(SerializedDataBase data_base)
@@ -90,7 +105,7 @@ namespace NMEAViewer
 
             m_Data = data;
             m_MarkerToTackMap = new Dictionary<GMap.NET.WindowsForms.GMapMarker, TackAnalysisData>();
-            gMapControl1.MapProvider = GMap.NET.MapProviders.ArcGIS_Topo_US_2D_MapProvider.Instance;
+            gMapControl1.MapProvider = GMap.NET.MapProviders.OpenSeaMapHybridProvider.Instance;//   //ArcGIS_Topo_US_2D_MapProvider.Instance;
             gMapControl1.Position = new GMap.NET.PointLatLng(32.0, -117.0);
             gMapControl1.MinZoom = 1;
             gMapControl1.MaxZoom = 24;
@@ -543,6 +558,29 @@ namespace NMEAViewer
             {
                 gMapControl1.ZoomAndCenterRoutes(m_RouteHighlightOverlay.Id);
             }
+        }
+
+        private void mapTypeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mapTypeToolStripMenuItem.DropDownItems.Clear();
+            foreach (var v in GMap.NET.MapProviders.GMapProviders.List)
+            {
+                ToolStripMenuItem newItem = new ToolStripMenuItem(v.Name);
+                newItem.Tag = v;
+                newItem.Click += newMapType_Click;
+                mapTypeToolStripMenuItem.DropDownItems.Add(newItem);
+            }
+
+        }
+
+        private void newMapType_Click(object sender, EventArgs e)
+        {
+            if (sender == null)
+            {
+                return;
+            }
+
+            gMapControl1.MapProvider = (GMap.NET.MapProviders.GMapProvider)sender;
         }
     }
 }

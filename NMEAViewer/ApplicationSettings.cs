@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.Windows.Forms;
 
 namespace NMEAViewer
 {
@@ -16,9 +17,16 @@ namespace NMEAViewer
         public System.Drawing.Point MainWindowLocation;
         public string MainWindowState;
         public string LastPortConnected;
-        const string AppSettingsLocation = "nmeaviewerappsettings.json";
+        static string AppSettingsLocation = "nmeaviewerappsettings.json";
         public static ApplicationSettings Load()
         {
+            AppSettingsLocation = Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData) + "\\NMEAViewer\\" + "nmeaviewerappsettings.json";
+            string DirectoryName = System.IO.Path.GetDirectoryName(AppSettingsLocation);
+            if (!System.IO.Directory.Exists(DirectoryName))
+            {
+                System.IO.Directory.CreateDirectory(DirectoryName);
+            }
+            
             if (System.IO.File.Exists(AppSettingsLocation))
             {
                 string jsonData = System.IO.File.ReadAllText(AppSettingsLocation);
@@ -36,6 +44,11 @@ namespace NMEAViewer
 
         public void Save()
         {
+            if (AppSettingsLocation == null)
+            {
+                return;
+            }
+
             string output = JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.All

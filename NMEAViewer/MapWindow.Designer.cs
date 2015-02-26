@@ -34,6 +34,7 @@
             this.centerOnMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.trackCurrentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mapTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -69,7 +70,8 @@
             this.menuStrip1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.menuStrip1.Font = new System.Drawing.Font("Segoe UI", 7.000003F);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.locationToolStripMenuItem});
+            this.locationToolStripMenuItem,
+            this.mapTypeToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 235);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(282, 20);
@@ -89,7 +91,7 @@
             // centerOnMapToolStripMenuItem
             // 
             this.centerOnMapToolStripMenuItem.Name = "centerOnMapToolStripMenuItem";
-            this.centerOnMapToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.centerOnMapToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.centerOnMapToolStripMenuItem.Text = "Center on route";
             this.centerOnMapToolStripMenuItem.Click += new System.EventHandler(this.centerOnMapToolStripMenuItem_Click);
             // 
@@ -99,15 +101,22 @@
             this.trackCurrentToolStripMenuItem.CheckOnClick = true;
             this.trackCurrentToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.trackCurrentToolStripMenuItem.Name = "trackCurrentToolStripMenuItem";
-            this.trackCurrentToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.trackCurrentToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.trackCurrentToolStripMenuItem.Text = "TrackCurrent";
             // 
             // selectionToolStripMenuItem
             // 
             this.selectionToolStripMenuItem.Name = "selectionToolStripMenuItem";
-            this.selectionToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.selectionToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.selectionToolStripMenuItem.Text = "Selection";
             this.selectionToolStripMenuItem.Click += new System.EventHandler(this.selectionToolStripMenuItem_Click);
+            // 
+            // mapTypeToolStripMenuItem
+            // 
+            this.mapTypeToolStripMenuItem.Name = "mapTypeToolStripMenuItem";
+            this.mapTypeToolStripMenuItem.Size = new System.Drawing.Size(69, 16);
+            this.mapTypeToolStripMenuItem.Text = "MapType";
+            this.mapTypeToolStripMenuItem.Click += new System.EventHandler(this.mapTypeToolStripMenuItem_Click);
             // 
             // MapWindow
             // 
@@ -133,5 +142,6 @@
         private System.Windows.Forms.ToolStripMenuItem centerOnMapToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem trackCurrentToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem selectionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem mapTypeToolStripMenuItem;
     }
 }
