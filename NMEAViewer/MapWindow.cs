@@ -580,7 +580,7 @@ namespace NMEAViewer
                 return;
             }
 
-            gMapControl1.MapProvider = (GMap.NET.MapProviders.GMapProvider)sender;
+            gMapControl1.MapProvider = (GMap.NET.MapProviders.GMapProvider)(((ToolStripMenuItem)sender).Tag);
         }
     }
 }
