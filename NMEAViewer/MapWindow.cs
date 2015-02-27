@@ -391,23 +391,26 @@ namespace NMEAViewer
                 {
                     double fLong = m_Data.GetDataAtIndex(m_iLastDataProcessed, NMEACruncher.DataTypes.GPSLong);
                     double fLat = m_Data.GetDataAtIndex(m_iLastDataProcessed, NMEACruncher.DataTypes.GPSLat);
-                    if (m_Route.Points.Count > 0)
+                    if ((fLat > 0.0) || (fLong != 0.0))
                     {
-                        GMap.NET.PointLatLng priorPoint = m_Route.Points[m_Route.Points.Count - 1];
-                        double fDist = CalculateDistanceBetweenLongsAndLats(priorPoint.Lng, priorPoint.Lat, fLong, fLat);
-                        if (fDist > kMinMoveForGPS)
+                        if (m_Route.Points.Count > 0)
                         {
-                            AddPointToPath(fLong, fLat, m_Data.GetDataAtIndex(m_iLastDataProcessed, NMEACruncher.DataTypes.Time));
-                            if (fDist > 10000.0)
+                            GMap.NET.PointLatLng priorPoint = m_Route.Points[m_Route.Points.Count - 1];
+                            double fDist = CalculateDistanceBetweenLongsAndLats(priorPoint.Lng, priorPoint.Lat, fLong, fLat);
+                            if (fDist > kMinMoveForGPS)
                             {
-                                Console.WriteLine("Long GPS jump to {0} long {1} lat", fLong, fLat);
+                                AddPointToPath(fLong, fLat, m_Data.GetDataAtIndex(m_iLastDataProcessed, NMEACruncher.DataTypes.Time));
+                                if (fDist > 10000.0)
+                                {
+                                    Console.WriteLine("Long GPS jump to {0} long {1} lat", fLong, fLat);
+                                }
                             }
                         }
-                    }
-                    else
-                    {
-                        //Just add the point
-                        AddPointToPath(fLong, fLat, m_Data.GetDataAtIndex(m_iLastDataProcessed, NMEACruncher.DataTypes.Time));
+                        else
+                        {
+                            //Just add the point
+                            AddPointToPath(fLong, fLat, m_Data.GetDataAtIndex(m_iLastDataProcessed, NMEACruncher.DataTypes.Time));
+                        }
                     }
                 }
                 ++m_iLastDataProcessed;

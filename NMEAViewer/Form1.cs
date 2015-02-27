@@ -133,6 +133,8 @@ namespace NMEAViewer
             //m_MetaData = new MetaDataSerializer();
             m_Data.SetPolarData(m_PolarData);
             m_Data.PostProcess();
+
+            
         }
 
         //TODO: Make a factory!
@@ -234,7 +236,11 @@ namespace NMEAViewer
 
         public void CloseProject()
         {
+            //Fairly obvious
             CloseAllDocuments();
+
+            //Clear events etc
+            MetaDataWindow.Clear();
 
             //Reinit the project data
             InitProjectData();
@@ -539,16 +545,9 @@ namespace NMEAViewer
             //Get windows to refresh their data
             DockableDrawable.BroadcastDataReplaced(m_Data);
 
-            //TODO: Setup default windows - graph, map, tacks?
+            //Load our default layout
             LoadProject("DefaultNewProjectLayout.xml");
-            //MapWindow mapWindow = new MapWindow(m_Data);
-            //HookupPanel(new MapWindow(m_Data));
-            //TimeBasedGraph graph = new TimeBasedGraph(m_Data, m_DataView);
-            //HookupPanel(graph);
-
-            ////mapWindow.DockTo(MainDockPanel, DockStyle.Top);
-            ////graph.DockTo(MainDockPanel, DockStyle.Bottom);
-
+            
             //Prompt user to save out the project file
             if (SaveProjectFile.ShowDialog() == DialogResult.OK)
             {

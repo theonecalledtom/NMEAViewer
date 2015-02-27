@@ -123,6 +123,9 @@ namespace NMEAViewer
             StaticData.sm_Data.m_LegDescriptions.Clear();
             StaticData.sm_Data.m_LegStartTimes.Clear();
             StaticData.sm_Data.m_LegEndTimes.Clear();
+            StaticData.sm_Data.m_EventNames.Clear();
+            StaticData.sm_Data.m_EventDecriptions.Clear();
+            StaticData.sm_Data.m_EventTimes.Clear();
             for (int i = 0; i < LegsDataGrid.Rows.Count; i++)
             {
                 StaticData.sm_Data.m_LegNames.Add(Convert.ToString(LegsDataGrid.Rows[i].Cells[LegName.Index].Value));
@@ -131,9 +134,6 @@ namespace NMEAViewer
                 StaticData.sm_Data.m_LegEndTimes.Add(Convert.ToDouble(LegsDataGrid.Rows[i].Cells[EndTime.Index].Value));
             }
 
-            StaticData.sm_Data.m_EventNames.Clear();
-            StaticData.sm_Data.m_EventDecriptions.Clear();
-            StaticData.sm_Data.m_EventTimes.Clear();
             for (int i = 0; i < EventsDataGrid.Rows.Count; i++)
             {
                 StaticData.sm_Data.m_EventNames.Add(Convert.ToString(EventsDataGrid.Rows[i].Cells[EventName.Index].Value));
@@ -142,6 +142,20 @@ namespace NMEAViewer
             }
 
             BroadcastEventData(StaticData.sm_Data.m_EventTimes, StaticData.sm_Data.m_EventNames, StaticData.sm_Data.m_EventDecriptions);
+        }
+
+        public static void Clear()
+        {
+            StaticData.sm_Data.m_LegNames.Clear();
+            StaticData.sm_Data.m_LegDescriptions.Clear();
+            StaticData.sm_Data.m_LegStartTimes.Clear();
+            StaticData.sm_Data.m_LegEndTimes.Clear();
+            StaticData.sm_Data.m_EventNames.Clear();
+            StaticData.sm_Data.m_EventDecriptions.Clear();
+            StaticData.sm_Data.m_EventTimes.Clear();
+
+            StaticDeInit();
+            StaticInit();
         }
 
         public static int GetNumLegs()

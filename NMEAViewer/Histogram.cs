@@ -43,6 +43,7 @@ namespace NMEAViewer
         double m_fHoveredValue;
         bool m_bHoverOnPort;
         double m_fAnchor = 0.0;
+        double m_fSecondsTracked = 60.0;
         bool m_bAngleConstraint = false;
 
         [JsonObject(MemberSerialization.OptOut)]
@@ -53,6 +54,7 @@ namespace NMEAViewer
             public string m_CurrentSelectedType;
             public double m_fStartTime;
             public double m_fEndTime;
+            public double m_fSecondsTracked = 60.0;
             public int m_iCount = 15;
             public bool m_bFollowSelection;
             public bool m_bFollowCurrent;
@@ -66,6 +68,7 @@ namespace NMEAViewer
             data.m_fStartTime = m_fStartTime;
             data.m_fEndTime = m_fEndTime;
             data.m_iCount = m_iCount;
+            data.m_fSecondsTracked = m_fSecondsTracked;
             data.m_bFollowSelection = followSelectionToolStripMenuItem.Checked;
             data.m_bFollowCurrent = followCurrentToolStripMenuItem.Checked;
             data.m_bShowHistory = historyToolStripMenuItem.Checked;
@@ -80,6 +83,7 @@ namespace NMEAViewer
 
             m_fStartTime = data.m_fStartTime;
             m_fEndTime = data.m_fEndTime;
+            m_fSecondsTracked = data.m_fSecondsTracked;
             m_iCount = data.m_iCount;
             m_CurrentSelectedType = data.m_CurrentSelectedType;
             m_bHasHoveredValue = false;
@@ -113,16 +117,33 @@ namespace NMEAViewer
             m_Data = data;
         }
 
+        void RebuildToCurrentTimeRange()
+        {
+            double delta = m_fEndTime - m_fStartTime;
+            if (delta <= 0.0)
+            {
+                delta = m_fSecondsTracked;   //TODO:edit
+            }
+
+            if (delta > 0.0)
+            {
+                m_fEndTime = m_Data.GetEndTime();
+                m_fStartTime = Math.Max(0.0, m_fEndTime - delta);
+                RebuildHistogram(m_fStartTime, m_fEndTime);
+            }
+        }
+
         protected override void OnTimer(object sender, EventArgs e)
         {
             base.OnTimer(sender, e);
 
             if (followCurrentToolStripMenuItem.Checked)
             {
+                RebuildToCurrentTimeRange();
                 double delta = m_fEndTime - m_fStartTime;
                 if (delta <= 0.0)
                 {
-                    delta = 60.0;   //TODO:edit
+                    delta = m_fSecondsTracked;   //TODO:edit
                 }
 
                 if (delta > 0.0)
@@ -686,6 +707,15 @@ namespace NMEAViewer
             RebuildHistogram(m_fStartTime, m_fEndTime);
         }
 
+        private void toolStripTimeTracked(object sender, EventArgs e)
+        {
+            m_fSecondsTracked = (double)Convert.ToInt32(sender.ToString());
+            if (followCurrentToolStripMenuItem.Checked)
+            {
+                RebuildToCurrentTimeRange();
+            }
+        }
+
         private void historyToolStripMenuItem_Click(object sender, EventArgs e)
         {
             historyToolStripMenuItem.Checked = !historyToolStripMenuItem.Checked;
@@ -694,14 +724,12 @@ namespace NMEAViewer
 
         private void toSelectionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!followCurrentToolStripMenuItem.Checked)
+            followCurrentToolStripMenuItem.Checked = false;
+            if (m_fUserSelectedEndTime != m_fUserSelectedStartTime)
             {
-                if (m_fUserSelectedEndTime != m_fUserSelectedStartTime)
-                {
-                    m_fStartTime = m_fUserSelectedStartTime;
-                    m_fEndTime = m_fUserSelectedEndTime;
-                    RebuildHistogram(m_fStartTime, m_fEndTime);
-                }
+                m_fStartTime = m_fUserSelectedStartTime;
+                m_fEndTime = m_fUserSelectedEndTime;
+                RebuildHistogram(m_fStartTime, m_fEndTime);
             }
         }
 
@@ -711,7 +739,15 @@ namespace NMEAViewer
             if (followSelectionToolStripMenuItem.Checked)
             {
                 followCurrentToolStripMenuItem.Checked = false;
+
+                if (m_fUserSelectedEndTime != m_fUserSelectedStartTime)
+                {
+                    m_fStartTime = m_fUserSelectedStartTime;
+                    m_fEndTime = m_fUserSelectedEndTime;
+                    RebuildHistogram(m_fStartTime, m_fEndTime);
+                }
             }
         }
+
     }
 }
