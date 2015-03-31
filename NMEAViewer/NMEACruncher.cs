@@ -491,37 +491,42 @@ namespace NMEAViewer
             }
         }
 
+        public static void PostProcess(SOutputData outputData)
+        {
+            //Compare GPS speed and direction with boat speed and direction
+            //Assumes boat speed and direction are accurate, but really they're not!
+            double fBoatHeading = outputData.GetValue(DataTypes.BoatHeading);
+            double fBoatSpeed = outputData.GetValue(DataTypes.BoatSpeed);
+            double fGPSHeading = outputData.GetValue(DataTypes.GPSHeading);
+            double fGPSSpeed = outputData.GetValue(DataTypes.GPSSOG);
+
+            //Convert to a vector like value
+            fBoatHeading += 13.0f;  //TODO: Data drive magnetic deviation
+            double fBoatdX = Math.Sin(fBoatHeading * AngleUtil.DegToRad) * fBoatSpeed;
+            double fBoatdY = Math.Cos(fBoatHeading * AngleUtil.DegToRad) * fBoatSpeed;
+            double fGPSdX = Math.Sin(fGPSHeading * AngleUtil.DegToRad) * fGPSSpeed;
+            double fGPSdY = Math.Cos(fGPSHeading * AngleUtil.DegToRad) * fGPSSpeed;
+
+            //Delta
+            double fdX = fGPSdX - fBoatdX;
+            double fdY = fGPSdY - fBoatdY;
+
+            //Convert back to speed and direction
+            double fAngle = AngleUtil.ContainAngle0To360(Math.Atan2(fdY, fdX) * AngleUtil.RadToDeg);
+            double fSpeed = Math.Sqrt(fdY * fdY + fdX * fdX);
+
+            //Store it off
+            outputData.SetValue(DataTypes.EstCurrentDir, fAngle);
+            outputData.SetValue(DataTypes.EstCurrentSpeed, fSpeed);
+        }
+
         public void PostProcess()
         {
             if (m_CrunchedData != null)
             {
                 foreach (SOutputData outputData in m_CrunchedData)
                 {
-                    //Compare GPS speed and direction with boat speed and direction
-                    //Assumes boat speed and direction are accurate, but really they're not!
-                    double fBoatHeading = outputData.GetValue(DataTypes.BoatHeading);
-                    double fBoatSpeed = outputData.GetValue(DataTypes.BoatSpeed);
-                    double fGPSHeading = outputData.GetValue(DataTypes.GPSHeading);
-                    double fGPSSpeed = outputData.GetValue(DataTypes.GPSSOG);
-
-                    //Convert to a vector like value
-                    fBoatHeading += 13.0f;  //TODO: Data drive magnetic deviation
-                    double fBoatdX = Math.Sin(fBoatHeading * AngleUtil.DegToRad) * fBoatSpeed;
-                    double fBoatdY = Math.Cos(fBoatHeading * AngleUtil.DegToRad) * fBoatSpeed;
-                    double fGPSdX = Math.Sin(fGPSHeading * AngleUtil.DegToRad) * fGPSSpeed;
-                    double fGPSdY = Math.Cos(fGPSHeading * AngleUtil.DegToRad) * fGPSSpeed;
-
-                    //Delta
-                    double fdX = fGPSdX - fBoatdX;
-                    double fdY = fGPSdY - fBoatdY;
-
-                    //Convert back to speed and direction
-                    double fAngle = AngleUtil.ContainAngle0To360(Math.Atan2(fdY, fdX) * AngleUtil.RadToDeg);
-                    double fSpeed = Math.Sqrt(fdY * fdY + fdX * fdX);
-
-                    //Store it off
-                    outputData.SetValue(DataTypes.EstCurrentDir, fAngle);
-                    outputData.SetValue(DataTypes.EstCurrentSpeed, fSpeed);
+                    PostProcess(outputData);
                 }
             }
         }

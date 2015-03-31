@@ -165,6 +165,7 @@ namespace NMEAViewer
                 }
             }
 
+            NMEACruncher.PostProcess(outputData);
         }
     }
 }

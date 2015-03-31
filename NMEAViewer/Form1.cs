@@ -408,7 +408,7 @@ namespace NMEAViewer
         private void ReadInputData(bool bForceReprocessing)
         {
             //If we already processed this file read it.
-            if (m_MetaData.InputDataFileName != null)
+            if ((m_MetaData != null) && (m_MetaData.InputDataFileName != null))
             {
                 if (!bForceReprocessing && m_Data.HasMatchingProcessedFile(m_MetaData.InputDataFileName))
                 {
