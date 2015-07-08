@@ -234,7 +234,7 @@ namespace NMEAViewer
                 return null;
             }
 
-            if (iEndSearch >= m_Data.GetDataCount())
+            if (iEndSearch > m_Data.GetDataCount())
             {
                 return null;
             }

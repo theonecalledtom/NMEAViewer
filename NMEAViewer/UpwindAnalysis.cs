@@ -71,6 +71,8 @@ namespace NMEAViewer
                 : base(parent) { }
             public double StartTime;
             public double EndTime;
+            public bool FollowSelection;
+            public bool UseGPS;
         };
 
         public override DockableDrawable.SerializedDataBase CreateSerializedData()
@@ -78,6 +80,8 @@ namespace NMEAViewer
             SerializedData data = new SerializedData(this);
             data.StartTime = StartTime;
             data.EndTime = EndTime;
+            data.FollowSelection = checkBox_FollowSelection.Checked;
+            data.UseGPS = checkBox_UseGPS.Checked;
             return data;
         }
 
@@ -88,8 +92,12 @@ namespace NMEAViewer
             SerializedData data = (SerializedData)data_base;
             StartTime = data.StartTime;
             EndTime = data.EndTime;
+            checkBox_FollowSelection.Checked = data.FollowSelection;
+            checkBox_UseGPS.Checked = data.UseGPS;
             if (EndTime > StartTime)
             {
+                m_fEndSelection = EndTime;
+                m_fStartSelection = StartTime;
                 CalculateData();
             }
         }
@@ -216,8 +224,8 @@ namespace NMEAViewer
                         DataPoint[] portArraySortedByHeading = portArray.OrderBy(result => result.BoatHeading).ToArray();
                         DataPoint[] starboardArraySortedByHeading = starboardArray.OrderBy(result => result.BoatHeading).ToArray();
 
-                        CrunchTackData(portArraySortedByHeading, PortData, Math.Max((portArray.Length / 10) - 2, 0));
-                        CrunchTackData(starboardArraySortedByHeading, StarboardData, Math.Max((starboardArray.Length / 10) - 2, 0));
+                        CrunchTackData(portArraySortedByHeading, PortData, portArray.Length / 8);
+                        CrunchTackData(starboardArraySortedByHeading, StarboardData, starboardArray.Length / 8);
 
                         CombinedData.TimeSpent = PortData.TimeSpent + StarboardData.TimeSpent;
 
@@ -235,26 +243,26 @@ namespace NMEAViewer
                         CombinedData.AverageVMG = (PortData.AverageVMG + StarboardData.AverageVMG) * 0.5f;
                         CombinedData.AveragePolarVMG = (PortData.AveragePolarVMG + StarboardData.AveragePolarVMG) * 0.5f;
 
-                        StartTimeText.Text = Convert.ToString(StartTime);
-                        EndTimeText.Text = Convert.ToString(EndTime);
+                        StartTimeText.Text = string.Format("{0:0.00}", StartTime);
+                        EndTimeText.Text = string.Format("{0:0.00}", EndTime);
                         
-                        TimeOnPort.Text = Convert.ToString(PortData.TimeSpent);
-                        AvAnglePort.Text = Convert.ToString(PortData.AverageAngle);
-                        AvSpdPort.Text = Convert.ToString(PortData.AverageSpeed);
-                        AvVMGPort.Text = Convert.ToString(PortData.AverageVMG);
-                        TimeOnStarboard.Text = Convert.ToString(StarboardData.TimeSpent);
-                        AvAngleStarboard.Text = Convert.ToString(StarboardData.AverageAngle);
-                        AvSpdStarboard.Text = Convert.ToString(StarboardData.AverageSpeed);
-                        AvVMGStarboard.Text = Convert.ToString(StarboardData.AverageVMG);
-                        AverageAngle.Text = Convert.ToString(CombinedData.AverageAngle);
-                        AverageSpeed.Text = Convert.ToString(CombinedData.AverageSpeed);
-                        AverageVMG.Text = Convert.ToString(CombinedData.AverageVMG);
+                        TimeOnPort.Text = string.Format("{0:0.00}", PortData.TimeSpent);
+                        AvAnglePort.Text = string.Format("{0:0.00}", PortData.AverageAngle);
+                        AvSpdPort.Text = string.Format("{0:0.00}", PortData.AverageSpeed);
+                        AvVMGPort.Text = string.Format("{0:0.00}", PortData.AverageVMG);
+                        TimeOnStarboard.Text = string.Format("{0:0.00}", StarboardData.TimeSpent);
+                        AvAngleStarboard.Text = string.Format("{0:0.00}", StarboardData.AverageAngle);
+                        AvSpdStarboard.Text = string.Format("{0:0.00}", StarboardData.AverageSpeed);
+                        AvVMGStarboard.Text = string.Format("{0:0.00}", StarboardData.AverageVMG);
+                        AverageAngle.Text = string.Format("{0:0.00}", CombinedData.AverageAngle);
+                        AverageSpeed.Text = string.Format("{0:0.00}", CombinedData.AverageSpeed);
+                        AverageVMG.Text = string.Format("{0:0.00}", CombinedData.AverageVMG);
 
-                        textPolarVMGPort.Text = Convert.ToString((int)((PortData.AverageVMG * 100.0f) / PortData.AveragePolarVMG));
-                        textPolarVMGStarboard.Text = Convert.ToString((int)((StarboardData.AverageVMG * 100.0f) / StarboardData.AveragePolarVMG));
-                        textPolarVMGAverage.Text = Convert.ToString((int)((CombinedData.AverageVMG * 100.0f) / CombinedData.AveragePolarVMG));
+                        textPolarVMGPort.Text = string.Format("{0:0.00}", ((PortData.AverageVMG * 100.0f) / PortData.AveragePolarVMG));
+                        textPolarVMGStarboard.Text = string.Format("{0:0.00}", ((StarboardData.AverageVMG * 100.0f) / StarboardData.AveragePolarVMG));
+                        textPolarVMGAverage.Text = string.Format("{0:0.00}", ((CombinedData.AverageVMG * 100.0f) / CombinedData.AveragePolarVMG));
 
-                        textTackingAngle.Text = Convert.ToString(Math.Abs(AngleUtil.ShortAngle(PortData.AverageAngle, StarboardData.AverageAngle)));
+                        textTackingAngle.Text = string.Format("{0:0.00}", Math.Abs(AngleUtil.ShortAngle(PortData.AverageAngle, StarboardData.AverageAngle)));
                     }
                 }
             }
