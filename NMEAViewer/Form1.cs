@@ -168,6 +168,10 @@ namespace NMEAViewer
             {
                 return new TackingWindow(m_Data);
             }
+            else if (typeName == typeof(NMEAViewer.UpwindAnalysis).ToString())
+            {
+                return new UpwindAnalysis(m_Data, m_PolarData);
+            }
             return null;
         }
 
@@ -607,6 +611,11 @@ namespace NMEAViewer
             {
                 Connection.sm_Connection.BringToFront();
             }
+        }
+
+        private void upwindAnalysisToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            HookupUserAddedPanel(new UpwindAnalysis(m_Data, m_PolarData));
         }
     }
 }

@@ -124,6 +124,12 @@
     <Compile Include="TimeBasedGraphDataTypes.Designer.cs">
       <DependentUpon>TimeBasedGraphDataTypes.cs</DependentUpon>
     </Compile>
+    <Compile Include="UpwindAnalysis.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UpwindAnalysis.Designer.cs">
+      <DependentUpon>UpwindAnalysis.cs</DependentUpon>
+    </Compile>
     <Compile Include="VideoWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -165,6 +171,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="TimeBasedGraphDataTypes.resx">
       <DependentUpon>TimeBasedGraphDataTypes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UpwindAnalysis.resx">
+      <DependentUpon>UpwindAnalysis.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VideoWindow.resx">
       <DependentUpon>VideoWindow.cs</DependentUpon>

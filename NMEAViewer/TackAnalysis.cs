@@ -27,6 +27,18 @@ namespace NMEAViewer
             return fDelta;
         }
 
+        public static double CalculateAverage(double angle1, double angle2)
+        {
+            return ContainAngle0To360((angle1 + Anchor(angle2, angle1)) * 0.5);
+        }
+
+        public static double Anchor(double fValue, double fAnchor)
+        {
+            while (fValue - fAnchor > 180.0f) fValue -= 360.0f;
+            while (fValue - fAnchor < -180.0f) fValue += 360.0f;
+            return fValue;
+        }
+
         public static double ContainAngle0To360(double fAngle)
         {
             while (fAngle > 360.0f) fAngle -= 360.0f;
