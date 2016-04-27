@@ -23,6 +23,7 @@ namespace NMEAViewer
         DataReader m_SimulationDataReader;
         Timer m_SimulationTimer;
         TcpClient TCPConnection;
+        bool m_bValidIPAndPort=false;
 
         public delegate void VoidConsumer();  // defines a delegate type
         public delegate void StringConsumer(string value);  // defines a delegate type
@@ -48,10 +49,53 @@ namespace NMEAViewer
             OutputFileName.Text = metaData.OutputDataFileName;
             SimulationFileName.Text = metaData.SimDataFileName;
 
+            IPTextBox.Text = appSettings.IPText;
+            PortTextBox.Text = appSettings.IPPortText;
+
+            IPTextBox.TextChanged += IPTextBox_TextChanged;
+            PortTextBox.TextChanged += PortTextBox_TextChanged;
+            IPRadioButton.Checked = !appSettings.ComportUsed;
+
             sm_Connection = this;
             Disposed += Connection_Disposed;
 
-            
+            ValidatePortAndIP();
+        }
+
+        void ValidatePortAndIP()
+        {
+            bool bOldValue = m_bValidIPAndPort;
+            m_bValidIPAndPort = false;
+            string[] ips = IPTextBox.Text.Split('.');
+            if (ips.Length == 4)
+            {
+                if (!string.IsNullOrEmpty(PortTextBox.Text))
+                {
+                    byte byteTest;
+                    short shortTest;
+                    m_bValidIPAndPort =   
+                            byte.TryParse(ips[0], out byteTest)
+                        &&  byte.TryParse(ips[0], out byteTest)
+                        &&  byte.TryParse(ips[0], out byteTest)
+                        &&  byte.TryParse(ips[0], out byteTest)
+                        &&  short.TryParse(PortTextBox.Text, out shortTest);
+                }
+            }
+
+            if (bOldValue != m_bValidIPAndPort)
+            {
+                SetOpenCloseButtonState();
+            }
+        }
+
+        private void PortTextBox_TextChanged(object sender, EventArgs e)
+        {
+            ValidatePortAndIP();
+        }
+
+        private void IPTextBox_TextChanged(object sender, EventArgs e)
+        {
+            ValidatePortAndIP();
         }
 
         void Connection_Disposed(object sender, EventArgs e)
@@ -61,7 +105,8 @@ namespace NMEAViewer
 
         private void SetOpenCloseButtonState()
         {
-            if (serialPort1.IsOpen)
+            bool bConnected = serialPort1.IsOpen || ((TCPConnection != null) && (TCPConnection.Connected));
+            if (bConnected)
             {
                 OpenClose.Text = "Disconnect";
                 OpenClose.Enabled = true;
@@ -74,7 +119,7 @@ namespace NMEAViewer
             else
             {
                 OpenClose.Text = "Connect";
-                OpenClose.Enabled = OpenPortComboList.Items.Count > 0;
+                OpenClose.Enabled = (OpenPortComboList.Items.Count > 0) || (m_bValidIPAndPort);
                 BytesReadNumber.Enabled = false;
                 BytesReadLabel.Enabled = false;
                 this.ControlBox = true;    //Disables the close button
@@ -145,7 +190,8 @@ namespace NMEAViewer
 
                 //If IPAndPort is set we're going to try a TCPConnection
                 //otherwise lets look for local serial ports)
-                if (string.IsNullOrEmpty(IPAndPort.Text))
+                m_AppSettings.ComportUsed = ComportConnectPanel.Enabled;
+                if (ComportConnectPanel.Enabled)
                 {
                     serialPort1.PortName = OpenPortComboList.SelectedItem.ToString();
 
@@ -166,40 +212,37 @@ namespace NMEAViewer
                 }
                 else
                 {
-                    string[] ipAndPort = IPAndPort.Text.Split(':');
-                    if (ipAndPort.Length == 2)
+                    m_AppSettings.IPText = IPTextBox.Text;
+                    m_AppSettings.IPPortText = PortTextBox.Text;
+                    m_AppSettings.Save();
+                    string[] ips = IPTextBox.Text.Split('.');
+                    if (ips.Length == 4)
                     {
-                        string[] ips = ipAndPort[0].Split('.');
-                        if (ips.Length == 4)
+                        byte[] ipsArray =
                         {
-                            byte[] ipsArray =
-                            {
-                                Convert.ToByte(ips[0]),
-                                Convert.ToByte(ips[1]),
-                                Convert.ToByte(ips[2]),
-                                Convert.ToByte(ips[3])
-                            };
-                            int port = Convert.ToInt32(ipAndPort[1]);
-                            var addr = new System.Net.IPAddress(ipsArray);
-                            if (TCPConnection == null)
-                                TCPConnection = new TcpClient();
-                            try {
-                                TCPConnection.Connect(addr, port);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show(ex.ToString(), "Error trying to connect");
-                            }
-                            if (TCPConnection.Connected)
-                            {
-                                var so = new StateObject();
-                                so.workSocket = TCPConnection.Client;
-                                TCPConnection.Client.BeginReceive(so.buffer, 0, so.buffer.Length, SocketFlags.None, new AsyncCallback(OnTcpRecieve), so);
-                            }
+                            Convert.ToByte(ips[0]),
+                            Convert.ToByte(ips[1]),
+                            Convert.ToByte(ips[2]),
+                            Convert.ToByte(ips[3])
+                        };
+                        int port = Convert.ToInt32(PortTextBox.Text);
+                        var addr = new System.Net.IPAddress(ipsArray);
+                        if (TCPConnection == null)
+                            TCPConnection = new TcpClient();
+                        try {
+                            TCPConnection.Connect(addr, port);
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            MessageBox.Show("Address not of the format xxx.xxx.xxx.xxx:port", "Error trying to connect");
+                            MessageBox.Show(ex.ToString(), "Error trying to connect");
+                        }
+                        if (TCPConnection.Connected)
+                        {
+                            var so = new StateObject();
+                            so.workSocket = TCPConnection.Client;
+                            TCPConnection.Client.BeginReceive(so.buffer, 0, so.buffer.Length, SocketFlags.None, new AsyncCallback(OnTcpRecieve), so);
+                            
+                            SetOpenCloseButtonState();
                         }
                     }
                     else
@@ -207,7 +250,6 @@ namespace NMEAViewer
                         MessageBox.Show("Address not of the format xxx.xxx.xxx.xxx:port", "Error trying to connect");
                     }
                 }
-
             }
             else 
             {
@@ -220,7 +262,12 @@ namespace NMEAViewer
 
                 if(TCPConnection.Connected)
                 {
+                    if (TCPConnection.GetStream() != null)
+                    {
+                        TCPConnection.GetStream().Close();
+                    }
                     TCPConnection.Close();
+                    TCPConnection = null;
                 }
             }
 
@@ -232,14 +279,20 @@ namespace NMEAViewer
             var so = (StateObject)ar.AsyncState;
             Socket s = so.workSocket;
 
-            int read = s.EndReceive(ar);
+            try {
+                int read = s.EndReceive(ar);
 
-            if (read > 0)
-            {
-                Invoke(new StringConsumer(OnDataReceivedMainThread), s);
+                if (read > 0)
+                {
+                    Invoke(new StringConsumer(OnDataReceivedMainThread), s);
+                }
+                s.BeginReceive(so.buffer, 0, StateObject.BUFFER_SIZE, 0,
+                                         new AsyncCallback(OnTcpRecieve), so);
             }
-            s.BeginReceive(so.buffer, 0, StateObject.BUFFER_SIZE, 0,
-                                     new AsyncCallback(OnTcpRecieve), so);
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
 
         private void OnDataReceivedMainThread(string sdata)
@@ -321,6 +374,12 @@ namespace NMEAViewer
 
                 //Default simulation name to this output file
                 SimulationFileName = OutputFileName;
+            }
+
+            if (m_DataWriter != null)
+            {
+                m_DataWriter.Stop();
+                m_DataWriter = null;
             }
 
             System.IO.Stream s = OutputFileDialog.OpenFile();
@@ -439,6 +498,34 @@ namespace NMEAViewer
                      OnDataRecieved(m_SimulationDataReader.GetData(), m_SimulationDataReader.m_fElapsedTime);
                  }
              }
+        }
+
+        private void IPRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            if (IPRadioButton.Checked)
+            {
+                IPConnectPanel.Enabled = true;
+                ComportConnectPanel.Enabled = false;
+            }
+            else
+            {
+                ComportConnectPanel.Enabled = true;
+                IPConnectPanel.Enabled = false;
+            }
+        }
+
+        private void ComportRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ComportRadioButton.Checked)
+            {
+                ComportConnectPanel.Enabled = true;
+                IPConnectPanel.Enabled = false;
+            }
+            else
+            {
+                IPConnectPanel.Enabled = true;
+                ComportConnectPanel.Enabled = false;
+            }
         }
     }
 }

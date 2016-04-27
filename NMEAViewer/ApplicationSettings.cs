@@ -17,6 +17,10 @@ namespace NMEAViewer
         public System.Drawing.Point MainWindowLocation;
         public string MainWindowState;
         public string LastPortConnected;
+        public string IPText;
+        public string IPPortText;
+        public bool ComportUsed;
+
         static string AppSettingsLocation = "nmeaviewerappsettings.json";
         public static ApplicationSettings Load()
         {

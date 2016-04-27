@@ -83,6 +83,14 @@ namespace NMEAViewer
             }
         }
 
+        public void Stop()
+        {
+            if (m_DataWriter != null)
+            {
+                m_DataWriter.Close();
+            }
+        }
+
         public void WriteNMEADataSegment(string sdata)
         {
             if (m_DataWriter == null)
