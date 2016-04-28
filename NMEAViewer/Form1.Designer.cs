@@ -59,6 +59,7 @@
             this.newTackingWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newMetaDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.upwindAnalysisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpProvider1 = new System.Windows.Forms.HelpProvider();
             this.OpenVideoFile = new System.Windows.Forms.OpenFileDialog();
             this.OpenRecording = new System.Windows.Forms.OpenFileDialog();
@@ -66,7 +67,7 @@
             this.SaveProjectFile = new System.Windows.Forms.SaveFileDialog();
             this.MainDockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             this.OpenPolarFile = new System.Windows.Forms.OpenFileDialog();
-            this.upwindAnalysisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.comPortTesterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -78,7 +79,7 @@
             this.toolStripComboBox2});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(631, 27);
+            this.toolStrip1.Size = new System.Drawing.Size(473, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "Window";
             // 
@@ -93,48 +94,48 @@
             this.reprocessToolStripMenuItem,
             this.loadPolarDataToolStripMenuItem});
             this.toolStripComboBox1.Name = "toolStripComboBox1";
-            this.toolStripComboBox1.Size = new System.Drawing.Size(46, 24);
+            this.toolStripComboBox1.Size = new System.Drawing.Size(38, 22);
             this.toolStripComboBox1.Text = "File";
             // 
             // newProjectToolStripMenuItem
             // 
             this.newProjectToolStripMenuItem.Name = "newProjectToolStripMenuItem";
-            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(191, 26);
+            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.newProjectToolStripMenuItem.Text = "New Project";
             this.newProjectToolStripMenuItem.Click += new System.EventHandler(this.newProjectToolStripMenuItem_Click);
             // 
             // loadProjectToolStripMenuItem
             // 
             this.loadProjectToolStripMenuItem.Name = "loadProjectToolStripMenuItem";
-            this.loadProjectToolStripMenuItem.Size = new System.Drawing.Size(191, 26);
+            this.loadProjectToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.loadProjectToolStripMenuItem.Text = "Load Project";
             this.loadProjectToolStripMenuItem.Click += new System.EventHandler(this.loadProjectToolStripMenuItem_Click);
             // 
             // saveProjectToolStripMenuItem
             // 
             this.saveProjectToolStripMenuItem.Name = "saveProjectToolStripMenuItem";
-            this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(191, 26);
+            this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.saveProjectToolStripMenuItem.Text = "Save Project";
             this.saveProjectToolStripMenuItem.Click += new System.EventHandler(this.saveProjectToolStripMenuItem_Click);
             // 
             // loadRecordingToolStripMenuItem
             // 
             this.loadRecordingToolStripMenuItem.Name = "loadRecordingToolStripMenuItem";
-            this.loadRecordingToolStripMenuItem.Size = new System.Drawing.Size(191, 26);
+            this.loadRecordingToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.loadRecordingToolStripMenuItem.Text = "Load recording";
             this.loadRecordingToolStripMenuItem.Click += new System.EventHandler(this.loadRecordingToolStripMenuItem_Click);
             // 
             // reprocessToolStripMenuItem
             // 
             this.reprocessToolStripMenuItem.Name = "reprocessToolStripMenuItem";
-            this.reprocessToolStripMenuItem.Size = new System.Drawing.Size(191, 26);
+            this.reprocessToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.reprocessToolStripMenuItem.Text = "Reprocess";
             this.reprocessToolStripMenuItem.Click += new System.EventHandler(this.reprocessToolStripMenuItem_Click);
             // 
             // loadPolarDataToolStripMenuItem
             // 
             this.loadPolarDataToolStripMenuItem.Name = "loadPolarDataToolStripMenuItem";
-            this.loadPolarDataToolStripMenuItem.Size = new System.Drawing.Size(191, 26);
+            this.loadPolarDataToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.loadPolarDataToolStripMenuItem.Text = "Load Polar Data";
             this.loadPolarDataToolStripMenuItem.Click += new System.EventHandler(this.loadPolarDataToolStripMenuItem_Click);
             // 
@@ -149,59 +150,67 @@
             this.newTackingWindowToolStripMenuItem,
             this.newMetaDataToolStripMenuItem,
             this.connectionToolStripMenuItem,
-            this.upwindAnalysisToolStripMenuItem});
+            this.upwindAnalysisToolStripMenuItem,
+            this.comPortTesterToolStripMenuItem});
             this.toolStripComboBox2.Name = "toolStripComboBox2";
-            this.toolStripComboBox2.Size = new System.Drawing.Size(78, 24);
+            this.toolStripComboBox2.Size = new System.Drawing.Size(64, 22);
             this.toolStripComboBox2.Text = "Window";
             // 
             // newVideoToolStripMenuItem
             // 
             this.newVideoToolStripMenuItem.Name = "newVideoToolStripMenuItem";
-            this.newVideoToolStripMenuItem.Size = new System.Drawing.Size(228, 26);
+            this.newVideoToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.newVideoToolStripMenuItem.Text = "New Video";
             this.newVideoToolStripMenuItem.Click += new System.EventHandler(this.newVideoToolStripMenuItem_Click);
             // 
             // newGraphToolStripMenuItem
             // 
             this.newGraphToolStripMenuItem.Name = "newGraphToolStripMenuItem";
-            this.newGraphToolStripMenuItem.Size = new System.Drawing.Size(228, 26);
+            this.newGraphToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.newGraphToolStripMenuItem.Text = "New Graph";
             this.newGraphToolStripMenuItem.Click += new System.EventHandler(this.newGraphToolStripMenuItem_Click);
             // 
             // newMapToolStripMenuItem
             // 
             this.newMapToolStripMenuItem.Name = "newMapToolStripMenuItem";
-            this.newMapToolStripMenuItem.Size = new System.Drawing.Size(228, 26);
+            this.newMapToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.newMapToolStripMenuItem.Text = "New Map";
             this.newMapToolStripMenuItem.Click += new System.EventHandler(this.newMapToolStripMenuItem_Click);
             // 
             // newHistogramToolStripMenuItem
             // 
             this.newHistogramToolStripMenuItem.Name = "newHistogramToolStripMenuItem";
-            this.newHistogramToolStripMenuItem.Size = new System.Drawing.Size(228, 26);
+            this.newHistogramToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.newHistogramToolStripMenuItem.Text = "New Histogram";
             this.newHistogramToolStripMenuItem.Click += new System.EventHandler(this.newHistogramToolStripMenuItem_Click);
             // 
             // newTackingWindowToolStripMenuItem
             // 
             this.newTackingWindowToolStripMenuItem.Name = "newTackingWindowToolStripMenuItem";
-            this.newTackingWindowToolStripMenuItem.Size = new System.Drawing.Size(228, 26);
+            this.newTackingWindowToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.newTackingWindowToolStripMenuItem.Text = "New Tacking Window";
             this.newTackingWindowToolStripMenuItem.Click += new System.EventHandler(this.newTackingWindowToolStripMenuItem_Click);
             // 
             // newMetaDataToolStripMenuItem
             // 
             this.newMetaDataToolStripMenuItem.Name = "newMetaDataToolStripMenuItem";
-            this.newMetaDataToolStripMenuItem.Size = new System.Drawing.Size(228, 26);
+            this.newMetaDataToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.newMetaDataToolStripMenuItem.Text = "New Meta Data";
             this.newMetaDataToolStripMenuItem.Click += new System.EventHandler(this.newMetaDataToolStripMenuItem_Click);
             // 
             // connectionToolStripMenuItem
             // 
             this.connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
-            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(228, 26);
+            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.connectionToolStripMenuItem.Text = "Connection";
             this.connectionToolStripMenuItem.Click += new System.EventHandler(this.connectionToolStripMenuItem_Click);
+            // 
+            // upwindAnalysisToolStripMenuItem
+            // 
+            this.upwindAnalysisToolStripMenuItem.Name = "upwindAnalysisToolStripMenuItem";
+            this.upwindAnalysisToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.upwindAnalysisToolStripMenuItem.Text = "Upwind Analysis";
+            this.upwindAnalysisToolStripMenuItem.Click += new System.EventHandler(this.upwindAnalysisToolStripMenuItem_Click);
             // 
             // OpenVideoFile
             // 
@@ -231,9 +240,10 @@
             this.MainDockPanel.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.MainDockPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.MainDockPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MainDockPanel.Location = new System.Drawing.Point(0, 27);
+            this.MainDockPanel.Location = new System.Drawing.Point(0, 25);
+            this.MainDockPanel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.MainDockPanel.Name = "MainDockPanel";
-            this.MainDockPanel.Size = new System.Drawing.Size(631, 373);
+            this.MainDockPanel.Size = new System.Drawing.Size(473, 300);
             dockPanelGradient1.EndColor = System.Drawing.SystemColors.ControlLight;
             dockPanelGradient1.StartColor = System.Drawing.SystemColors.ControlLight;
             autoHideStripSkin1.DockStripGradient = dockPanelGradient1;
@@ -287,21 +297,22 @@
             this.OpenPolarFile.FileName = "myPolarFile";
             this.OpenPolarFile.Filter = "pol files (*.pol)|*.pol";
             // 
-            // upwindAnalysisToolStripMenuItem
+            // comPortTesterToolStripMenuItem
             // 
-            this.upwindAnalysisToolStripMenuItem.Name = "upwindAnalysisToolStripMenuItem";
-            this.upwindAnalysisToolStripMenuItem.Size = new System.Drawing.Size(228, 26);
-            this.upwindAnalysisToolStripMenuItem.Text = "Upwind Analysis";
-            this.upwindAnalysisToolStripMenuItem.Click += new System.EventHandler(this.upwindAnalysisToolStripMenuItem_Click);
+            this.comPortTesterToolStripMenuItem.Name = "comPortTesterToolStripMenuItem";
+            this.comPortTesterToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.comPortTesterToolStripMenuItem.Text = "ComPortTester";
+            this.comPortTesterToolStripMenuItem.Click += new System.EventHandler(this.comPortTesterToolStripMenuItem_Click);
             // 
             // PAMainWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(631, 400);
+            this.ClientSize = new System.Drawing.Size(473, 325);
             this.Controls.Add(this.MainDockPanel);
             this.Controls.Add(this.toolStrip1);
             this.IsMdiContainer = true;
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "PAMainWindow";
             this.Text = "NMEA Performance Analyzer";
             this.Load += new System.EventHandler(this.PAMainWindow_Load);
@@ -338,7 +349,7 @@
         private System.Windows.Forms.OpenFileDialog OpenPolarFile;
         private System.Windows.Forms.ToolStripMenuItem connectionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem upwindAnalysisToolStripMenuItem;
-
+        private System.Windows.Forms.ToolStripMenuItem comPortTesterToolStripMenuItem;
     }
 }
 

@@ -617,5 +617,18 @@ namespace NMEAViewer
         {
             HookupUserAddedPanel(new UpwindAnalysis(m_Data, m_PolarData));
         }
+
+        private void comPortTesterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (ComOutTester.sm_Tester == null)
+            {
+                ComOutTester.sm_Tester = new ComOutTester();
+                ComOutTester.sm_Tester.Show();
+            }
+            else
+            {
+                ComOutTester.sm_Tester.BringToFront();
+            }
+        }
     }
 }
