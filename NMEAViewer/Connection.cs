@@ -260,7 +260,7 @@ namespace NMEAViewer
                     m_DataWriter = null;
                 }
 
-                if(TCPConnection.Connected)
+                if(TCPConnection != null && TCPConnection.Connected)
                 {
                     if (TCPConnection.GetStream() != null)
                     {

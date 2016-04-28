@@ -38,10 +38,10 @@
             this.DataBitsTextBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.ParityChoice = new System.Windows.Forms.ComboBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
             this.StopBits = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.ParityChoice = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -78,7 +78,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(15, 23);
+            this.label1.Location = new System.Drawing.Point(25, 23);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(54, 13);
             this.label1.TabIndex = 4;
@@ -129,37 +129,6 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Connection info";
             // 
-            // ParityChoice
-            // 
-            this.ParityChoice.FormattingEnabled = true;
-            this.ParityChoice.Items.AddRange(new object[] {
-            "None",
-            "Odd",
-            "Even"});
-            this.ParityChoice.Location = new System.Drawing.Point(75, 100);
-            this.ParityChoice.Name = "ParityChoice";
-            this.ParityChoice.Size = new System.Drawing.Size(100, 21);
-            this.ParityChoice.TabIndex = 8;
-            this.ParityChoice.Text = "None";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(36, 103);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(33, 13);
-            this.label4.TabIndex = 9;
-            this.label4.Text = "Parity";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(25, 131);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(45, 13);
-            this.label5.TabIndex = 11;
-            this.label5.Text = "Stopbits";
-            // 
             // StopBits
             // 
             this.StopBits.FormattingEnabled = true;
@@ -173,6 +142,37 @@
             this.StopBits.Size = new System.Drawing.Size(100, 21);
             this.StopBits.TabIndex = 12;
             this.StopBits.Text = "One";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(25, 131);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(45, 13);
+            this.label5.TabIndex = 11;
+            this.label5.Text = "Stopbits";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(36, 103);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(33, 13);
+            this.label4.TabIndex = 9;
+            this.label4.Text = "Parity";
+            // 
+            // ParityChoice
+            // 
+            this.ParityChoice.FormattingEnabled = true;
+            this.ParityChoice.Items.AddRange(new object[] {
+            "None",
+            "Odd",
+            "Even"});
+            this.ParityChoice.Location = new System.Drawing.Point(75, 100);
+            this.ParityChoice.Name = "ParityChoice";
+            this.ParityChoice.Size = new System.Drawing.Size(100, 21);
+            this.ParityChoice.TabIndex = 8;
+            this.ParityChoice.Text = "None";
             // 
             // ComOutTester
             // 

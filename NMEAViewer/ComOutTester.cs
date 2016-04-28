@@ -69,8 +69,14 @@ namespace NMEAViewer
                 serialPort1.Parity = (System.IO.Ports.Parity)Enum.Parse(typeof(System.IO.Ports.Parity), ParityChoice.Text);
                 serialPort1.StopBits = (System.IO.Ports.StopBits)Enum.Parse(typeof(System.IO.Ports.StopBits), StopBits.Text);
                 serialPort1.BaudRate = Convert.ToInt32(BaudRateTextBox.Text);
-                
-                serialPort1.Open();
+
+                try {
+                    serialPort1.Open();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Failed to open port: {0}", ex.Message);
+                }
             }
 
             SetDialogState();
