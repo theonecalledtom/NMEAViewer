@@ -227,6 +227,9 @@ namespace NMEAViewer
             if (parts[0].Length == 0)
                 return;
 
+            if (parts[4].Length == 0)
+                return;
+
             if (m_bHasData)
             {
                 //I was getting some dodgy out of sequence GPS data so have started filtering out odd looking jumps - more than 30 minutes in either direction
