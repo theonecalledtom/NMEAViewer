@@ -193,22 +193,25 @@ namespace NMEAViewer
                 m_AppSettings.ComportUsed = ComportConnectPanel.Enabled;
                 if (ComportConnectPanel.Enabled)
                 {
-                    serialPort1.PortName = OpenPortComboList.SelectedItem.ToString();
-
-                    if (m_AppSettings.LastPortConnected != serialPort1.PortName)
+                    if (OpenPortComboList.SelectedItem != null)
                     {
-                        m_AppSettings.LastPortConnected = serialPort1.PortName;
-                        m_AppSettings.Save();
+                        serialPort1.PortName = OpenPortComboList.SelectedItem.ToString();
+
+                        if (m_AppSettings.LastPortConnected != serialPort1.PortName)
+                        {
+                            m_AppSettings.LastPortConnected = serialPort1.PortName;
+                            m_AppSettings.Save();
+                        }
+
+                        //                serialPort1.ReadTimeout = 5000;
+
+                        serialPort1.Open();
+                        m_iBytesRead = 0;
+                        m_StartTime = DateTime.UtcNow;
+
+                        //Let others know
+                        OnNewConnection();
                     }
-
-                    //                serialPort1.ReadTimeout = 5000;
-
-                    serialPort1.Open();
-                    m_iBytesRead = 0;
-                    m_StartTime = DateTime.UtcNow;
-
-                    //Let others know
-                    OnNewConnection();
                 }
                 else
                 {
