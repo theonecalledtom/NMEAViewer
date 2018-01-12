@@ -48,9 +48,11 @@
             this.gMapControl1.HelperLineOption = GMap.NET.WindowsForms.HelperLineOptions.DontShow;
             this.gMapControl1.LevelsKeepInMemmory = 5;
             this.gMapControl1.Location = new System.Drawing.Point(0, 0);
+            this.gMapControl1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.gMapControl1.MarkersEnabled = true;
             this.gMapControl1.MaxZoom = 2;
             this.gMapControl1.MinZoom = 2;
+            this.gMapControl1.MouseWheelZoomEnabled = true;
             this.gMapControl1.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionAndCenter;
             this.gMapControl1.Name = "gMapControl1";
             this.gMapControl1.NegativeMode = false;
@@ -60,21 +62,21 @@
             this.gMapControl1.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
             this.gMapControl1.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
             this.gMapControl1.ShowTileGridLines = false;
-            this.gMapControl1.Size = new System.Drawing.Size(282, 235);
+            this.gMapControl1.Size = new System.Drawing.Size(212, 179);
             this.gMapControl1.TabIndex = 0;
             this.gMapControl1.Zoom = 0D;
             // 
             // menuStrip1
             // 
-            this.menuStrip1.AutoSize = false;
             this.menuStrip1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.menuStrip1.Font = new System.Drawing.Font("Segoe UI", 7.000003F);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.locationToolStripMenuItem,
             this.mapTypeToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 235);
+            this.menuStrip1.Location = new System.Drawing.Point(0, 179);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(282, 20);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
+            this.menuStrip1.Size = new System.Drawing.Size(212, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -85,13 +87,13 @@
             this.trackCurrentToolStripMenuItem,
             this.selectionToolStripMenuItem});
             this.locationToolStripMenuItem.Name = "locationToolStripMenuItem";
-            this.locationToolStripMenuItem.Size = new System.Drawing.Size(65, 16);
+            this.locationToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
             this.locationToolStripMenuItem.Text = "Location";
             // 
             // centerOnMapToolStripMenuItem
             // 
             this.centerOnMapToolStripMenuItem.Name = "centerOnMapToolStripMenuItem";
-            this.centerOnMapToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.centerOnMapToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.centerOnMapToolStripMenuItem.Text = "Center on route";
             this.centerOnMapToolStripMenuItem.Click += new System.EventHandler(this.centerOnMapToolStripMenuItem_Click);
             // 
@@ -101,36 +103,38 @@
             this.trackCurrentToolStripMenuItem.CheckOnClick = true;
             this.trackCurrentToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.trackCurrentToolStripMenuItem.Name = "trackCurrentToolStripMenuItem";
-            this.trackCurrentToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.trackCurrentToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.trackCurrentToolStripMenuItem.Text = "TrackCurrent";
             // 
             // selectionToolStripMenuItem
             // 
             this.selectionToolStripMenuItem.Name = "selectionToolStripMenuItem";
-            this.selectionToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.selectionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.selectionToolStripMenuItem.Text = "Selection";
             this.selectionToolStripMenuItem.Click += new System.EventHandler(this.selectionToolStripMenuItem_Click);
             // 
             // mapTypeToolStripMenuItem
             // 
             this.mapTypeToolStripMenuItem.Name = "mapTypeToolStripMenuItem";
-            this.mapTypeToolStripMenuItem.Size = new System.Drawing.Size(69, 16);
+            this.mapTypeToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
             this.mapTypeToolStripMenuItem.Text = "MapType";
             this.mapTypeToolStripMenuItem.Click += new System.EventHandler(this.mapTypeToolStripMenuItem_Click);
             // 
             // MapWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(282, 255);
+            this.ClientSize = new System.Drawing.Size(212, 203);
             this.Controls.Add(this.gMapControl1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "MapWindow";
             this.Text = "MapWindow";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
