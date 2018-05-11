@@ -310,7 +310,10 @@ namespace NMEAViewer
             }
 
             //Send data to any listeners
-            OnDataRecieved(sdata, (DateTime.UtcNow - m_StartTime).TotalSeconds);
+            if (checkBox_Forward.Checked)
+            {
+                OnDataRecieved(sdata, (DateTime.UtcNow - m_StartTime).TotalSeconds);
+            }
         }
 
         private void SerialPort_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
