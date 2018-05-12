@@ -58,6 +58,7 @@
             this.IPRadioButton = new System.Windows.Forms.RadioButton();
             this.OpenRecordingDialog = new System.Windows.Forms.OpenFileDialog();
             this.checkBox_Forward = new System.Windows.Forms.CheckBox();
+            this.checkBox_WriteRaw = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.BytesReadNumber)).BeginInit();
             this.OutputFileGroupBox.SuspendLayout();
             this.SimulationGroup.SuspendLayout();
@@ -160,6 +161,7 @@
             // 
             // OutputFileGroupBox
             // 
+            this.OutputFileGroupBox.Controls.Add(this.checkBox_WriteRaw);
             this.OutputFileGroupBox.Controls.Add(this.BrowseForOutput);
             this.OutputFileGroupBox.Controls.Add(this.OutputFileEnabled);
             this.OutputFileGroupBox.Controls.Add(this.OutputFileName);
@@ -167,7 +169,7 @@
             this.OutputFileGroupBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.OutputFileGroupBox.Name = "OutputFileGroupBox";
             this.OutputFileGroupBox.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.OutputFileGroupBox.Size = new System.Drawing.Size(200, 77);
+            this.OutputFileGroupBox.Size = new System.Drawing.Size(200, 114);
             this.OutputFileGroupBox.TabIndex = 9;
             this.OutputFileGroupBox.TabStop = false;
             this.OutputFileGroupBox.Text = "Output file";
@@ -194,7 +196,7 @@
             this.SimulationGroup.Controls.Add(this.label1);
             this.SimulationGroup.Controls.Add(this.SimulationFileName);
             this.SimulationGroup.Controls.Add(this.OpenCloseSimulation);
-            this.SimulationGroup.Location = new System.Drawing.Point(7, 312);
+            this.SimulationGroup.Location = new System.Drawing.Point(8, 349);
             this.SimulationGroup.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.SimulationGroup.Name = "SimulationGroup";
             this.SimulationGroup.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
@@ -277,7 +279,7 @@
             this.OpenCloseSimulation.Location = new System.Drawing.Point(5, 18);
             this.OpenCloseSimulation.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.OpenCloseSimulation.Name = "OpenCloseSimulation";
-            this.OpenCloseSimulation.Size = new System.Drawing.Size(56, 19);
+            this.OpenCloseSimulation.Size = new System.Drawing.Size(56, 20);
             this.OpenCloseSimulation.TabIndex = 0;
             this.OpenCloseSimulation.Text = "Open";
             this.OpenCloseSimulation.UseVisualStyleBackColor = true;
@@ -401,11 +403,21 @@
             this.checkBox_Forward.Text = "Forward to app";
             this.checkBox_Forward.UseVisualStyleBackColor = true;
             // 
+            // checkBox_WriteRaw
+            // 
+            this.checkBox_WriteRaw.AutoSize = true;
+            this.checkBox_WriteRaw.Location = new System.Drawing.Point(6, 75);
+            this.checkBox_WriteRaw.Name = "checkBox_WriteRaw";
+            this.checkBox_WriteRaw.Size = new System.Drawing.Size(119, 17);
+            this.checkBox_WriteRaw.TabIndex = 9;
+            this.checkBox_WriteRaw.Text = "Also write raw bytes";
+            this.checkBox_WriteRaw.UseVisualStyleBackColor = true;
+            // 
             // Connection
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(216, 407);
+            this.ClientSize = new System.Drawing.Size(216, 461);
             this.Controls.Add(this.PortGroupBox);
             this.Controls.Add(this.SimulationGroup);
             this.Controls.Add(this.OutputFileGroupBox);
@@ -460,5 +472,6 @@
         private System.Windows.Forms.Panel IPConnectPanel;
         private System.Windows.Forms.RadioButton IPRadioButton;
         private System.Windows.Forms.CheckBox checkBox_Forward;
+        private System.Windows.Forms.CheckBox checkBox_WriteRaw;
     }
 }

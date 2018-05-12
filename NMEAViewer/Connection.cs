@@ -26,6 +26,7 @@ namespace NMEAViewer
         bool m_bValidIPAndPort=false;
 
         public delegate void VoidConsumer();  // defines a delegate type
+        public delegate void DataConsumer(byte []data);  // defines a delegate type
         public delegate void StringConsumer(string value);  // defines a delegate type
         public delegate void OnNewConnectionType();
         public delegate void OnNewData(string value, double fElapsedTime);
@@ -298,11 +299,20 @@ namespace NMEAViewer
             }
         }
 
-        private void OnDataReceivedMainThread(string sdata)
+        System.IO.FileStream m_RawDataStream;
+        private void OnRawDataReceivedMainThread(byte []data)
         {
-            m_iBytesRead += sdata.Length;
+            m_iBytesRead += data.Length;
             BytesReadNumber.Value = m_iBytesRead;
 
+            if (m_RawDataStream != null)
+            {
+                m_RawDataStream.Write(data, 0, data.Length);
+            }
+        }
+
+        private void OnDataReceivedMainThread(string sdata)
+        {
             //Write to the output file if it exists
             if (m_DataWriter != null)
             {
@@ -319,9 +329,20 @@ namespace NMEAViewer
         private void SerialPort_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             System.IO.Ports.SerialPort sp = (System.IO.Ports.SerialPort)sender;
-            string s = sp.ReadExisting();
-            Console.WriteLine(s);
-            Invoke(new StringConsumer(OnDataReceivedMainThread), s);
+
+            int bytesToRead = sp.BytesToRead;
+            if (bytesToRead > 0)
+            {
+                byte[] data = new byte[bytesToRead];
+                sp.Read(data, 0, bytesToRead);
+                Invoke(new DataConsumer(OnRawDataReceivedMainThread), data);
+
+                //convert to string
+                //string s = sp.ReadExisting();
+                var s = System.Text.Encoding.Default.GetString(data);
+                Console.WriteLine(s);
+                Invoke(new StringConsumer(OnDataReceivedMainThread), s);
+            }
         }
 
         private void SerialPort_ErrorReceived(object sender, System.IO.Ports.SerialErrorReceivedEventArgs e)
@@ -388,6 +409,11 @@ namespace NMEAViewer
                 m_DataWriter = null;
             }
 
+            if (m_RawDataStream != null)
+            {
+                m_RawDataStream = null;
+            }
+
             System.IO.Stream s = OutputFileDialog.OpenFile();
             if (s != null)
             {
@@ -395,6 +421,15 @@ namespace NMEAViewer
                 m_DataWriter.Start(s);
                 return true;
             }
+
+
+            if (checkBox_WriteRaw.Checked)
+            {
+                var rawStream = OutputFileDialog.FileName + ".raw";
+                m_RawDataStream = System.IO.File.OpenWrite(rawStream);
+                m_RawDataStream.WriteByte(123);
+            }
+
             return false;
         }
 
