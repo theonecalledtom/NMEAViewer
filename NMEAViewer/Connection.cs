@@ -419,7 +419,6 @@ namespace NMEAViewer
             {
                 m_DataWriter = new DataWriter();
                 m_DataWriter.Start(s);
-                return true;
             }
 
 
@@ -429,8 +428,7 @@ namespace NMEAViewer
                 m_RawDataStream = System.IO.File.OpenWrite(rawStream);
                 m_RawDataStream.WriteByte(123);
             }
-
-            return false;
+            return true;
         }
 
         private void BrowseForOutput_Click(object sender, EventArgs e)
