@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace NMEAViewer
 {
-    public partial class Connection : Form
+    public partial class Connection : DockableDrawable // Form
     {
         int m_iBytesRead = 0;
         //NMEAStreamReader m_Reader;
@@ -25,7 +25,7 @@ namespace NMEAViewer
         TcpClient TCPConnection;
         bool m_bValidIPAndPort=false;
 
-        public delegate void VoidConsumer();  // defines a delegate type
+        //public delegate void VoidConsumer();  // defines a delegate type
         public delegate void DataConsumer(byte []data);  // defines a delegate type
         public delegate void StringConsumer(string value);  // defines a delegate type
         public delegate void OnNewConnectionType();
@@ -34,6 +34,38 @@ namespace NMEAViewer
         public event OnNewData OnDataRecieved;
 
         public static Connection sm_Connection = null;
+
+
+        private class SerializedData : DockableDrawable.SerializedDataBase
+        {
+            public SerializedData(DockableDrawable parent)
+                : base(parent) { }
+
+            
+        };
+
+        public override DockableDrawable.SerializedDataBase CreateSerializedData()
+        {
+            SerializedData data = new SerializedData(this);
+            //Store data out here?
+            return data;
+        }
+
+        public override void InitFromSerializedData(SerializedDataBase data_base)
+        {
+            base.InitFromSerializedData(data_base);
+
+            SerializedData data = (SerializedData)data_base;
+   
+            //Restore IPs etc?
+        }
+
+        public override void PostInitFromSerializedData(SerializedDataBase data_base)
+        {
+            SerializedData data = (SerializedData)data_base;
+            
+            //? Try open connection ?
+        }
 
         public Connection(MetaDataSerializer metaData, ApplicationSettings appSettings)
         {

@@ -181,6 +181,14 @@ namespace NMEAViewer
             {
                 return new UpwindAnalysis(m_Data, m_PolarData);
             }
+            else if (typeName == typeof(NMEAViewer.Connection).ToString())
+            {
+                Connection c = new Connection(m_MetaData, m_AppSettings);
+                Connection.sm_Connection = c;
+                c.OnNewConnection += PortConnection_OnNewConnection;
+                c.OnDataRecieved += OnDataRecieved;
+                return c;
+            }
             return null;
         }
 
@@ -614,11 +622,14 @@ namespace NMEAViewer
                 Connection.sm_Connection = new Connection(m_MetaData, m_AppSettings);
                 Connection.sm_Connection.OnNewConnection += PortConnection_OnNewConnection;
                 Connection.sm_Connection.OnDataRecieved += OnDataRecieved;
-                Connection.sm_Connection.Show();
+                //Connection.sm_Connection.Show();
+
+                HookupUserAddedPanel(Connection.sm_Connection);
             }
             else
             {
-                Connection.sm_Connection.BringToFront();
+                Connection.sm_Connection.Activate();
+                //Connection.sm_Connection.BringToFront();
             }
         }
 
