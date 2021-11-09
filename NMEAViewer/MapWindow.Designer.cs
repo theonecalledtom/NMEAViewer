@@ -63,7 +63,7 @@
             this.gMapControl1.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Fractional;
             this.gMapControl1.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
             this.gMapControl1.ShowTileGridLines = false;
-            this.gMapControl1.Size = new System.Drawing.Size(464, 353);
+            this.gMapControl1.Size = new System.Drawing.Size(464, 342);
             this.gMapControl1.TabIndex = 0;
             this.gMapControl1.Zoom = 0D;
             // 
@@ -71,14 +71,15 @@
             // 
             this.menuStrip1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.menuStrip1.Font = new System.Drawing.Font("Segoe UI", 7.000003F);
+            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.locationToolStripMenuItem,
             this.mapTypeToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 353);
+            this.menuStrip1.Location = new System.Drawing.Point(0, 342);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(8, 4, 0, 4);
-            this.menuStrip1.Size = new System.Drawing.Size(464, 37);
+            this.menuStrip1.Size = new System.Drawing.Size(464, 48);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -89,7 +90,7 @@
             this.trackCurrentToolStripMenuItem,
             this.selectionToolStripMenuItem});
             this.locationToolStripMenuItem.Name = "locationToolStripMenuItem";
-            this.locationToolStripMenuItem.Size = new System.Drawing.Size(104, 29);
+            this.locationToolStripMenuItem.Size = new System.Drawing.Size(104, 40);
             this.locationToolStripMenuItem.Text = "Location";
             // 
             // centerOnMapToolStripMenuItem
@@ -118,7 +119,8 @@
             // mapTypeToolStripMenuItem
             // 
             this.mapTypeToolStripMenuItem.Name = "mapTypeToolStripMenuItem";
-            this.mapTypeToolStripMenuItem.Size = new System.Drawing.Size(109, 29);
+            this.mapTypeToolStripMenuItem.Overflow = System.Windows.Forms.ToolStripItemOverflow.AsNeeded;
+            this.mapTypeToolStripMenuItem.Size = new System.Drawing.Size(109, 40);
             this.mapTypeToolStripMenuItem.Text = "MapType";
             this.mapTypeToolStripMenuItem.Click += new System.EventHandler(this.mapTypeToolStripMenuItem_Click);
             // 

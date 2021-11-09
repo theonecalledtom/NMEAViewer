@@ -43,6 +43,7 @@ namespace NMEAViewer
 
             public string IP;
             public bool bIPChecked;
+            public bool bComChecked;
 
             public string OutputFileName;
             public string SimulationFileName;
@@ -53,6 +54,7 @@ namespace NMEAViewer
             SerializedData data = new SerializedData(this);
             data.IP = IPTextBox.Text;
             data.bIPChecked = IPRadioButton.Checked;
+            data.bComChecked = ComportRadioButton.Checked;
             data.OutputFileName = OutputFileName.Text;
             data.SimulationFileName = SimulationFileName.Text;
             
@@ -66,6 +68,7 @@ namespace NMEAViewer
             SerializedData data = (SerializedData)data_base;
             IPTextBox.Text = data.IP;
             IPRadioButton.Checked = data.bIPChecked;
+            ComportRadioButton.Checked = data.bComChecked;
             OutputFileName.Text = data.OutputFileName;
             SimulationFileName.Text = data.SimulationFileName;
         }
