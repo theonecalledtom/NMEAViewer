@@ -86,6 +86,20 @@ namespace NMEAViewer
             }
         }
 
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            //base.OnMouseWheel(e);
+
+            double factor = (e.Delta + 5000.0) / 5000.0;
+            if (factor < 0.1)
+            {
+                factor = 0.1;
+            }
+            double zoom = gMapControl1.Zoom;
+            zoom *= factor;
+            gMapControl1.Zoom = zoom;
+        }
+
         public override void PostInitFromSerializedData(SerializedDataBase data_base)
         {
             if (m_fEndSelection > m_fStartSelection)

@@ -41,13 +41,21 @@ namespace NMEAViewer
             public SerializedData(DockableDrawable parent)
                 : base(parent) { }
 
-            
+            public string IP;
+            public bool bIPChecked;
+
+            public string OutputFileName;
+            public string SimulationFileName;
         };
 
         public override DockableDrawable.SerializedDataBase CreateSerializedData()
         {
             SerializedData data = new SerializedData(this);
-            //Store data out here?
+            data.IP = IPTextBox.Text;
+            data.bIPChecked = IPRadioButton.Checked;
+            data.OutputFileName = OutputFileName.Text;
+            data.SimulationFileName = SimulationFileName.Text;
+            
             return data;
         }
 
@@ -56,8 +64,10 @@ namespace NMEAViewer
             base.InitFromSerializedData(data_base);
 
             SerializedData data = (SerializedData)data_base;
-   
-            //Restore IPs etc?
+            IPTextBox.Text = data.IP;
+            IPRadioButton.Checked = data.bIPChecked;
+            OutputFileName.Text = data.OutputFileName;
+            SimulationFileName.Text = data.SimulationFileName;
         }
 
         public override void PostInitFromSerializedData(SerializedDataBase data_base)
