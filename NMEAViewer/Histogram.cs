@@ -80,7 +80,6 @@ namespace NMEAViewer
             base.InitFromSerializedData(data_base);
 
             SerializedData data = (SerializedData)data_base;
-
             m_fStartTime = data.m_fStartTime;
             m_fEndTime = data.m_fEndTime;
             m_fSecondsTracked = data.m_fSecondsTracked;

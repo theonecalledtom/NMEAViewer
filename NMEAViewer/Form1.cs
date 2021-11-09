@@ -25,11 +25,20 @@ namespace NMEAViewer
 
         double m_fTimeToAutoSaveSettings = 0.0;
 
+        string GetDefaultLayoutPath()
+        {
+            var fileName = System.IO.Path.Combine(
+                                        Environment.GetFolderPath(
+                                                Environment.SpecialFolder.ApplicationData), "lastlayout.xml");
+            return fileName;
+        }
         public PAMainWindow()
         {
             MetaDataWindow.StaticInit();
 
             InitializeComponent();
+
+            MainDockPanel.Theme = vS2015DarkTheme1;
 
             InitProjectData();
 
@@ -44,7 +53,7 @@ namespace NMEAViewer
             if (m_AppSettings == null)
             {
                 m_AppSettings = new ApplicationSettings();
-                m_AppSettings.ProjectName = "lastlayout.xml";
+                m_AppSettings.ProjectName = GetDefaultLayoutPath();
             }
             else
             {
@@ -107,7 +116,7 @@ namespace NMEAViewer
                     }
                     else 
                     {
-                        SaveProject("lastlayout.xml");
+                        SaveProject(GetDefaultLayoutPath());
                     }
                 }
             }
@@ -517,7 +526,7 @@ namespace NMEAViewer
             }
             else
             {
-                LoadProject("lastlayout.xml");
+                LoadProject(GetDefaultLayoutPath());
             }
 
             if (m_MetaData == null)
