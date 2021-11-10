@@ -73,6 +73,7 @@ namespace NMEAViewer
             Pen overlayPen = new Pen(new SolidBrush(Color.Gray));
             overlayPen.Width = 1.0f;
 
+            //Draw polar compass rose
             float width = (float)PolarDrawArea.ClientSize.Width;
             float height = (float)PolarDrawArea.ClientSize.Height;
             float mid_w = width / 2.0f;
@@ -82,7 +83,7 @@ namespace NMEAViewer
             float last_x = 0.0f;
             float MaxLen = Math.Min(mid_w, mid_y);
             float MaxSpd = 15.0f;
-            for (double angle = 35.0; angle <= 180.0 ; angle += 10.0)
+            for (double angle = 10.0; angle <= 180.0 ; angle += 10.0)
             {
                 var sin = (float)Math.Sin(AngleUtil.DegToRad * angle);
                 var cos = (float)Math.Cos(AngleUtil.DegToRad * angle);

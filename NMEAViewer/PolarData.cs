@@ -100,6 +100,11 @@ namespace NMEAViewer
             public double GetBoatSpeed(double fAngleToWind)
             {
                 fAngleToWind = Math.Min(Math.Abs(fAngleToWind), 179.9);
+                if (m_fAngles[0] > fAngleToWind)
+                {
+                    return m_fBoatSpeeds[0] * fAngleToWind / m_fAngles[0]; //Not very accurate!
+                }
+
                 for (int i = 1; i < m_fAngles.Length; i++)
                 {
                     if (m_fAngles[i] > fAngleToWind)
