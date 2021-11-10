@@ -15,6 +15,7 @@ namespace NMEAViewer
         private NMEACruncher data;
         private PolarData polarData;
         private float TWS = 6.0f;       //Hacked value for testing...
+        private float TWA = 60.0f;      //Hacked value for testing...
 
         private class SerializedData : DockableDrawable.SerializedDataBase
         {
@@ -61,6 +62,12 @@ namespace NMEAViewer
             PolarDrawArea.Refresh();
         }
 
+        private void SetWindAngle(float twa)
+        {
+            TWA = twa;
+            PolarDrawArea.Refresh();
+        }
+
         private void PolarDrawArea_Paint(object sender, PaintEventArgs e)
         {
             Pen overlayPen = new Pen(new SolidBrush(Color.Gray));
@@ -96,6 +103,18 @@ namespace NMEAViewer
                 last_x = new_x;
                 last_y = new_y;
             }
+
+            //Draw current TWA info
+            Pen currentPen = new Pen(new SolidBrush(Color.Red));
+            currentPen.Width = 1.0f;
+            var sinTWA = (float)Math.Sin(AngleUtil.DegToRad * TWA);
+            var cosTWA = (float)Math.Cos(AngleUtil.DegToRad * TWA);
+
+            float spdTWA = (float)polarData.GetBestPolarSpeed(TWS, TWA);
+            float twa_x = sinTWA * spdTWA * MaxLen / MaxSpd;
+            float twa_y = -cosTWA * spdTWA * MaxLen / MaxSpd;
+
+            e.Graphics.DrawLine(currentPen, mid_w, mid_y, mid_w + twa_x, mid_y + twa_y);
         }
     }
 }
