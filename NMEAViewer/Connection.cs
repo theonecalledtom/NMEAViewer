@@ -71,6 +71,8 @@ namespace NMEAViewer
             ComportRadioButton.Checked = data.bComChecked;
             OutputFileName.Text = data.OutputFileName;
             SimulationFileName.Text = data.SimulationFileName;
+
+            LogBox.Text += "Restored settings from saved project\r\n";
         }
 
         public override void PostInitFromSerializedData(SerializedDataBase data_base)
@@ -102,10 +104,19 @@ namespace NMEAViewer
             PortTextBox.TextChanged += PortTextBox_TextChanged;
             IPRadioButton.Checked = !appSettings.ComportUsed;
 
+            LogBox.Text += "Connection system ready\r\n";
+            LogBox.TextChanged += LogBox_TextChanged;
+
             sm_Connection = this;
             Disposed += Connection_Disposed;
 
             ValidatePortAndIP();
+        }
+
+        private void LogBox_TextChanged(object sender, EventArgs e)
+        {
+            LogBox.SelectionStart = LogBox.Text.Length;
+            LogBox.ScrollToCaret();
         }
 
         void ValidatePortAndIP()
@@ -180,7 +191,8 @@ namespace NMEAViewer
             OpenPortComboList.Items.Clear();
 
             bool bHasSelected = false;
-            for (int i = 0; i < System.IO.Ports.SerialPort.GetPortNames().Count(); i++ )
+            var portCount = System.IO.Ports.SerialPort.GetPortNames().Count();
+            for (int i = 0; i < portCount ; i++ )
             {
                 OpenPortComboList.Items.Add(System.IO.Ports.SerialPort.GetPortNames()[i]);
 
@@ -190,6 +202,11 @@ namespace NMEAViewer
                     OpenPortComboList.SelectedItem = OpenPortComboList.Items[i];
                 }
             }
+
+            LogBox.Text += "Found ";
+            LogBox.Text += portCount.ToString();
+            LogBox.Text += " ports\r\n";
+
             //foreach (string s in System.IO.Ports.SerialPort.GetPortNames())
             //    {
             //        OpenPortComboList.Items.Add(s);
@@ -210,6 +227,7 @@ namespace NMEAViewer
             if (OpenPortComboList.Items.Count == 0)
             {
                 MessageBox.Show("No open ports found");
+                LogBox.Text += "No open ports found\r\n";
             }
         }
 
@@ -257,6 +275,7 @@ namespace NMEAViewer
 
                         //Let others know
                         OnNewConnection();
+                        LogBox.Text += "Com port opened\r\n";
                     }
                 }
                 else
@@ -292,6 +311,7 @@ namespace NMEAViewer
                             TCPConnection.Client.BeginReceive(so.buffer, 0, so.buffer.Length, SocketFlags.None, new AsyncCallback(OnTcpRecieve), so);
                             
                             SetOpenCloseButtonState();
+                            LogBox.Text += "TCP port opened\r\n";
                         }
                     }
                     else
@@ -307,9 +327,11 @@ namespace NMEAViewer
                     serialPort1.Close();
                     m_DataWriter.End();
                     m_DataWriter = null;
+                    LogBox.Text += "Closed comm port\r\n";
+
                 }
 
-                if(TCPConnection != null && TCPConnection.Connected)
+                if (TCPConnection != null && TCPConnection.Connected)
                 {
                     if (TCPConnection.GetStream() != null)
                     {
@@ -317,6 +339,7 @@ namespace NMEAViewer
                     }
                     TCPConnection.Close();
                     TCPConnection = null;
+                    LogBox.Text += "Closed TCP connection\r\n";
                 }
             }
 
@@ -395,6 +418,10 @@ namespace NMEAViewer
             System.IO.Ports.SerialPort sp = (System.IO.Ports.SerialPort)sender;
             sp.Close();
             Invoke(new VoidConsumer(SetOpenCloseButtonState));
+
+            LogBox.Text += "ERRPR:\r\n";
+            LogBox.Text += e.ToString();
+            LogBox.Text += "\r\n";
         }
 
         private void SelectOutputFile()
@@ -409,6 +436,9 @@ namespace NMEAViewer
             if (OutputFileDialog.ShowDialog() == DialogResult.OK)
             {
                 OutputFileName.Text = OutputFileDialog.FileName;
+                LogBox.Text += "Opening: ";
+                LogBox.Text += OutputFileDialog.FileName;
+                LogBox.Text += "\r\n";
                 if (m_MetaData != null)
                 {
                     m_MetaData.OutputDataFileName = OutputFileDialog.FileName;
@@ -416,6 +446,10 @@ namespace NMEAViewer
                     //We'll want to load thiat back up!
                     m_MetaData.InputDataFileName = OutputFileDialog.FileName;
                     m_MetaData.MarkForAutoSave();
+                }
+                else
+                {
+                    LogBox.Text += "Null metadata\r\n";
                 }
             }
         }
@@ -540,12 +574,15 @@ namespace NMEAViewer
 
                             //Let others know
                             OnNewConnection();
+
+                            LogBox.Text += "Simulation started\r\n";
                         }
                         else 
                         {
                             SimulationFileName.Text = "Failed to read!";
                             m_SimulationStream.Close();
                             m_SimulationStream = null;
+                            LogBox.Text += "Simulation failed to read\r\n";
                         }
                     }
                 }
@@ -558,6 +595,7 @@ namespace NMEAViewer
                     m_SimulationStream.Close();
                     m_SimulationStream = null;
                     m_SimulationTimer = null;
+                    LogBox.Text += "Simulation closed\r\n";
                 }
 
                 OpenCloseSimulation.Text = "Open";
