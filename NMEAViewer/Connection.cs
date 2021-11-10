@@ -224,11 +224,11 @@ namespace NMEAViewer
         {
             SearchForPorts();
 
-            if (OpenPortComboList.Items.Count == 0)
-            {
-                MessageBox.Show("No open ports found");
-                LogBox.Text += "No open ports found\r\n";
-            }
+        //    if (OpenPortComboList.Items.Count == 0)
+        //    {
+        //        MessageBox.Show("No open ports found");
+        //        LogBox.Text += "No open ports found\r\n";
+        //    }
         }
 
         private void OpenPortComboList_SelectedIndexChanged(object sender, EventArgs e)

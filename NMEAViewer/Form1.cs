@@ -189,6 +189,10 @@ namespace NMEAViewer
                 c.OnDataRecieved += OnDataRecieved;
                 return c;
             }
+            else if (typeName == typeof(NMEAViewer.PolarDiagramWindow).ToString())
+            {
+                return new PolarDiagramWindow(m_Data, m_PolarData);
+            }
             return null;
         }
 
@@ -649,6 +653,11 @@ namespace NMEAViewer
             {
                 ComOutTester.sm_Tester.BringToFront();
             }
+        }
+
+        private void newPolarDiagramToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            HookupUserAddedPanel(new PolarDiagramWindow(m_Data, m_PolarData));
         }
     }
 }

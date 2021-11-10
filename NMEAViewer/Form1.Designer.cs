@@ -54,6 +54,7 @@
             this.MainDockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             this.OpenPolarFile = new System.Windows.Forms.OpenFileDialog();
             this.vS2015DarkTheme1 = new WeifenLuo.WinFormsUI.Docking.VS2015DarkTheme();
+            this.newPolarDiagramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -66,7 +67,7 @@
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(0, 0, 4, 0);
-            this.toolStrip1.Size = new System.Drawing.Size(946, 50);
+            this.toolStrip1.Size = new System.Drawing.Size(946, 42);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "Window";
             // 
@@ -81,48 +82,48 @@
             this.reprocessToolStripMenuItem,
             this.loadPolarDataToolStripMenuItem});
             this.toolStripComboBox1.Name = "toolStripComboBox1";
-            this.toolStripComboBox1.Size = new System.Drawing.Size(74, 44);
+            this.toolStripComboBox1.Size = new System.Drawing.Size(74, 36);
             this.toolStripComboBox1.Text = "File";
             // 
             // newProjectToolStripMenuItem
             // 
             this.newProjectToolStripMenuItem.Name = "newProjectToolStripMenuItem";
-            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(359, 44);
+            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(315, 44);
             this.newProjectToolStripMenuItem.Text = "New Project";
             this.newProjectToolStripMenuItem.Click += new System.EventHandler(this.newProjectToolStripMenuItem_Click);
             // 
             // loadProjectToolStripMenuItem
             // 
             this.loadProjectToolStripMenuItem.Name = "loadProjectToolStripMenuItem";
-            this.loadProjectToolStripMenuItem.Size = new System.Drawing.Size(359, 44);
+            this.loadProjectToolStripMenuItem.Size = new System.Drawing.Size(315, 44);
             this.loadProjectToolStripMenuItem.Text = "Load Project";
             this.loadProjectToolStripMenuItem.Click += new System.EventHandler(this.loadProjectToolStripMenuItem_Click);
             // 
             // saveProjectToolStripMenuItem
             // 
             this.saveProjectToolStripMenuItem.Name = "saveProjectToolStripMenuItem";
-            this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(359, 44);
+            this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(315, 44);
             this.saveProjectToolStripMenuItem.Text = "Save Project";
             this.saveProjectToolStripMenuItem.Click += new System.EventHandler(this.saveProjectToolStripMenuItem_Click);
             // 
             // loadRecordingToolStripMenuItem
             // 
             this.loadRecordingToolStripMenuItem.Name = "loadRecordingToolStripMenuItem";
-            this.loadRecordingToolStripMenuItem.Size = new System.Drawing.Size(359, 44);
+            this.loadRecordingToolStripMenuItem.Size = new System.Drawing.Size(315, 44);
             this.loadRecordingToolStripMenuItem.Text = "Load recording";
             this.loadRecordingToolStripMenuItem.Click += new System.EventHandler(this.loadRecordingToolStripMenuItem_Click);
             // 
             // reprocessToolStripMenuItem
             // 
             this.reprocessToolStripMenuItem.Name = "reprocessToolStripMenuItem";
-            this.reprocessToolStripMenuItem.Size = new System.Drawing.Size(359, 44);
+            this.reprocessToolStripMenuItem.Size = new System.Drawing.Size(315, 44);
             this.reprocessToolStripMenuItem.Text = "Reprocess";
             this.reprocessToolStripMenuItem.Click += new System.EventHandler(this.reprocessToolStripMenuItem_Click);
             // 
             // loadPolarDataToolStripMenuItem
             // 
             this.loadPolarDataToolStripMenuItem.Name = "loadPolarDataToolStripMenuItem";
-            this.loadPolarDataToolStripMenuItem.Size = new System.Drawing.Size(359, 44);
+            this.loadPolarDataToolStripMenuItem.Size = new System.Drawing.Size(315, 44);
             this.loadPolarDataToolStripMenuItem.Text = "Load Polar Data";
             this.loadPolarDataToolStripMenuItem.Click += new System.EventHandler(this.loadPolarDataToolStripMenuItem_Click);
             // 
@@ -135,12 +136,13 @@
             this.newMapToolStripMenuItem,
             this.newHistogramToolStripMenuItem,
             this.newTackingWindowToolStripMenuItem,
+            this.newPolarDiagramToolStripMenuItem,
             this.newMetaDataToolStripMenuItem,
             this.connectionToolStripMenuItem,
             this.upwindAnalysisToolStripMenuItem,
             this.comPortTesterToolStripMenuItem});
             this.toolStripComboBox2.Name = "toolStripComboBox2";
-            this.toolStripComboBox2.Size = new System.Drawing.Size(124, 44);
+            this.toolStripComboBox2.Size = new System.Drawing.Size(124, 36);
             this.toolStripComboBox2.Text = "Window";
             // 
             // newVideoToolStripMenuItem
@@ -234,16 +236,23 @@
             this.MainDockPanel.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.MainDockPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.MainDockPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MainDockPanel.Location = new System.Drawing.Point(0, 50);
-            this.MainDockPanel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.MainDockPanel.Location = new System.Drawing.Point(0, 42);
+            this.MainDockPanel.Margin = new System.Windows.Forms.Padding(4);
             this.MainDockPanel.Name = "MainDockPanel";
-            this.MainDockPanel.Size = new System.Drawing.Size(946, 575);
+            this.MainDockPanel.Size = new System.Drawing.Size(946, 583);
             this.MainDockPanel.TabIndex = 5;
             // 
             // OpenPolarFile
             // 
             this.OpenPolarFile.FileName = "myPolarFile";
             this.OpenPolarFile.Filter = "pol files (*.pol)|*.pol";
+            // 
+            // newPolarDiagramToolStripMenuItem
+            // 
+            this.newPolarDiagramToolStripMenuItem.Name = "newPolarDiagramToolStripMenuItem";
+            this.newPolarDiagramToolStripMenuItem.Size = new System.Drawing.Size(377, 44);
+            this.newPolarDiagramToolStripMenuItem.Text = "New Polar Diagram";
+            this.newPolarDiagramToolStripMenuItem.Click += new System.EventHandler(this.newPolarDiagramToolStripMenuItem_Click);
             // 
             // PAMainWindow
             // 
@@ -253,7 +262,7 @@
             this.Controls.Add(this.MainDockPanel);
             this.Controls.Add(this.toolStrip1);
             this.IsMdiContainer = true;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "PAMainWindow";
             this.Text = "NMEA Performance Analyzer";
             this.Load += new System.EventHandler(this.PAMainWindow_Load);
@@ -292,6 +301,7 @@
         private System.Windows.Forms.ToolStripMenuItem upwindAnalysisToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem comPortTesterToolStripMenuItem;
         private WeifenLuo.WinFormsUI.Docking.VS2015DarkTheme vS2015DarkTheme1;
+        private System.Windows.Forms.ToolStripMenuItem newPolarDiagramToolStripMenuItem;
     }
 }
 
