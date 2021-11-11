@@ -63,6 +63,30 @@ namespace NMEAViewer
             PolarDrawArea.Resize += PolarDrawArea_Resize;
         }
 
+        override protected void OnDataAppended()
+        {
+            var mostRecentTime = m_Data.GetEndTime();
+            var index = m_Data.GetIndexForTime(mostRecentTime);
+            if (liveUpdateToolStripMenuItem.Checked)
+            {
+                bool bNeedsRefresh = false;
+                if (m_Data.HasDataAtIndex(index, NMEACruncher.DataTypes.TWS))
+                {
+                    TWS = (float)m_Data.GetDataAtIndex(index, NMEACruncher.DataTypes.TWS);
+                    bNeedsRefresh = true;
+                }
+                if (m_Data.HasDataAtIndex(index, NMEACruncher.DataTypes.TWA))
+                {
+                    TWA = (float)m_Data.GetDataAtIndex(index, NMEACruncher.DataTypes.TWA);
+                    bNeedsRefresh = true;
+                }
+                if (bNeedsRefresh)
+                {
+                    PolarDrawArea.Refresh();
+                }
+            }
+        }
+
         private void PolarDrawArea_Resize(object sender, EventArgs e)
         {
             PolarDrawArea.Refresh();
@@ -70,20 +94,14 @@ namespace NMEAViewer
 
         private void SetWindSpeed(float tws)
         {
-            if (liveUpdateToolStripMenuItem.Checked)
-            {
-                TWS = tws;
-                PolarDrawArea.Refresh();
-            }
+            TWS = tws;
+            PolarDrawArea.Refresh();
         }
 
         private void SetWindAngle(float twa)
         {
-            if (liveUpdateToolStripMenuItem.Checked)
-            {
-                TWA = twa;
-                PolarDrawArea.Refresh();
-            }
+            TWA = twa;
+            PolarDrawArea.Refresh();
         }
 
         void DrawText(PaintEventArgs e)
