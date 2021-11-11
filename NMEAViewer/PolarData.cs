@@ -110,7 +110,7 @@ namespace NMEAViewer
                     if (m_fAngles[i] > fAngleToWind)
                     {
                         double fLerp = (fAngleToWind - m_fAngles[i - 1]) / (m_fAngles[i] - m_fAngles[i - 1]);
-                        return m_fBoatSpeeds[i] + (m_fBoatSpeeds[i] - m_fBoatSpeeds[i-1]) * fLerp;
+                        return m_fBoatSpeeds[i-1] + (m_fBoatSpeeds[i] - m_fBoatSpeeds[i-1]) * fLerp;
                     }
                 }
                 return 0.0;
