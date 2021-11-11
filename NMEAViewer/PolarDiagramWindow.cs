@@ -17,6 +17,7 @@ namespace NMEAViewer
         private PolarData m_PolarData;
         private float TWS = 7.0f;       //Hacked value for testing...
         private float TWA = 60.0f;      //Hacked value for testing...
+        private float MaxSpd = 10.0f;
         private string m_PolarFileName;
 
         private class SerializedData : DockableDrawable.SerializedDataBase
@@ -115,7 +116,6 @@ namespace NMEAViewer
             float last_y = 0.0f;
             float last_x = 0.0f;
             float MaxLen = Math.Min(mid_w, mid_y);
-            float MaxSpd = 15.0f;
             for (double angle = 10.0; angle <= 180.0; angle += 10.0)
             {
                 var sin = (float)Math.Sin(AngleUtil.DegToRad * angle);
@@ -165,7 +165,7 @@ namespace NMEAViewer
             float mid_y = height / 2.0f;
             float length = (float)Math.Sqrt(mid_w * mid_w + mid_y * mid_y);
             float MaxLen = Math.Min(mid_w, mid_y);
-            float MaxSpd = 15.0f;
+            
 
             //Draw current TWA info
             Pen currentPen = new Pen(new SolidBrush(Color.Yellow));
