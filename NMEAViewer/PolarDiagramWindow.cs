@@ -157,6 +157,25 @@ namespace NMEAViewer
             }
         }
 
+        void DrawAngle(PaintEventArgs e, Pen p, float angle)
+        {
+            float width = (float)PolarDrawArea.ClientSize.Width;
+            float height = (float)PolarDrawArea.ClientSize.Height;
+            float mid_w = width / 2.0f;
+            float mid_y = height / 2.0f;
+
+            var sinTWA = (float)Math.Sin(AngleUtil.DegToRad * angle);
+            var cosTWA = (float)Math.Cos(AngleUtil.DegToRad * angle);
+
+            float spdTWA = (float)m_PolarData.GetBestPolarSpeed(TWS, angle);
+
+            float MaxLen = Math.Min(mid_w, mid_y);
+            float twa_x = sinTWA * spdTWA * MaxLen / MaxSpd;
+            float twa_y = -cosTWA * spdTWA * MaxLen / MaxSpd;
+
+            e.Graphics.DrawLine(p, mid_w, mid_y, mid_w + twa_x, mid_y + twa_y);
+        }
+
         private void PolarDrawArea_Paint(object sender, PaintEventArgs e)
         {
             Pen overlayPen = new Pen(new SolidBrush(Color.Gray));
@@ -188,14 +207,19 @@ namespace NMEAViewer
             //Draw current TWA info
             Pen currentPen = new Pen(new SolidBrush(Color.Yellow));
             currentPen.Width = 2.0f;
-            var sinTWA = (float)Math.Sin(AngleUtil.DegToRad * TWA);
-            var cosTWA = (float)Math.Cos(AngleUtil.DegToRad * TWA);
+            DrawAngle(e, currentPen, TWA);
 
-            float spdTWA = (float)m_PolarData.GetBestPolarSpeed(TWS, TWA);
-            float twa_x = sinTWA * spdTWA * MaxLen / MaxSpd;
-            float twa_y = -cosTWA * spdTWA * MaxLen / MaxSpd;
+            Pen bestPen = new Pen(new SolidBrush(Color.Blue));
+            bestPen.Width = 1.0f;
+            
+            var bestUp = m_PolarData.GetBestUpwindAngle(TWS);
+            DrawAngle(e, bestPen, (float)bestUp);
+            DrawAngle(e, bestPen, (float)-bestUp);
 
-            e.Graphics.DrawLine(currentPen, mid_w, mid_y, mid_w + twa_x, mid_y + twa_y);
+            var bestDown = m_PolarData.GetBestDownwindAngle(TWS);
+            DrawAngle(e, bestPen, (float)bestDown);
+            DrawAngle(e, bestPen, (float)-bestDown);
+
 
             //Draw text information
             DrawText(e);
