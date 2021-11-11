@@ -13,6 +13,12 @@ namespace NMEAViewer
             public double m_fWindSpeed;
             double[] m_fAngles;
             double[] m_fBoatSpeeds;
+            public double m_fBestAngleDown;
+            public double m_fBestVMGDown;
+            public double m_fBestSpeedDown;
+            public double m_fBestAngleUp;
+            public double m_fBestVMGUp;
+            public double m_fBestSpeedUp;
 
             public bool FromString(string input)
             {
@@ -55,6 +61,20 @@ namespace NMEAViewer
                 {
                     m_fBoatSpeeds[i] = Convert.ToDouble(parts[i * 2 + 2]);
                     m_fAngles[i] = Convert.ToDouble(parts[i * 2 + 1]);
+
+                    double upDownSpeed = Math.Cos(m_fAngles[i] * AngleUtil.DegToRad) * m_fBoatSpeeds[i];
+                    if (upDownSpeed > m_fBestVMGUp)
+                    {
+                        m_fBestVMGUp = upDownSpeed;
+                        m_fBestAngleUp = m_fAngles[i];
+                        m_fBestSpeedUp = m_fBoatSpeeds[i];
+                    }
+                    else if (-upDownSpeed > m_fBestVMGDown)
+                    {
+                        m_fBestVMGDown = -upDownSpeed;
+                        m_fBestAngleDown = m_fAngles[i];
+                        m_fBestSpeedDown = m_fBoatSpeeds[i];
+                    }
                 }
 
                 //Sometimes items get out of order... (legitimately)
@@ -118,28 +138,12 @@ namespace NMEAViewer
 
             public double GetBestSpeedUp()
             {
-                double bestSpd = 0.0;
-                for (int i = 0; i < m_fAngles.Length; i++)
-                {
-                    if (m_fAngles[i] < 90.0)
-                    {
-                        bestSpd = Math.Max(bestSpd, m_fBoatSpeeds[i] * Math.Cos(m_fAngles[i] * AngleUtil.DegToRad));
-                    }
-                }
-                return bestSpd;
+                return m_fBestSpeedUp;
             }
 
             public double GetBestSpeedDown()
             {
-                double bestSpd = 0.0;
-                for (int i = 0; i < m_fAngles.Length; i++)
-                {
-                    if (m_fAngles[i] > 90.0)
-                    {
-                        bestSpd = Math.Max(bestSpd, m_fBoatSpeeds[i] * Math.Abs(Math.Cos(m_fAngles[i] * AngleUtil.DegToRad)));
-                    }
-                }
-                return bestSpd;
+                return m_fBestSpeedDown;
             }
         }
 
@@ -198,6 +202,60 @@ namespace NMEAViewer
             double fBSP1 = m_Rows[iPreceedingRow + 1].GetBestSpeedUp();
             double fRowLerpProp = (fWindSpeed - m_Rows[iPreceedingRow].m_fWindSpeed) / (m_Rows[iPreceedingRow + 1].m_fWindSpeed - m_Rows[iPreceedingRow].m_fWindSpeed);
             return fBSP0 + ((fBSP1 - fBSP0) * fRowLerpProp);
+        }
+
+        public double GetBestUpwindAngle(double fWindSpeed)
+        {
+            if ((m_Rows == null) || (m_Rows.Count == 0))
+                return 0.0;
+
+            if (fWindSpeed <= m_Rows[0].m_fWindSpeed)
+            {
+                return m_Rows[0].m_fBestAngleUp;
+            }
+
+            if (fWindSpeed >= m_Rows.Last().m_fWindSpeed)
+            {
+                return m_Rows.Last().m_fBestAngleUp;
+            }
+
+            int iPreceedingRow = 1;
+            while (fWindSpeed > m_Rows[iPreceedingRow + 1].m_fWindSpeed)
+            {
+                iPreceedingRow++;
+            }
+
+            double fTWA0 = m_Rows[iPreceedingRow].m_fBestAngleUp;
+            double fTWA1 = m_Rows[iPreceedingRow + 1].m_fBestAngleUp;
+            double fRowLerpProp = (fWindSpeed - m_Rows[iPreceedingRow].m_fWindSpeed) / (m_Rows[iPreceedingRow + 1].m_fWindSpeed - m_Rows[iPreceedingRow].m_fWindSpeed);
+            return fTWA0 + ((fTWA1 - fTWA0) * fRowLerpProp);
+        }
+
+        public double GetBestDownwindAngle(double fWindSpeed)
+        {
+            if ((m_Rows == null) || (m_Rows.Count == 0))
+                return 0.0;
+
+            if (fWindSpeed <= m_Rows[0].m_fWindSpeed)
+            {
+                return m_Rows[0].m_fBestAngleDown;
+            }
+
+            if (fWindSpeed >= m_Rows.Last().m_fWindSpeed)
+            {
+                return m_Rows.Last().m_fBestAngleDown;
+            }
+
+            int iPreceedingRow = 1;
+            while (fWindSpeed > m_Rows[iPreceedingRow + 1].m_fWindSpeed)
+            {
+                iPreceedingRow++;
+            }
+
+            double fTWA0 = m_Rows[iPreceedingRow].m_fBestAngleDown;
+            double fTWA1 = m_Rows[iPreceedingRow + 1].m_fBestAngleDown;
+            double fRowLerpProp = (fWindSpeed - m_Rows[iPreceedingRow].m_fWindSpeed) / (m_Rows[iPreceedingRow + 1].m_fWindSpeed - m_Rows[iPreceedingRow].m_fWindSpeed);
+            return fTWA0 + ((fTWA1 - fTWA0) * fRowLerpProp);
         }
 
         public double GetBestDownwindVMG(double fWindSpeed)
