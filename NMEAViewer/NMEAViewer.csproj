@@ -114,6 +114,12 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="SetWindInputDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SetWindInputDialog.Designer.cs">
+      <DependentUpon>SetWindInputDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="PolarDiagramWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -187,6 +193,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SetWindInputDialog.resx">
+      <DependentUpon>SetWindInputDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Histogram.resx">
       <DependentUpon>Histogram.cs</DependentUpon>
