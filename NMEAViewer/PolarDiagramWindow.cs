@@ -84,6 +84,26 @@ namespace NMEAViewer
                 PolarDrawArea.Refresh();
             }
         }
+
+        void DrawText(PaintEventArgs e)
+        {
+            System.Drawing.Font font = new System.Drawing.Font("Arial", 10);
+            System.Drawing.SolidBrush myBrush0 = new System.Drawing.SolidBrush(Color.White);
+            System.Drawing.SolidBrush myBrush1 = new System.Drawing.SolidBrush(Color.Yellow);
+            float line = 5.0f;
+            float spacing = 13.0f;
+            if (!string.IsNullOrEmpty(m_PolarFileName))
+            {
+                e.Graphics.DrawString(m_PolarFileName, font, myBrush1, 5.0f, line); line += spacing;
+            }
+            e.Graphics.DrawString("TWS: "+ TWS.ToString(), font, myBrush0, 5.0f, line); line += spacing;
+            e.Graphics.DrawString("TWA: " + TWA.ToString(), font, myBrush0, 5.0f, line); line += spacing;
+            if (liveUpdateToolStripMenuItem.Checked)
+            {
+                e.Graphics.DrawString("Live update is on", font, myBrush0, 5.0f, line); line += spacing;
+            }
+        }
+
         private void DrawWindSpeedRing(float WindSpd, Pen overlayPen, PaintEventArgs e)
         {
             //Draw polar compass rose
@@ -158,6 +178,9 @@ namespace NMEAViewer
             float twa_y = -cosTWA * spdTWA * MaxLen / MaxSpd;
 
             e.Graphics.DrawLine(currentPen, mid_w, mid_y, mid_w + twa_x, mid_y + twa_y);
+
+            //Draw text information
+            DrawText(e);
         }
 
         private void setInputsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -222,12 +245,7 @@ namespace NMEAViewer
             {
                 //m_AppSettings.PolarDataName = openPolarFile.FileName;
                 //m_AppSettings.Save();
-                
-               
-                m_PolarData = new PolarData();
-                m_PolarData.Load(openPolarFile.FileName);
-                m_Data.SetPolarData(m_PolarData);
-
+                setPolarFile(openPolarFile.FileName);
                 PolarDrawArea.Refresh();
             }
         }
@@ -235,6 +253,9 @@ namespace NMEAViewer
         private void liveUpdateToolStripMenuItem_Click(object sender, EventArgs e)
         {
             liveUpdateToolStripMenuItem.Checked = !liveUpdateToolStripMenuItem.Checked;
+
+            //Just for the text
+            PolarDrawArea.Refresh();
         }
     }
 }

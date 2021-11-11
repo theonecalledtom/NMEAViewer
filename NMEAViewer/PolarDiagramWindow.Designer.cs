@@ -46,20 +46,19 @@ namespace NMEAViewer
             this.PolarDrawArea.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PolarDrawArea.Location = new System.Drawing.Point(0, 0);
             this.PolarDrawArea.Name = "PolarDrawArea";
-            this.PolarDrawArea.Size = new System.Drawing.Size(800, 408);
+            this.PolarDrawArea.Size = new System.Drawing.Size(800, 410);
             this.PolarDrawArea.TabIndex = 0;
             this.PolarDrawArea.TabStop = false;
             // 
             // menuStrip1
             // 
             this.menuStrip1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.optionsToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 408);
+            this.menuStrip1.Location = new System.Drawing.Point(0, 410);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(800, 42);
+            this.menuStrip1.Size = new System.Drawing.Size(800, 40);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
