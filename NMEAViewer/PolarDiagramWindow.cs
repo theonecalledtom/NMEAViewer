@@ -17,7 +17,7 @@ namespace NMEAViewer
         private PolarData m_PolarData;
         private float TWS = 7.0f;       //Hacked value for testing...
         private float TWA = 60.0f;      //Hacked value for testing...
-        private float MaxSpd = 10.0f;
+        private float MaxSpd = 7.0f;
         private string m_PolarFileName;
 
         private class SerializedData : DockableDrawable.SerializedDataBase
@@ -143,22 +143,32 @@ namespace NMEAViewer
 
             var data = m_PolarData.GetData(WindSpd);
             int count = data.GetDataCounts();
+            float angle = 0.0f;
             for (int i=0; i<count ; i++)
             {
-                float angle = (float)data.GetNthAngle(i);
-                float spd = (float)data.GetNthBoatSpeed(i);
+                float nextangle = (float)data.GetNthAngle(i);
+                float delta = nextangle - angle;
+                int steps = Math.Max(1, (int)(delta / 5.0f));
+                float angledelta = (nextangle - angle) / (float)steps;
 
-                var sin = (float)Math.Sin(AngleUtil.DegToRad * angle);
-                var cos = (float)Math.Cos(AngleUtil.DegToRad * angle);
+                for (int iSubStep = 0; iSubStep<steps; iSubStep++)
+                {
+                    angle += angledelta;
 
-                float new_x = sin * spd * MaxLen / MaxSpd;
-                float new_y = -cos * spd * MaxLen / MaxSpd;
+                    float spd = (float)data.GetBoatSpeed(angle);
 
-                e.Graphics.DrawLine(overlayPen, mid_w + last_x, mid_y + last_y, mid_w + new_x, mid_y + new_y);
-                e.Graphics.DrawLine(overlayPen, mid_w - last_x, mid_y + last_y, mid_w - new_x, mid_y + new_y);
+                    var sin = (float)Math.Sin(AngleUtil.DegToRad * angle);
+                    var cos = (float)Math.Cos(AngleUtil.DegToRad * angle);
 
-                last_x = new_x;
-                last_y = new_y;
+                    float new_x = sin * spd * MaxLen / MaxSpd;
+                    float new_y = -cos * spd * MaxLen / MaxSpd;
+
+                    e.Graphics.DrawLine(overlayPen, mid_w + last_x, mid_y + last_y, mid_w + new_x, mid_y + new_y);
+                    e.Graphics.DrawLine(overlayPen, mid_w - last_x, mid_y + last_y, mid_w - new_x, mid_y + new_y);
+
+                    last_x = new_x;
+                    last_y = new_y;
+                }
             }
 
 
