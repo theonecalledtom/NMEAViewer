@@ -324,6 +324,7 @@ namespace NMEAViewer
             {
                 if (serialPort1.IsOpen)
                 {
+                    //TMS: This stalls out?
                     serialPort1.Close();
                     m_DataWriter.End();
                     m_DataWriter = null;
@@ -613,7 +614,7 @@ namespace NMEAViewer
                  {
                      double fWait = m_SimulationDataReader.m_fElapsedTime - fElasped;
                      double fSpd = Convert.ToDouble(PlaybackSpeed.Value);
-                     m_SimulationTimer.Interval = (int)(double)(fWait * 1000.0 / fSpd);
+                     m_SimulationTimer.Interval = Math.Max(1,(int)(double)(fWait * 1000.0 / fSpd));
 
                      numericUpDown_DataRead.Value = m_SimulationDataReader.m_iDataRead;
 
