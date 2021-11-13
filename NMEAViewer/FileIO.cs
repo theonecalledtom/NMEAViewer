@@ -232,7 +232,7 @@ namespace NMEAViewer
         internal void Restart()
         {
             m_DataReader.BaseStream.Seek(0, System.IO.SeekOrigin.Begin);
-            m_fLoopedTime += m_fElapsedTime;    //Keep total time incrementing when we loop
+            m_fLoopedTime = m_fElapsedTime;    //Keep total time incrementing when we loop
             StartRead(m_DataReader.BaseStream);
         }
     }
