@@ -42,6 +42,7 @@
             this.newMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newHistogramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newTackingWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newPolarDiagramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newMetaDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.upwindAnalysisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -54,7 +55,6 @@
             this.MainDockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             this.OpenPolarFile = new System.Windows.Forms.OpenFileDialog();
             this.vS2015DarkTheme1 = new WeifenLuo.WinFormsUI.Docking.VS2015DarkTheme();
-            this.newPolarDiagramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -67,7 +67,7 @@
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(0, 0, 4, 0);
-            this.toolStrip1.Size = new System.Drawing.Size(946, 42);
+            this.toolStrip1.Size = new System.Drawing.Size(946, 50);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "Window";
             // 
@@ -82,7 +82,7 @@
             this.reprocessToolStripMenuItem,
             this.loadPolarDataToolStripMenuItem});
             this.toolStripComboBox1.Name = "toolStripComboBox1";
-            this.toolStripComboBox1.Size = new System.Drawing.Size(74, 36);
+            this.toolStripComboBox1.Size = new System.Drawing.Size(74, 44);
             this.toolStripComboBox1.Text = "File";
             // 
             // newProjectToolStripMenuItem
@@ -142,7 +142,7 @@
             this.upwindAnalysisToolStripMenuItem,
             this.comPortTesterToolStripMenuItem});
             this.toolStripComboBox2.Name = "toolStripComboBox2";
-            this.toolStripComboBox2.Size = new System.Drawing.Size(124, 36);
+            this.toolStripComboBox2.Size = new System.Drawing.Size(124, 44);
             this.toolStripComboBox2.Text = "Window";
             // 
             // newVideoToolStripMenuItem
@@ -179,6 +179,13 @@
             this.newTackingWindowToolStripMenuItem.Size = new System.Drawing.Size(377, 44);
             this.newTackingWindowToolStripMenuItem.Text = "New Tacking Window";
             this.newTackingWindowToolStripMenuItem.Click += new System.EventHandler(this.newTackingWindowToolStripMenuItem_Click);
+            // 
+            // newPolarDiagramToolStripMenuItem
+            // 
+            this.newPolarDiagramToolStripMenuItem.Name = "newPolarDiagramToolStripMenuItem";
+            this.newPolarDiagramToolStripMenuItem.Size = new System.Drawing.Size(377, 44);
+            this.newPolarDiagramToolStripMenuItem.Text = "New Polar Diagram";
+            this.newPolarDiagramToolStripMenuItem.Click += new System.EventHandler(this.newPolarDiagramToolStripMenuItem_Click);
             // 
             // newMetaDataToolStripMenuItem
             // 
@@ -236,23 +243,16 @@
             this.MainDockPanel.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.MainDockPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.MainDockPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MainDockPanel.Location = new System.Drawing.Point(0, 42);
+            this.MainDockPanel.Location = new System.Drawing.Point(0, 50);
             this.MainDockPanel.Margin = new System.Windows.Forms.Padding(4);
             this.MainDockPanel.Name = "MainDockPanel";
-            this.MainDockPanel.Size = new System.Drawing.Size(946, 583);
+            this.MainDockPanel.Size = new System.Drawing.Size(946, 575);
             this.MainDockPanel.TabIndex = 5;
             // 
             // OpenPolarFile
             // 
             this.OpenPolarFile.FileName = "myPolarFile";
             this.OpenPolarFile.Filter = "pol files (*.pol)|*.pol";
-            // 
-            // newPolarDiagramToolStripMenuItem
-            // 
-            this.newPolarDiagramToolStripMenuItem.Name = "newPolarDiagramToolStripMenuItem";
-            this.newPolarDiagramToolStripMenuItem.Size = new System.Drawing.Size(377, 44);
-            this.newPolarDiagramToolStripMenuItem.Text = "New Polar Diagram";
-            this.newPolarDiagramToolStripMenuItem.Click += new System.EventHandler(this.newPolarDiagramToolStripMenuItem_Click);
             // 
             // PAMainWindow
             // 
