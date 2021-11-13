@@ -607,20 +607,25 @@ namespace NMEAViewer
 
         void m_SimulationTimer_Tick(object sender, EventArgs e)
         {
-             if (m_SimulationDataReader != null)
-             {
-                 double fElasped = m_SimulationDataReader.m_fElapsedTime;
-                 if (m_SimulationDataReader.ReadSection())
-                 {
-                     double fWait = m_SimulationDataReader.m_fElapsedTime - fElasped;
-                     double fSpd = Convert.ToDouble(PlaybackSpeed.Value);
-                     m_SimulationTimer.Interval = Math.Max(1,(int)(double)(fWait * 1000.0 / fSpd));
+            if (m_SimulationDataReader != null)
+            {
+                double fElasped = m_SimulationDataReader.m_fElapsedTime;
+                if (m_SimulationDataReader.ReadSection())
+                {
+                    double fWait = m_SimulationDataReader.m_fElapsedTime - fElasped;
+                    double fSpd = Convert.ToDouble(PlaybackSpeed.Value);
+                    m_SimulationTimer.Interval = Math.Max(1, (int)(double)(fWait * 1000.0 / fSpd));
 
-                     numericUpDown_DataRead.Value = m_SimulationDataReader.m_iDataRead;
+                    numericUpDown_DataRead.Value = m_SimulationDataReader.m_iDataRead;
 
-                     OnDataRecieved(m_SimulationDataReader.GetData(), m_SimulationDataReader.m_fElapsedTime);
-                 }
-             }
+                    OnDataRecieved(m_SimulationDataReader.GetData(), m_SimulationDataReader.m_fElapsedTime);
+                }
+
+                if (m_SimulationDataReader.IsFinished() && checkBox_Loop.Checked)
+                {
+                    m_SimulationDataReader.Restart();
+                }
+            }
         }
 
         private void IPRadioButton_CheckedChanged(object sender, EventArgs e)

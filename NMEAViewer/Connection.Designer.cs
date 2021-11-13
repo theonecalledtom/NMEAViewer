@@ -53,13 +53,14 @@
             this.ComportConnectPanel = new System.Windows.Forms.Panel();
             this.ComportRadioButton = new System.Windows.Forms.RadioButton();
             this.IPConnectPanel = new System.Windows.Forms.Panel();
+            this.IPTextBox = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.PortTextBox = new System.Windows.Forms.TextBox();
             this.Port = new System.Windows.Forms.Label();
             this.IPRadioButton = new System.Windows.Forms.RadioButton();
             this.OpenRecordingDialog = new System.Windows.Forms.OpenFileDialog();
             this.LogBox = new System.Windows.Forms.TextBox();
-            this.IPTextBox = new System.Windows.Forms.TextBox();
+            this.checkBox_Loop = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.BytesReadNumber)).BeginInit();
             this.OutputFileGroupBox.SuspendLayout();
             this.SimulationGroup.SuspendLayout();
@@ -202,6 +203,7 @@
             // 
             // SimulationGroup
             // 
+            this.SimulationGroup.Controls.Add(this.checkBox_Loop);
             this.SimulationGroup.Controls.Add(this.label2PlaybackSpeed);
             this.SimulationGroup.Controls.Add(this.PlaybackSpeed);
             this.SimulationGroup.Controls.Add(this.numericUpDown_DataRead);
@@ -212,7 +214,7 @@
             this.SimulationGroup.Margin = new System.Windows.Forms.Padding(4);
             this.SimulationGroup.Name = "SimulationGroup";
             this.SimulationGroup.Padding = new System.Windows.Forms.Padding(4);
-            this.SimulationGroup.Size = new System.Drawing.Size(398, 162);
+            this.SimulationGroup.Size = new System.Drawing.Size(398, 195);
             this.SimulationGroup.TabIndex = 10;
             this.SimulationGroup.TabStop = false;
             this.SimulationGroup.Text = "Simulation";
@@ -364,6 +366,13 @@
             this.IPConnectPanel.Size = new System.Drawing.Size(332, 96);
             this.IPConnectPanel.TabIndex = 12;
             // 
+            // IPTextBox
+            // 
+            this.IPTextBox.Location = new System.Drawing.Point(76, 12);
+            this.IPTextBox.Name = "IPTextBox";
+            this.IPTextBox.Size = new System.Drawing.Size(240, 31);
+            this.IPTextBox.TabIndex = 10;
+            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -412,25 +421,32 @@
             // LogBox
             // 
             this.LogBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.LogBox.Location = new System.Drawing.Point(0, 836);
+            this.LogBox.Location = new System.Drawing.Point(0, 900);
             this.LogBox.Multiline = true;
             this.LogBox.Name = "LogBox";
             this.LogBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.LogBox.Size = new System.Drawing.Size(432, 154);
+            this.LogBox.Size = new System.Drawing.Size(534, 154);
             this.LogBox.TabIndex = 12;
             // 
-            // IPTextBox
+            // checkBox_Loop
             // 
-            this.IPTextBox.Location = new System.Drawing.Point(76, 12);
-            this.IPTextBox.Name = "IPTextBox";
-            this.IPTextBox.Size = new System.Drawing.Size(240, 31);
-            this.IPTextBox.TabIndex = 10;
+            this.checkBox_Loop.AutoSize = true;
+            this.checkBox_Loop.Checked = true;
+            this.checkBox_Loop.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_Loop.Location = new System.Drawing.Point(294, 159);
+            this.checkBox_Loop.Name = "checkBox_Loop";
+            this.checkBox_Loop.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.checkBox_Loop.Size = new System.Drawing.Size(92, 29);
+            this.checkBox_Loop.TabIndex = 8;
+            this.checkBox_Loop.Text = "Loop";
+            this.checkBox_Loop.UseVisualStyleBackColor = true;
             // 
             // Connection
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(432, 990);
+            this.AutoScroll = true;
+            this.ClientSize = new System.Drawing.Size(534, 1054);
             this.Controls.Add(this.LogBox);
             this.Controls.Add(this.PortGroupBox);
             this.Controls.Add(this.SimulationGroup);
@@ -489,5 +505,6 @@
         private System.Windows.Forms.CheckBox checkBox_WriteRaw;
         private System.Windows.Forms.TextBox LogBox;
         private System.Windows.Forms.TextBox IPTextBox;
+        private System.Windows.Forms.CheckBox checkBox_Loop;
     }
 }

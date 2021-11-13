@@ -122,11 +122,17 @@ namespace NMEAViewer
         DateTime m_LastUTC;
         string m_String;
         public double m_fElapsedTime;
+        public double m_fLoopedTime;
         int m_iVersion = 0;
-        public int m_iDataRead = 0;
+        public long m_iDataRead = 0;
         public string GetData()
         { 
             return m_String;
+        }
+
+        public bool IsFinished()
+        {
+            return m_DataReader.BaseStream.Position == m_DataReader.BaseStream.Length;
         }
         public bool StartRead(System.IO.Stream s)
         {
@@ -188,7 +194,7 @@ namespace NMEAViewer
                     return false;
                 }
                 m_iDataRead += newSegment.m_Data.Length;
-                m_fElapsedTime = (newSegment.m_TimeOfData - m_StartTime).TotalSeconds;
+                m_fElapsedTime = (newSegment.m_TimeOfData - m_StartTime).TotalSeconds + m_fLoopedTime ;
                 m_LastTime = newSegment.m_TimeOfData;
                 m_LastUTC = m_LastTime.ToUniversalTime();
                 //if (m_NMEAReader != null)
@@ -221,6 +227,13 @@ namespace NMEAViewer
                 //}
                 return true;
             }
-        }   
+        }
+
+        internal void Restart()
+        {
+            m_DataReader.BaseStream.Seek(0, System.IO.SeekOrigin.Begin);
+            m_fLoopedTime += m_fElapsedTime;    //Keep total time incrementing when we loop
+            StartRead(m_DataReader.BaseStream);
+        }
     }
 }
