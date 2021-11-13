@@ -15,9 +15,9 @@ namespace NMEAViewer
         private SetWindInputDialog windDialog;
         private NMEACruncher m_Data;
         private PolarData m_PolarData;
-        private float TWS = 7.0f;       //Hacked value for testing...
-        private float TWA = 60.0f;      //Hacked value for testing...
-        private float MaxSpd = 7.0f;
+        private float TWS = 0.0f; 
+        private float TWA = 0.0f;
+        private float MaxSpdForScaling = 5.0f;    //Will be extended during update
         private string m_PolarFileName;
         private float DrawWidth;
         private float DrawHeight;
@@ -93,6 +93,8 @@ namespace NMEAViewer
                 }
                 if (bNeedsRefresh)
                 {
+                    MaxSpdForScaling = Math.Max(MaxSpdForScaling, (float)(m_PolarData.GetBestPolarSpeed(TWS, TWA) * 1.05));
+                    
                     PolarDrawArea.Refresh();
                 }
             }
@@ -164,8 +166,8 @@ namespace NMEAViewer
                     var sin = (float)Math.Sin(AngleUtil.DegToRad * angle);
                     var cos = (float)Math.Cos(AngleUtil.DegToRad * angle);
 
-                    float new_x = sin * spd * MaxLen / MaxSpd;
-                    float new_y = -cos * spd * MaxLen / MaxSpd;
+                    float new_x = sin * spd * MaxLen / MaxSpdForScaling;
+                    float new_y = -cos * spd * MaxLen / MaxSpdForScaling;
 
                     e.Graphics.DrawLine(overlayPen, MidX + last_x, MidY + last_y, MidX + new_x, MidY + new_y);
                     e.Graphics.DrawLine(overlayPen, MidX - last_x, MidY + last_y, MidX - new_x, MidY + new_y);
@@ -181,8 +183,8 @@ namespace NMEAViewer
             var sinTWA = (float)Math.Sin(AngleUtil.DegToRad * angle);
             var cosTWA = (float)Math.Cos(AngleUtil.DegToRad * angle);
 
-            xout = sinTWA * spd * MaxLen / MaxSpd;
-            yout = -cosTWA * spd * MaxLen / MaxSpd;
+            xout = sinTWA * spd * MaxLen / MaxSpdForScaling;
+            yout = -cosTWA * spd * MaxLen / MaxSpdForScaling;
         }
 
         void DrawAngle(PaintEventArgs e, Pen p, float angle)
