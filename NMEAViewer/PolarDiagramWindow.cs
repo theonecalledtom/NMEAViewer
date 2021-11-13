@@ -56,18 +56,24 @@ namespace NMEAViewer
         public PolarDiagramWindow(NMEACruncher data, PolarData polarData)
         {
             InitializeComponent();
-            this.m_Data = data;
-            this.m_PolarData = polarData;
+            m_Data = data;
+            m_PolarData = polarData;
 
             PolarDrawArea.Paint += PolarDrawArea_Paint;
             PolarDrawArea.Resize += PolarDrawArea_Resize;
+        }
+
+        protected override void OnDataReplaced(NMEACruncher newData)
+        {
+            m_Data = newData;
+            PolarDrawArea.Refresh();
         }
 
         override protected void OnDataAppended()
         {
             var mostRecentTime = m_Data.GetEndTime();
             var index = m_Data.GetIndexForTime(mostRecentTime);
-            if (liveUpdateToolStripMenuItem.Checked)
+            if ((index >=0) && liveUpdateToolStripMenuItem.Checked)
             {
                 bool bNeedsRefresh = false;
                 if (m_Data.HasDataAtIndex(index, NMEACruncher.DataTypes.TWS))
@@ -134,18 +140,17 @@ namespace NMEAViewer
             float last_y = 0.0f;
             float last_x = 0.0f;
             float MaxLen = Math.Min(mid_w, mid_y);
-            for (double angle = 10.0; angle <= 180.0; angle += 10.0)
+
+            var data = m_PolarData.GetData(WindSpd);
+            int count = data.GetDataCounts();
+            for (int i=0; i<count ; i++)
             {
+                float angle = (float)data.GetNthAngle(i);
+                float spd = (float)data.GetNthBoatSpeed(i);
+
                 var sin = (float)Math.Sin(AngleUtil.DegToRad * angle);
                 var cos = (float)Math.Cos(AngleUtil.DegToRad * angle);
 
-                //float xoffset = sin * length;
-                //float yoffset = -cos * length;
-
-                //e.Graphics.DrawLine(overlayPen, mid_w, mid_y, mid_w + xoffset, mid_y + yoffset);
-                //e.Graphics.DrawLine(overlayPen, mid_w, mid_y, mid_w - xoffset, mid_y + yoffset);
-
-                float spd = (float)m_PolarData.GetBestPolarSpeed(WindSpd, angle);
                 float new_x = sin * spd * MaxLen / MaxSpd;
                 float new_y = -cos * spd * MaxLen / MaxSpd;
 
@@ -155,6 +160,32 @@ namespace NMEAViewer
                 last_x = new_x;
                 last_y = new_y;
             }
+
+
+            /*  float fBestUpwindAndle = (float)m_PolarData.GetBestUpwindAngle(WindSpd);
+                float fBestDownwindAndle = (float)m_PolarData.GetBestDownwindAngle(WindSpd);
+                for (double angle = 10.0; angle <= 180.0; angle += 10.0)
+                {
+                    var sin = (float)Math.Sin(AngleUtil.DegToRad * angle);
+                    var cos = (float)Math.Cos(AngleUtil.DegToRad * angle);
+
+                    //float xoffset = sin * length;
+                    //float yoffset = -cos * length;
+
+                    //e.Graphics.DrawLine(overlayPen, mid_w, mid_y, mid_w + xoffset, mid_y + yoffset);
+                    //e.Graphics.DrawLine(overlayPen, mid_w, mid_y, mid_w - xoffset, mid_y + yoffset);
+
+                    float spd = (float)m_PolarData.GetBestPolarSpeed(WindSpd, angle);
+                    float new_x = sin * spd * MaxLen / MaxSpd;
+                    float new_y = -cos * spd * MaxLen / MaxSpd;
+
+                    e.Graphics.DrawLine(overlayPen, mid_w + last_x, mid_y + last_y, mid_w + new_x, mid_y + new_y);
+                    e.Graphics.DrawLine(overlayPen, mid_w - last_x, mid_y + last_y, mid_w - new_x, mid_y + new_y);
+
+                    last_x = new_x;
+                    last_y = new_y;
+                }
+            */
         }
 
         void DrawAngle(PaintEventArgs e, Pen p, float angle)

@@ -8,7 +8,7 @@ namespace NMEAViewer
 {
     public class PolarData
     {
-        class DataRow
+        public class DataRow
         {
             public double m_fWindSpeed;
             double[] m_fAngles;
@@ -22,7 +22,7 @@ namespace NMEAViewer
 
             public bool FromString(string input)
             {
-                Char[] delimiters = new Char[] { ',', ' ', '\t'};
+                Char[] delimiters = new Char[] { ',', ' ', '\t' };
                 string[] parts1 = input.Split(delimiters);
                 List<string> parts = new List<String>();
                 foreach (string s in parts1)
@@ -53,7 +53,7 @@ namespace NMEAViewer
                     return false;
                 }
 
-                m_fWindSpeed = Convert.ToDouble( parts[0] );
+                m_fWindSpeed = Convert.ToDouble(parts[0]);
                 int numberOfFields = iCount >> 1;
                 m_fBoatSpeeds = new double[numberOfFields];
                 m_fAngles = new double[numberOfFields];
@@ -79,12 +79,12 @@ namespace NMEAViewer
 
                 //Sometimes items get out of order... (legitimately)
                 //...trickle sort forwards...
-                for (int i = 0; i < numberOfFields-1; i++)
+                for (int i = 0; i < numberOfFields - 1; i++)
                 {
                     int i0 = i;
-                    int i1 = i+1;
-                    double f0 = m_fAngles[ i0 ];
-                    double f1 = m_fAngles[ i1 ];
+                    int i1 = i + 1;
+                    double f0 = m_fAngles[i0];
+                    double f1 = m_fAngles[i1];
                     if (f0 > f1)
                     {
                         m_fAngles[i0] = f1;
@@ -99,7 +99,7 @@ namespace NMEAViewer
                 //...and backwards...
                 for (int i = numberOfFields - 1; i > 0; i--)
                 {
-                    int i0 = i-1;
+                    int i0 = i - 1;
                     int i1 = i;
                     double f0 = m_fAngles[i0];
                     double f1 = m_fAngles[i1];
@@ -117,6 +117,21 @@ namespace NMEAViewer
                 return true;
             }
 
+            public int GetDataCounts()
+            {
+                return m_fAngles.Length;
+            }
+
+            public double GetNthAngle(int i)
+            {
+                return m_fAngles[i];
+            }
+
+            public double GetNthBoatSpeed(int i)
+            {
+                return m_fBoatSpeeds[i];
+            }
+
             public double GetBoatSpeed(double fAngleToWind)
             {
                 fAngleToWind = Math.Min(Math.Abs(fAngleToWind), 179.9);
@@ -130,7 +145,7 @@ namespace NMEAViewer
                     if (m_fAngles[i] > fAngleToWind)
                     {
                         double fLerp = (fAngleToWind - m_fAngles[i - 1]) / (m_fAngles[i] - m_fAngles[i - 1]);
-                        return m_fBoatSpeeds[i-1] + (m_fBoatSpeeds[i] - m_fBoatSpeeds[i-1]) * fLerp;
+                        return m_fBoatSpeeds[i - 1] + (m_fBoatSpeeds[i] - m_fBoatSpeeds[i - 1]) * fLerp;
                     }
                 }
                 return 0.0;
@@ -145,9 +160,74 @@ namespace NMEAViewer
             {
                 return m_fBestSpeedDown;
             }
+
+            public DataRow Lerp(DataRow other, double fRowLerpProp)
+            {
+                DataRow r = new DataRow();
+
+                r.m_fWindSpeed = m_fWindSpeed + (other.m_fWindSpeed - m_fWindSpeed) * fRowLerpProp;
+                r.m_fBestAngleDown = m_fBestAngleDown + (other.m_fBestAngleDown - m_fBestAngleDown) * fRowLerpProp;
+                r.m_fBestVMGDown = m_fBestVMGDown + (other.m_fBestVMGDown - m_fBestVMGDown) * fRowLerpProp;
+                r.m_fBestSpeedDown = m_fBestSpeedDown + (other.m_fBestSpeedDown - m_fBestSpeedDown) * fRowLerpProp;
+                r.m_fBestAngleUp = m_fBestAngleUp + (other.m_fBestAngleUp - m_fBestAngleUp) * fRowLerpProp;
+                r.m_fBestVMGUp = m_fBestVMGUp + (other.m_fBestVMGUp - m_fBestVMGUp) * fRowLerpProp;
+                r.m_fBestSpeedUp = m_fBestSpeedUp + (other.m_fBestSpeedUp - m_fBestSpeedUp) * fRowLerpProp;
+               
+                r.m_fAngles = new double[m_fAngles.Length];
+                r.m_fBoatSpeeds = new double[m_fBoatSpeeds.Length];
+                for (int i = 0; i<r.m_fAngles.Length ; i++)
+                {
+                    r.m_fAngles[i] = m_fAngles[i] + (other.m_fAngles[i] - m_fAngles[i]) * fRowLerpProp;
+                    r.m_fBoatSpeeds[i] = m_fBoatSpeeds[i] + (other.m_fBoatSpeeds[i] - m_fBoatSpeeds[i]) * fRowLerpProp;
+                }
+                return r;
+            }
+
+            public DataRow Scale(double fScale)
+            {
+                DataRow r = new DataRow();
+
+                r.m_fWindSpeed = (m_fWindSpeed) * fScale;
+                r.m_fBestAngleDown = (m_fBestAngleDown) * fScale;
+                r.m_fBestVMGDown = (m_fBestVMGDown) * fScale;
+                r.m_fBestSpeedDown = (m_fBestSpeedDown) * fScale;
+                r.m_fBestAngleUp = (m_fBestAngleUp) * fScale;
+                r.m_fBestVMGUp = (m_fBestVMGUp) * fScale;
+                r.m_fBestSpeedUp = (m_fBestSpeedUp) * fScale;
+
+                r.m_fAngles = new double[m_fAngles.Length];
+                r.m_fBoatSpeeds = new double[m_fBoatSpeeds.Length];
+                for (int i = 0; i < r.m_fAngles.Length; i++)
+                {
+                    r.m_fAngles[i] = (m_fAngles[i]) * fScale;
+                    r.m_fBoatSpeeds[i] = (m_fBoatSpeeds[i]) * fScale;
+                }
+                return r;
+            }
         }
 
+
         List<DataRow> m_Rows;
+
+        public DataRow GetData(double fWindSpeed)
+        {      
+            if (fWindSpeed <= m_Rows[0].m_fWindSpeed)
+            {
+                return m_Rows[0].Scale(fWindSpeed / m_Rows[0].m_fWindSpeed);
+            }
+            else if (fWindSpeed >= m_Rows.Last().m_fWindSpeed)
+            {
+                return m_Rows.Last().Scale(1.0f);
+            }
+            int iPreceedingRow = 1;
+            while (fWindSpeed > m_Rows[iPreceedingRow + 1].m_fWindSpeed)
+            {
+                iPreceedingRow++;
+            }
+
+            double fRowLerpProp = (fWindSpeed - m_Rows[iPreceedingRow].m_fWindSpeed) / (m_Rows[iPreceedingRow + 1].m_fWindSpeed - m_Rows[iPreceedingRow].m_fWindSpeed);
+            return m_Rows[iPreceedingRow].Lerp(m_Rows[iPreceedingRow + 1], fRowLerpProp);
+        }
 
         public double GetBestPolarSpeed(double fWindSpeed, double fAngleToWind)
         {
