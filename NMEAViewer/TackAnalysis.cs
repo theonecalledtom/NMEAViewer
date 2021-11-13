@@ -557,7 +557,7 @@ namespace NMEAViewer
 
                 //Estimation of time lost due to slowdown / acceleration
                 double fPropSpdUpDownWind = Math.Abs(Math.Cos((TWD(iStartOfTurn) - BoatHeading(iStartOfTurn) + 180.0f) * DegToRad));
-                double fPreTackSpdOnWind = BoatSpeed(iStartOfTurn) * fPropSpdUpDownWind;
+                //double fPreTackSpdOnWind = BoatSpeed(iStartOfTurn) * fPropSpdUpDownWind;
 
                 //Get an earlier sample
                 int iInitialSpdNum = 10;// iThroughWind - iStartOfTurn;
