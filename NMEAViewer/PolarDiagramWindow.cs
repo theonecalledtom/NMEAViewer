@@ -19,6 +19,11 @@ namespace NMEAViewer
         private float TWA = 60.0f;      //Hacked value for testing...
         private float MaxSpd = 7.0f;
         private string m_PolarFileName;
+        private float DrawWidth;
+        private float DrawHeight;
+        private float MidX;
+        private float MidY;
+        private float MaxLen;
 
         private class SerializedData : DockableDrawable.SerializedDataBase
         {
@@ -95,6 +100,11 @@ namespace NMEAViewer
 
         private void PolarDrawArea_Resize(object sender, EventArgs e)
         {
+            DrawWidth = (float)PolarDrawArea.ClientSize.Width;
+            DrawHeight = (float)PolarDrawArea.ClientSize.Height;
+            MidX = DrawWidth / 2.0f;
+            MidY = DrawHeight / 2.0f;
+            MaxLen = Math.Min(MidX, MidY);
             PolarDrawArea.Refresh();
         }
 
@@ -132,15 +142,9 @@ namespace NMEAViewer
         private void DrawWindSpeedRing(float WindSpd, Pen overlayPen, PaintEventArgs e)
         {
             //Draw polar compass rose
-            float width = (float)PolarDrawArea.ClientSize.Width;
-            float height = (float)PolarDrawArea.ClientSize.Height;
-            float mid_w = width / 2.0f;
-            float mid_y = height / 2.0f;
-            float length = (float)Math.Sqrt(mid_w * mid_w + mid_y * mid_y);
             float last_y = 0.0f;
             float last_x = 0.0f;
-            float MaxLen = Math.Min(mid_w, mid_y);
-
+            
             var data = m_PolarData.GetData(WindSpd);
             int count = data.GetDataCounts();
             float angle = 0.0f;
@@ -163,58 +167,34 @@ namespace NMEAViewer
                     float new_x = sin * spd * MaxLen / MaxSpd;
                     float new_y = -cos * spd * MaxLen / MaxSpd;
 
-                    e.Graphics.DrawLine(overlayPen, mid_w + last_x, mid_y + last_y, mid_w + new_x, mid_y + new_y);
-                    e.Graphics.DrawLine(overlayPen, mid_w - last_x, mid_y + last_y, mid_w - new_x, mid_y + new_y);
+                    e.Graphics.DrawLine(overlayPen, MidX + last_x, MidY + last_y, MidX + new_x, MidY + new_y);
+                    e.Graphics.DrawLine(overlayPen, MidX - last_x, MidY + last_y, MidX - new_x, MidY + new_y);
 
                     last_x = new_x;
                     last_y = new_y;
                 }
             }
+        }
 
+        void GetPolarLocation(PaintEventArgs e, float angle, float spd, ref float xout, ref float yout)
+        {
+            var sinTWA = (float)Math.Sin(AngleUtil.DegToRad * angle);
+            var cosTWA = (float)Math.Cos(AngleUtil.DegToRad * angle);
 
-            /*  float fBestUpwindAndle = (float)m_PolarData.GetBestUpwindAngle(WindSpd);
-                float fBestDownwindAndle = (float)m_PolarData.GetBestDownwindAngle(WindSpd);
-                for (double angle = 10.0; angle <= 180.0; angle += 10.0)
-                {
-                    var sin = (float)Math.Sin(AngleUtil.DegToRad * angle);
-                    var cos = (float)Math.Cos(AngleUtil.DegToRad * angle);
-
-                    //float xoffset = sin * length;
-                    //float yoffset = -cos * length;
-
-                    //e.Graphics.DrawLine(overlayPen, mid_w, mid_y, mid_w + xoffset, mid_y + yoffset);
-                    //e.Graphics.DrawLine(overlayPen, mid_w, mid_y, mid_w - xoffset, mid_y + yoffset);
-
-                    float spd = (float)m_PolarData.GetBestPolarSpeed(WindSpd, angle);
-                    float new_x = sin * spd * MaxLen / MaxSpd;
-                    float new_y = -cos * spd * MaxLen / MaxSpd;
-
-                    e.Graphics.DrawLine(overlayPen, mid_w + last_x, mid_y + last_y, mid_w + new_x, mid_y + new_y);
-                    e.Graphics.DrawLine(overlayPen, mid_w - last_x, mid_y + last_y, mid_w - new_x, mid_y + new_y);
-
-                    last_x = new_x;
-                    last_y = new_y;
-                }
-            */
+            xout = sinTWA * spd * MaxLen / MaxSpd;
+            yout = -cosTWA * spd * MaxLen / MaxSpd;
         }
 
         void DrawAngle(PaintEventArgs e, Pen p, float angle)
         {
-            float width = (float)PolarDrawArea.ClientSize.Width;
-            float height = (float)PolarDrawArea.ClientSize.Height;
-            float mid_w = width / 2.0f;
-            float mid_y = height / 2.0f;
-
-            var sinTWA = (float)Math.Sin(AngleUtil.DegToRad * angle);
-            var cosTWA = (float)Math.Cos(AngleUtil.DegToRad * angle);
-
+            //TODO: Recalc on each resize
             float spdTWA = (float)m_PolarData.GetBestPolarSpeed(TWS, angle);
+            float twa_x = 0.0f;
+            float twa_y = 0.0f;
 
-            float MaxLen = Math.Min(mid_w, mid_y);
-            float twa_x = sinTWA * spdTWA * MaxLen / MaxSpd;
-            float twa_y = -cosTWA * spdTWA * MaxLen / MaxSpd;
+            GetPolarLocation(e, angle, spdTWA, ref twa_x, ref twa_y);
 
-            e.Graphics.DrawLine(p, mid_w, mid_y, mid_w + twa_x, mid_y + twa_y);
+            e.Graphics.DrawLine(p, MidX, MidY, MidX + twa_x, MidY + twa_y);
         }
 
         private void PolarDrawArea_Paint(object sender, PaintEventArgs e)
@@ -223,27 +203,13 @@ namespace NMEAViewer
             overlayPen.Width = 1.0f;
 
             DrawWindSpeedRing(4, overlayPen, e);
-            //DrawWindSpeedRing(6, overlayPen, e);
             DrawWindSpeedRing(8, overlayPen, e);
-            //DrawWindSpeedRing(10, overlayPen, e);
             DrawWindSpeedRing(12, overlayPen, e);
-            //DrawWindSpeedRing(14, overlayPen, e);
-            //DrawWindSpeedRing(16, overlayPen, e);
-            //DrawWindSpeedRing(18, overlayPen, e);
             DrawWindSpeedRing(20, overlayPen, e);
 
             Pen twsPen = new Pen(new SolidBrush(Color.Blue));
             twsPen.Width = 2.0f;
             DrawWindSpeedRing(TWS, twsPen, e);
-
-            //Draw polar compass rose
-            float width = (float)PolarDrawArea.ClientSize.Width;
-            float height = (float)PolarDrawArea.ClientSize.Height;
-            float mid_w = width / 2.0f;
-            float mid_y = height / 2.0f;
-            float length = (float)Math.Sqrt(mid_w * mid_w + mid_y * mid_y);
-            float MaxLen = Math.Min(mid_w, mid_y);
-            
 
             //Draw current TWA info
             Pen currentPen = new Pen(new SolidBrush(Color.Yellow));
@@ -320,14 +286,8 @@ namespace NMEAViewer
 
         private void loadPolarsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //if ((m_AppSettings.PolarDataName != null) && (m_AppSettings.PolarDataName.Length > 0))
-            //{
-            //    openPolarFile.InitialDirectory = System.IO.Path.GetDirectoryName(m_AppSettings.PolarDataName);
-            //}
             if (openPolarFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                //m_AppSettings.PolarDataName = openPolarFile.FileName;
-                //m_AppSettings.Save();
                 setPolarFile(openPolarFile.FileName);
                 PolarDrawArea.Refresh();
             }
