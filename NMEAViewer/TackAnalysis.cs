@@ -134,8 +134,6 @@ namespace NMEAViewer
             AngleTackedThrough,
             AngleSteeredThrough,
             Leeway,
-            LossDueToSpeed,
-            LossDueToHeading,
             TotalLoss,
             FinalHeading,
             WindDirectionAtStart,
@@ -143,7 +141,13 @@ namespace NMEAViewer
             AverageTWD
         };
         double[] m_Values;
+        bool[] m_HasValue;
         bool m_bIsTack = true;
+
+        public double EstimatedWindDirection;   // Upwind this is the average between headings pre and post tack, downwind this is the average of the twds pre and post tack
+        public double PreTackVMG;               // Before turn started
+        public double TurnAndAccelVMGDist;      // Distance travelled along VMG direction post turn start
+        public double TurnAndAccelTime;         // Time we measured that distance over
 
         public void SetIsTack(bool itIs)
         {
@@ -157,12 +161,12 @@ namespace NMEAViewer
 
         public double GetValue(eTackDataTypes dt)
         {
-            return m_Values[(int)dt];
+            return GetValue((int)dt);
         }
 
         public double GetValue(int dt)
         {
-            if (dt < GetNumValues())
+            if ((dt < GetNumValues()) && m_HasValue[dt])
             {
                 return m_Values[(int)dt];
             }
@@ -172,6 +176,17 @@ namespace NMEAViewer
         public void SetValue(eTackDataTypes dt, double fValue)
         {
             m_Values[(int)dt] = fValue;
+            m_HasValue[(int)dt] = true;
+        }
+
+        public bool HasValue(int dt)
+        {
+            return m_HasValue[dt];
+        }
+
+        public bool HasValue(eTackDataTypes dt)
+        {
+            return HasValue((int)dt);
         }
 
         public void SetValue(int dt, double fValue)
@@ -199,9 +214,11 @@ namespace NMEAViewer
         public TackAnalysisData()
         {
             m_Values = new double[GetNumValues()];
+            m_HasValue = new bool[GetNumValues()];
             foreach (int i in m_Values)
             {
                 m_Values[i] = 0.0;
+                m_HasValue[i] = false;
             }
             m_Values[(int)eTackDataTypes.TimeToInitialTurnEnd] = -1.0;
             m_Values[(int)eTackDataTypes.TimeToCounterSteerEnd] = -1.0;
@@ -515,6 +532,7 @@ namespace NMEAViewer
                 rOutData.SetValue(TackAnalysisData.eTackDataTypes.TimeToSlowestPoint, fTimeOfSlowest - fStartOfTurn);
                 rOutData.SetValue(TackAnalysisData.eTackDataTypes.TimeToEndOfTurn, fEndOfTurn - fStartOfTurn);
                 rOutData.SetValue(TackAnalysisData.eTackDataTypes.TimeOfEndOfTurn, fEndOfTurn);
+
                 rOutData.SetValue(TackAnalysisData.eTackDataTypes.TimeToRegain90PercentSpdFromSlowest, -1.0f);
                 double fTimeOf90Percent = SampleTime(iBackToNinetyPercent);
                 if (iBackToNinetyPercent < iLastSample)
@@ -555,58 +573,59 @@ namespace NMEAViewer
                 double fLeeway = (Math.Abs(fTackingAngle_Steered) - Math.Abs(fTackingAngle)) * 0.5f;
                 rOutData.SetValue(TackAnalysisData.eTackDataTypes.Leeway, fLeeway);
 
-                //Estimation of time lost due to slowdown / acceleration
-                double fPropSpdUpDownWind = Math.Abs(Math.Cos((TWD(iStartOfTurn) - BoatHeading(iStartOfTurn) + 180.0f) * DegToRad));
-                //double fPreTackSpdOnWind = BoatSpeed(iStartOfTurn) * fPropSpdUpDownWind;
 
+                //Upwind this is the average between headings pre and post tack, downwind this is the average of the twds pre and post tack
+                if (rOutData.IsTack())
+                {
+                    rOutData.EstimatedWindDirection = AngleUtil.CalculateAverage(fEntryDirection, fExitDirection);
+                }
+                else
+                {
+                    double twd1 = m_Data.GetDataAtIndex(iStartOfTurn, NMEACruncher.DataTypes.TWD);
+                    double twd2 = m_Data.GetDataAtIndex(iEndOfTurn, NMEACruncher.DataTypes.TWD);
+
+                    rOutData.EstimatedWindDirection = AngleUtil.CalculateAverage(twd1, twd2);
+                }
+
+                double angleToWindPreTack = AngleUtil.ShortAngle(fEntryDirection, rOutData.EstimatedWindDirection);
+                rOutData.PreTackVMG = fPreTackSpd * Math.Cos(angleToWindPreTack);
+
+                double lastTime = m_Data.GetDataAtIndex(iStartOfTurn, NMEACruncher.DataTypes.Time);
+                rOutData.TurnAndAccelTime = 0.0;
+                for (int iVMGCheck= iStartOfTurn+1; iVMGCheck < iBackToNinetyPercent; iVMGCheck++)
+                {
+                    //time delta
+                    double newTime = m_Data.GetDataAtIndex(iVMGCheck, NMEACruncher.DataTypes.Time);
+                    double timeDelta = (newTime - lastTime) * (1.0 / 3600.0);
+
+                    //heading
+                    double newHeading = m_Data.GetDataAtIndex(iVMGCheck, NMEACruncher.DataTypes.BoatHeading);
+
+                    //speed
+                    double newSpd = m_Data.GetDataAtIndex(iVMGCheck, NMEACruncher.DataTypes.BoatSpeed);
+
+                    //distance
+                    double angleToWind = AngleUtil.ShortAngle(newHeading, rOutData.EstimatedWindDirection);
+                    rOutData.TurnAndAccelVMGDist += newSpd * Math.Cos(angleToWind) * timeDelta;
+                    rOutData.TurnAndAccelTime += timeDelta;
+                    
+                    //next...
+                    lastTime = newTime;
+                }
+
+                //Compare whata we think we would have travelled with what we did
+                double wouldHaveTravelled = rOutData.TurnAndAccelTime * rOutData.PreTackVMG;
+                double distanceLost = (wouldHaveTravelled - rOutData.TurnAndAccelVMGDist);
+
+                //Distance is in NM
+                //Might be better in ft or boat lengths (leaving this for display)
+                rOutData.SetValue(TackAnalysisData.eTackDataTypes.TotalLoss, distanceLost);
+                
+                
                 //Get an earlier sample
                 int iInitialSpdNum = 10;// iThroughWind - iStartOfTurn;
-                int iStartOfPreTurnSample = Math.Max(0, iStartOfTurn - iInitialSpdNum * 2);
-                int iEndOfPreTurnSample = Math.Max(0, iStartOfTurn - iInitialSpdNum);
-                double fAverageSpdPreTack = 0;
-                for (int i = iStartOfPreTurnSample; i < iEndOfPreTurnSample; i++)
-                {
-                    fAverageSpdPreTack += BoatSpeed(i);
-                }
-                fAverageSpdPreTack *= 1.0f / (double)Math.Max(1, iInitialSpdNum);
-
-                double fDistanceThroughAcceleration = 0.0f;
-                double fCouldHaveTravelledThroughAcceleration = 0.0f;
-                for (int i = iStartOfTurn; i < iBackToNinetyPercent; i++)
-                {
-                    double fTimeOfSample = (SampleTime(i) - SampleTime(i - 1)) * (1.0f / 3600.0f); //Converts seconds to hours, speed is in nautical miles per hour
-                    fDistanceThroughAcceleration += BoatSpeed(i) * fTimeOfSample;
-                    fCouldHaveTravelledThroughAcceleration += fAverageSpdPreTack * fTimeOfSample;
-                }
-
-                double fDistanceLost = Math.Max(0.0f, fCouldHaveTravelledThroughAcceleration - fDistanceThroughAcceleration);
-
-                //Calculate "slippage" on new tack.
-                //	-	Extra leeway while travelling slower
-                //	-	Going deep to accelerate
-                //	-	1) Get final heading
                 int iEndOfFinalHeading = Math.Min(iBackToNinetyPercent + (iInitialSpdNum * 2), m_Data.GetDataCount());
                 double fFinalHeading = AngleUtil.ContainAngle0To360(AngleUtil.CalculateAngleAverage(m_Data, NMEACruncher.DataTypes.GPSHeading, iBackToNinetyPercent, iEndOfFinalHeading));
-
-                //	-	2) Calculate amount of slipping below this
-                double fDistanceSailedBelowFinalHeading = 0.0f;
-                for (int i = iThroughWind; i < iEndOfFinalHeading; i++)
-                {
-                    double fHeadingDelta = AngleUtil.ShortAngle(GPSHeading(i), fFinalHeading);
-                    if ((fHeadingDelta > 0.0f) ^ (fTackingAngle > 0.0f))
-                    {
-                        double fDistance = BoatSpeed(i) * (SampleTime(i) - SampleTime(i - 1)) * (1.0f / 3600.0f);
-                        fDistanceSailedBelowFinalHeading += fDistance * Math.Abs(Math.Sin(fHeadingDelta * DegToRad));
-                    }
-                }
-
-
-                double fBoatLengthsLostToSpeed = fDistanceLost * 6076.12f / (36.0f);
-                double fBoatLengthsLostToHeading = fDistanceSailedBelowFinalHeading * 6076.12f / (36.0f);
-                rOutData.SetValue(TackAnalysisData.eTackDataTypes.LossDueToSpeed, fBoatLengthsLostToSpeed);
-                rOutData.SetValue(TackAnalysisData.eTackDataTypes.LossDueToHeading, fBoatLengthsLostToHeading);
-                rOutData.SetValue(TackAnalysisData.eTackDataTypes.TotalLoss, fBoatLengthsLostToHeading + fBoatLengthsLostToSpeed);
-
                 rOutData.SetValue(TackAnalysisData.eTackDataTypes.FinalHeading, fFinalHeading);
                 return rOutData;
             }

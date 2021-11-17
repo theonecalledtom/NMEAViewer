@@ -340,12 +340,6 @@ namespace NMEAViewer
                 toolTip += "\tLoss: ";
                 toolTip += string.Format("{0:0.##}", tack.GetValue(TackAnalysisData.eTackDataTypes.TotalLoss));
                 toolTip += "\n\r";
-                toolTip += "\tLoss (Hdg): ";
-                toolTip += string.Format("{0:0.##}", tack.GetValue(TackAnalysisData.eTackDataTypes.LossDueToHeading));
-                toolTip += "\n\r";
-                toolTip += "\tLoss (Spd): ";
-                toolTip += string.Format("{0:0.##}", tack.GetValue(TackAnalysisData.eTackDataTypes.LossDueToSpeed));
-                toolTip += "\n\r";
                 toolTip += "\tAv speed: ";
                 toolTip += string.Format("{0:0.##}", tack.GetValue(TackAnalysisData.eTackDataTypes.AverageSpeed));
 
