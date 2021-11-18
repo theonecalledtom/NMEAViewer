@@ -8,25 +8,27 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using GMap.NET.WindowsForms;
+using GMap.NET.WindowsForms.Markers;
 using Newtonsoft.Json;
 
 namespace NMEAViewer
 {
+
     public partial class MapWindow : DockableDrawable
     {
-        private GMap.NET.WindowsForms.GMapRoute m_Route = null;
-        private GMap.NET.WindowsForms.GMapRoute m_RouteHighlight = null;
-        private GMap.NET.WindowsForms.GMapRoute m_EventHighlight = null;
+        private GMapRoute m_Route = null;
+        private GMapRoute m_RouteHighlight = null;
+        private GMapRoute m_EventHighlight = null;
         private List<double> m_RouteTimes = null;
-        private GMap.NET.WindowsForms.GMapOverlay m_RoutesOverlay = null;
-	    private GMap.NET.WindowsForms.GMapOverlay m_TacksOverlay = null;
-        private GMap.NET.WindowsForms.GMapOverlay m_TackEventOverlay = null;
-        private GMap.NET.WindowsForms.GMapOverlay m_EventsOverlay = null;
-        private GMap.NET.WindowsForms.GMapOverlay m_RouteHighlightOverlay = null;
-        private GMap.NET.WindowsForms.GMapOverlay m_EventOverlay = null;
-        private GMap.NET.WindowsForms.GMapOverlay m_BoatOverlay = null;
-        GMap.NET.WindowsForms.GMapMarker m_SelectedMarker = null;
-        private Dictionary<GMap.NET.WindowsForms.GMapMarker, TackAnalysisData> m_MarkerToTackMap;
+        private GMapOverlay m_RoutesOverlay = null;
+	    private GMapOverlay m_TacksOverlay = null;
+        private GMapOverlay m_TackEventOverlay = null;
+        private GMapOverlay m_EventsOverlay = null;
+        private GMapOverlay m_RouteHighlightOverlay = null;
+        private GMapOverlay m_EventOverlay = null;
+        private GMapOverlay m_BoatOverlay = null;
+        GMapMarker m_SelectedMarker = null;
+        private Dictionary<GMapMarker, TackAnalysisData> m_MarkerToTackMap;
         private NMEACruncher m_Data;
         private int m_iLastDataProcessed;
         private double m_fStartSelection;
@@ -122,7 +124,7 @@ namespace NMEAViewer
             InitializeComponent();
 
             m_Data = data;
-            m_MarkerToTackMap = new Dictionary<GMap.NET.WindowsForms.GMapMarker, TackAnalysisData>();
+            m_MarkerToTackMap = new Dictionary<GMapMarker, TackAnalysisData>();
             gMapControl1.MapProvider = GMap.NET.MapProviders.OpenSeaMapHybridProvider.Instance;//   //ArcGIS_Topo_US_2D_MapProvider.Instance;
             gMapControl1.Position = new GMap.NET.PointLatLng(32.0, -117.0);
             gMapControl1.MinZoom = 1;
@@ -131,46 +133,46 @@ namespace NMEAViewer
             gMapControl1.OnMarkerClick += OnMarkerClick;
 
             //Add the overlay for the route
-			m_RoutesOverlay = new GMap.NET.WindowsForms.GMapOverlay("routes");
+			m_RoutesOverlay = new GMapOverlay("routes");
 			gMapControl1.Overlays.Add(m_RoutesOverlay);
 
             //Add the overlay for the highlighted route
-            m_RouteHighlightOverlay = new GMap.NET.WindowsForms.GMapOverlay("routehighlight");
+            m_RouteHighlightOverlay = new GMapOverlay("routehighlight");
             gMapControl1.Overlays.Add(m_RouteHighlightOverlay);
 
             //Add the overlay for the tacking / gybing route
-            m_EventOverlay = new GMap.NET.WindowsForms.GMapOverlay("eventoverlay");
+            m_EventOverlay = new GMapOverlay("eventoverlay");
             gMapControl1.Overlays.Add(m_EventOverlay);
 
             //And the one for tack points
-            m_TacksOverlay = new GMap.NET.WindowsForms.GMapOverlay("tacks");
+            m_TacksOverlay = new GMapOverlay("tacks");
 			gMapControl1.Overlays.Add(m_TacksOverlay);
 
             //And one for a specific tack
-            m_TackEventOverlay = new GMap.NET.WindowsForms.GMapOverlay("tackevent");
+            m_TackEventOverlay = new GMapOverlay("tackevent");
             gMapControl1.Overlays.Add(m_TackEventOverlay);
 
             //And the one for tack points
-            m_EventsOverlay = new GMap.NET.WindowsForms.GMapOverlay("events");
+            m_EventsOverlay = new GMapOverlay("events");
             gMapControl1.Overlays.Add(m_EventsOverlay);
 
             //And the one for the boat?
-            m_BoatOverlay = new GMap.NET.WindowsForms.GMapOverlay("boat");
+            m_BoatOverlay = new GMapOverlay("boat");
             gMapControl1.Overlays.Add(m_BoatOverlay);
 
             //And add a route for the main sailing path
-			m_Route = new GMap.NET.WindowsForms.GMapRoute("Route Taken");
+			m_Route = new GMapRoute("Route Taken");
 			m_Route.Stroke.Color = System.Drawing.Color.Blue;
 			m_Route.Stroke.Width = 1;
 			m_RoutesOverlay.Routes.Add(m_Route);
             m_RouteTimes = new List<double>();
 
-            m_RouteHighlight = new GMap.NET.WindowsForms.GMapRoute("RouteHighlight");
+            m_RouteHighlight = new GMapRoute("RouteHighlight");
             m_RouteHighlight.Stroke = new Pen(System.Drawing.Color.Red);
             m_RouteHighlight.Stroke.Width = 2;
             m_RouteHighlightOverlay.Routes.Add(m_RouteHighlight);
 
-            m_EventHighlight = new GMap.NET.WindowsForms.GMapRoute("EventHighlight");
+            m_EventHighlight = new GMapRoute("EventHighlight");
             m_EventHighlight.Stroke = new Pen(System.Drawing.Color.Aqua);
             m_EventHighlight.Stroke.Width = 3;
             m_EventOverlay.Routes.Add(m_EventHighlight);
@@ -187,7 +189,7 @@ namespace NMEAViewer
             BringPathUpToDate();
         }
 
-        private void GMapControl1_OnMarkerClick(GMap.NET.WindowsForms.GMapMarker marker, MouseEventArgs e)
+        private void GMapControl1_OnMarkerClick(GMapMarker marker, MouseEventArgs e)
         {
             //If this is a tack, pop up an extra bunch of data
             if (m_MarkerToTackMap.ContainsKey(marker))
@@ -216,10 +218,10 @@ namespace NMEAViewer
             var TimeOf90Percent = TimeOfSlowest + tack.GetValue(TackAnalysisData.eTackDataTypes.TimeToRegain90PercentSpdFromSlowest);
 
             //Put in some markers
-            QuickAddMarkerAtTime(TimeStartOfTurn, m_TackEventOverlay, GMap.NET.WindowsForms.Markers.GMarkerGoogleType.green_big_go, "Start of turn");
-            QuickAddMarkerAtTime(TimeEndOfTurn, m_TackEventOverlay, GMap.NET.WindowsForms.Markers.GMarkerGoogleType.lightblue_dot, "End of turn");
-            QuickAddMarkerAtTime(TimeOfSlowest, m_TackEventOverlay, GMap.NET.WindowsForms.Markers.GMarkerGoogleType.orange_dot, "Slowest");
-            QuickAddMarkerAtTime(TimeOf90Percent, m_TackEventOverlay, GMap.NET.WindowsForms.Markers.GMarkerGoogleType.green_dot, "Back to 90%");
+            QuickAddMarkerAtTime(TimeStartOfTurn, m_TackEventOverlay, GMarkerGoogleType.green_big_go, "Start of turn");
+            QuickAddMarkerAtTime(TimeEndOfTurn, m_TackEventOverlay, GMarkerGoogleType.lightblue_dot, "End of turn");
+            QuickAddMarkerAtTime(TimeOfSlowest, m_TackEventOverlay, GMarkerGoogleType.orange_dot, "Slowest");
+            QuickAddMarkerAtTime(TimeOf90Percent, m_TackEventOverlay, GMarkerGoogleType.green_dot, "Back to 90%");
 
             //Event line highlight
             m_EventHighlight.Clear();
@@ -234,7 +236,7 @@ namespace NMEAViewer
             }
         }
 
-        private void QuickAddMarkerAtTime(double timeStartOfTurn, GMapOverlay overlay, GMap.NET.WindowsForms.Markers.GMarkerGoogleType marker, string infoTip, bool bInfoAlwaysOn=true)
+        private void QuickAddMarkerAtTime(double timeStartOfTurn, GMapOverlay overlay, GMarkerGoogleType markerType, string infoTip, bool bInfoAlwaysOn=true)
         {
             int iDataIndex = m_Data.GetIndexForTime(timeStartOfTurn);
             if (iDataIndex >= 0)
@@ -244,16 +246,16 @@ namespace NMEAViewer
                     double fLat = m_Data.GetDataAtIndex(iDataIndex, NMEACruncher.DataTypes.GPSLat);
                     double fLong = m_Data.GetDataAtIndex(iDataIndex, NMEACruncher.DataTypes.GPSLong);
                     GMap.NET.PointLatLng point = new GMap.NET.PointLatLng(fLat, fLong);
-                    GMap.NET.WindowsForms.Markers.GMarkerGoogle marker = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(
+                    GMarkerGoogle marker = new GMarkerGoogle(
                         point,
-                        GMap.NET.WindowsForms.Markers.GMarkerGoogleType.purple_dot
+                        markerType
                         );
                     if (!string.IsNullOrEmpty(infoTip))
                     {
                         marker.ToolTipMode =
                             bInfoAlwaysOn ?
-                                    GMap.NET.WindowsForms.MarkerTooltipMode.Always
-                                :   GMap.NET.WindowsForms.MarkerTooltipMode.OnMouseOver;
+                                    MarkerTooltipMode.Always
+                                :   MarkerTooltipMode.OnMouseOver;
                         marker.ToolTipText = infoTip;
                     }
                     overlay.Markers.Add(marker);
@@ -340,17 +342,17 @@ namespace NMEAViewer
             m_bDirty = true;
         }
 
-        private void SelectMarker(GMap.NET.WindowsForms.GMapMarker marker)
+        private void SelectMarker(GMapMarker marker)
 	    {
 		    if (m_SelectedMarker != null)
 		    {
-			    m_SelectedMarker.ToolTipMode = GMap.NET.WindowsForms.MarkerTooltipMode.OnMouseOver;
+			    m_SelectedMarker.ToolTipMode = MarkerTooltipMode.OnMouseOver;
 		    }
 		    m_SelectedMarker = marker;
-		    m_SelectedMarker.ToolTipMode = GMap.NET.WindowsForms.MarkerTooltipMode.Always;
+		    m_SelectedMarker.ToolTipMode = MarkerTooltipMode.Always;
 	    }
 
-        private void OnMarkerClick(GMap.NET.WindowsForms.GMapMarker marker, System.Windows.Forms.MouseEventArgs e)
+        private void OnMarkerClick(GMapMarker marker, System.Windows.Forms.MouseEventArgs e)
 	    {
             if (marker != m_SelectedMarker)
             {
@@ -386,9 +388,9 @@ namespace NMEAViewer
                         double fLat = m_Data.GetDataAtIndex(iDataIndex, NMEACruncher.DataTypes.GPSLat);
                         double fLong = m_Data.GetDataAtIndex(iDataIndex, NMEACruncher.DataTypes.GPSLong);
                         GMap.NET.PointLatLng point = new GMap.NET.PointLatLng(fLat, fLong);
-                        GMap.NET.WindowsForms.Markers.GMarkerGoogle marker = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(
+                        GMarkerGoogle marker = new GMarkerGoogle(
                             point,
-                            GMap.NET.WindowsForms.Markers.GMarkerGoogleType.orange_small
+                            GMarkerGoogleType.orange_small
                             );
 
                         //Mouse over tool tip
@@ -396,7 +398,7 @@ namespace NMEAViewer
                         toolTip += "\n\r\n\r";
                         toolTip += eventDescriptions[i];
 
-                        marker.ToolTipMode = GMap.NET.WindowsForms.MarkerTooltipMode.OnMouseOver;
+                        marker.ToolTipMode = MarkerTooltipMode.OnMouseOver;
                         marker.ToolTipText = toolTip;
 
                         m_EventsOverlay.Markers.Add( marker );
@@ -419,9 +421,9 @@ namespace NMEAViewer
                 double fLat = tack.GetValue(TackAnalysisData.eTackDataTypes.Lat);
                 double fLong = tack.GetValue(TackAnalysisData.eTackDataTypes.Long);
                 GMap.NET.PointLatLng point = new GMap.NET.PointLatLng(fLat, fLong);
-				GMap.NET.WindowsForms.Markers.GMarkerGoogle marker = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(
+				GMarkerGoogle marker = new GMarkerGoogle(
 					point,
-					tack.IsTack() ? GMap.NET.WindowsForms.Markers.GMarkerGoogleType.yellow_small : GMap.NET.WindowsForms.Markers.GMarkerGoogleType.blue_small
+					tack.IsTack() ? GMarkerGoogleType.yellow_small : GMarkerGoogleType.blue_small
 					);
 
                 string legName = MetaDataWindow.GetLegNameForTime(tack.GetValue(TackAnalysisData.eTackDataTypes.TimeOfStartOfTurn));
@@ -439,7 +441,7 @@ namespace NMEAViewer
                 toolTip += "\tAv speed: ";
                 toolTip += string.Format("{0:0.##}", tack.GetValue(TackAnalysisData.eTackDataTypes.AverageSpeed));
 
-                marker.ToolTipMode = GMap.NET.WindowsForms.MarkerTooltipMode.OnMouseOver;
+                marker.ToolTipMode = MarkerTooltipMode.OnMouseOver;
                 marker.ToolTipText = toolTip;
 
                 m_TacksOverlay.Markers.Add(marker);
@@ -565,9 +567,9 @@ namespace NMEAViewer
                     if (m_Data.HasDataAtIndex(iIndex, NMEACruncher.DataTypes.GPSLong))
                     {
                         GMap.NET.PointLatLng hoveredPoint = new GMap.NET.PointLatLng(m_Data.GetDataAtIndex(iIndex, NMEACruncher.DataTypes.GPSLat), m_Data.GetDataAtIndex(iIndex, NMEACruncher.DataTypes.GPSLong));
-                        GMap.NET.WindowsForms.Markers.GMarkerGoogle BoatMarker = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(
+                        GMarkerGoogle BoatMarker = new GMarkerGoogle(
                                                 hoveredPoint,
-                                                GMap.NET.WindowsForms.Markers.GMarkerGoogleType.gray_small
+                                                GMarkerGoogleType.gray_small
                                                 );
                         m_BoatOverlay.Markers.Add(BoatMarker);
                         m_fMarkedTime = fTime;
@@ -616,8 +618,8 @@ namespace NMEAViewer
 
             //If we contain a single marker, highlight it
             int iSelectedCount = 0;
-            GMap.NET.WindowsForms.GMapMarker soloSelected = null;
-            foreach (GMap.NET.WindowsForms.GMapMarker marker in m_TacksOverlay.Markers)
+            GMapMarker soloSelected = null;
+            foreach (GMapMarker marker in m_TacksOverlay.Markers)
             {
                 if (m_MarkerToTackMap.ContainsKey(marker))
                 {
