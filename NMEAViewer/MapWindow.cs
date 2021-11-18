@@ -592,6 +592,16 @@ namespace NMEAViewer
             SelectTime(fTime);
         }
 
+        protected override void OnEventSelected(TackAnalysisData data)
+        {
+            SetupTackEventOverlay(data);
+
+            if (selectionToolStripMenuItem.Checked)
+            {
+                gMapControl1.ZoomAndCenterRoutes(m_EventOverlay.Id);
+            }
+        }
+
         protected override void OnTimeRangeSelected(double fTime, double fTime1)
         {
             m_fStartSelection = fTime;

@@ -282,9 +282,7 @@ namespace NMEAViewer
                 TackAnalysisData data = (TackAnalysisData)DownwindDataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Tag;
                 if (data != null)
                 {
-                    double fStartTime = data.GetValue(TackAnalysisData.eTackDataTypes.TimeOfStartOfTurn);
-                    double fEndTime = data.GetValue(TackAnalysisData.eTackDataTypes.TimeOfEndOfTurn);
-                    BroadcastOnTimeRangeSelected(fStartTime, fEndTime);
+                    BroadcastOnEventSelected(data);
                 }
             }
         }
@@ -296,9 +294,7 @@ namespace NMEAViewer
                 TackAnalysisData data = (TackAnalysisData)UpwindDataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Tag;
                 if (data != null)
                 {
-                    double fStartTime = data.GetValue(TackAnalysisData.eTackDataTypes.TimeOfStartOfTurn);
-                    double fEndTime = data.GetValue(TackAnalysisData.eTackDataTypes.TimeOfEndOfTurn);
-                    BroadcastOnTimeRangeSelected(fStartTime, fEndTime);
+                    BroadcastOnEventSelected(data);
                 }
             }
         }

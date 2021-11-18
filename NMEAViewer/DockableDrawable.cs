@@ -208,6 +208,20 @@ namespace NMEAViewer
             }
         }
 
+        protected void BroadcastOnEventSelected(TackAnalysisData data)
+        {
+            if (allWindows != null)
+            {
+                foreach (DockableDrawable aDock in allWindows)
+                {
+                    if (this != aDock)
+                    {
+                        aDock.OnEventSelected(data);
+                    }
+                }
+            }
+        }
+
         public static void BroadcastDataReplaced(NMEACruncher newData)
         {
             if (allWindows != null)
@@ -295,6 +309,11 @@ namespace NMEAViewer
 
         protected virtual void OnTimeRangeSelected(double fTimeA, double fTimeB)
         {
+        }
+
+        protected virtual void OnEventSelected(TackAnalysisData data)
+        {
+
         }
 
         protected virtual void OnDataReplaced(NMEACruncher newData)
