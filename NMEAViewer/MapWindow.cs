@@ -16,12 +16,14 @@ namespace NMEAViewer
     {
         private GMap.NET.WindowsForms.GMapRoute m_Route = null;
         private GMap.NET.WindowsForms.GMapRoute m_RouteHighlight = null;
+        private GMap.NET.WindowsForms.GMapRoute m_EventHighlight = null;
         private List<double> m_RouteTimes = null;
         private GMap.NET.WindowsForms.GMapOverlay m_RoutesOverlay = null;
 	    private GMap.NET.WindowsForms.GMapOverlay m_TacksOverlay = null;
         private GMap.NET.WindowsForms.GMapOverlay m_TackEventOverlay = null;
         private GMap.NET.WindowsForms.GMapOverlay m_EventsOverlay = null;
         private GMap.NET.WindowsForms.GMapOverlay m_RouteHighlightOverlay = null;
+        private GMap.NET.WindowsForms.GMapOverlay m_EventOverlay = null;
         private GMap.NET.WindowsForms.GMapOverlay m_BoatOverlay = null;
         GMap.NET.WindowsForms.GMapMarker m_SelectedMarker = null;
         private Dictionary<GMap.NET.WindowsForms.GMapMarker, TackAnalysisData> m_MarkerToTackMap;
@@ -136,8 +138,12 @@ namespace NMEAViewer
             m_RouteHighlightOverlay = new GMap.NET.WindowsForms.GMapOverlay("routehighlight");
             gMapControl1.Overlays.Add(m_RouteHighlightOverlay);
 
+            //Add the overlay for the tacking / gybing route
+            m_EventOverlay = new GMap.NET.WindowsForms.GMapOverlay("eventoverlay");
+            gMapControl1.Overlays.Add(m_EventOverlay);
+
             //And the one for tack points
-			m_TacksOverlay = new GMap.NET.WindowsForms.GMapOverlay("tacks");
+            m_TacksOverlay = new GMap.NET.WindowsForms.GMapOverlay("tacks");
 			gMapControl1.Overlays.Add(m_TacksOverlay);
 
             //And one for a specific tack
@@ -163,6 +169,11 @@ namespace NMEAViewer
             m_RouteHighlight.Stroke = new Pen(System.Drawing.Color.Red);
             m_RouteHighlight.Stroke.Width = 2;
             m_RouteHighlightOverlay.Routes.Add(m_RouteHighlight);
+
+            m_EventHighlight = new GMap.NET.WindowsForms.GMapRoute("EventHighlight");
+            m_EventHighlight.Stroke = new Pen(System.Drawing.Color.Aqua);
+            m_EventHighlight.Stroke.Width = 3;
+            m_EventOverlay.Routes.Add(m_EventHighlight);
 
             SetTimerFrequency(0.5);
 
@@ -204,13 +215,26 @@ namespace NMEAViewer
             var TimeOfSlowest = TimeStartOfTurn + tack.GetValue(TackAnalysisData.eTackDataTypes.TimeToSlowestPoint);
             var TimeOf90Percent = TimeOfSlowest + tack.GetValue(TackAnalysisData.eTackDataTypes.TimeToRegain90PercentSpdFromSlowest);
 
-            QuickAddMarkerAtTime(TimeStartOfTurn, m_TackEventOverlay);
-            QuickAddMarkerAtTime(TimeEndOfTurn, m_TackEventOverlay);
-            QuickAddMarkerAtTime(TimeOfSlowest, m_TackEventOverlay);
-            QuickAddMarkerAtTime(TimeOf90Percent, m_TackEventOverlay);
+            //Put in some markers
+            QuickAddMarkerAtTime(TimeStartOfTurn, m_TackEventOverlay, GMap.NET.WindowsForms.Markers.GMarkerGoogleType.green_big_go, "Start of turn");
+            QuickAddMarkerAtTime(TimeEndOfTurn, m_TackEventOverlay, GMap.NET.WindowsForms.Markers.GMarkerGoogleType.lightblue_dot, "End of turn");
+            QuickAddMarkerAtTime(TimeOfSlowest, m_TackEventOverlay, GMap.NET.WindowsForms.Markers.GMarkerGoogleType.orange_dot, "Slowest");
+            QuickAddMarkerAtTime(TimeOf90Percent, m_TackEventOverlay, GMap.NET.WindowsForms.Markers.GMarkerGoogleType.green_dot, "Back to 90%");
+
+            //Event line highlight
+            m_EventHighlight.Clear();
+            for (int i = 0; i < m_Route.Points.Count; i++)
+            {
+                if (m_RouteTimes[i] > TimeOf90Percent)
+                    break;
+                if (m_RouteTimes[i] > TimeStartOfTurn)
+                {
+                    AddPointToRoute(m_Route.Points[i].Lng, m_Route.Points[i].Lat, m_EventHighlight);
+                }
+            }
         }
 
-        private void QuickAddMarkerAtTime(double timeStartOfTurn, GMapOverlay m_TackEventOverlay)
+        private void QuickAddMarkerAtTime(double timeStartOfTurn, GMapOverlay overlay, GMap.NET.WindowsForms.Markers.GMarkerGoogleType marker, string infoTip, bool bInfoAlwaysOn=true)
         {
             int iDataIndex = m_Data.GetIndexForTime(timeStartOfTurn);
             if (iDataIndex >= 0)
@@ -224,7 +248,15 @@ namespace NMEAViewer
                         point,
                         GMap.NET.WindowsForms.Markers.GMarkerGoogleType.purple_dot
                         );
-                    m_TackEventOverlay.Markers.Add(marker);
+                    if (!string.IsNullOrEmpty(infoTip))
+                    {
+                        marker.ToolTipMode =
+                            bInfoAlwaysOn ?
+                                    GMap.NET.WindowsForms.MarkerTooltipMode.Always
+                                :   GMap.NET.WindowsForms.MarkerTooltipMode.OnMouseOver;
+                        marker.ToolTipText = infoTip;
+                    }
+                    overlay.Markers.Add(marker);
                 }
             }
 
@@ -297,6 +329,8 @@ namespace NMEAViewer
             m_Data = newData;
             m_Route.Clear();
             m_RouteHighlight.Clear();
+            m_EventHighlight.Clear();
+
             m_RouteTimes.Clear();
 
             m_iLastDataProcessed = 0;
@@ -423,12 +457,12 @@ namespace NMEAViewer
             m_bDirty = true;
 		}
 
-        public void AddPointToHighlight(double fLong, double fLat)
+        public void AddPointToRoute(double fLong, double fLat, GMapRoute route)
         {
             GMap.NET.PointLatLng newPoint = new GMap.NET.PointLatLng();
             newPoint.Lat = fLat;
             newPoint.Lng = fLong;
-            m_RouteHighlight.Points.Add(newPoint);
+            route.Points.Add(newPoint);
             m_bDirty = true;
         }
 
@@ -569,7 +603,7 @@ namespace NMEAViewer
                     break;
                 if (m_RouteTimes[i] > fTime)
                 {
-                    AddPointToHighlight(m_Route.Points[i].Lng, m_Route.Points[i].Lat);
+                    AddPointToRoute(m_Route.Points[i].Lng, m_Route.Points[i].Lat, m_RouteHighlight);
                 }
             }
 
