@@ -193,6 +193,10 @@ namespace NMEAViewer
             {
                 return new PolarDiagramWindow(m_Data, m_PolarData);
             }
+            else if (typeName == typeof(NMEAViewer.GPXLoader).ToString())
+            {
+                return new GPXLoader(m_Data);
+            }
             return null;
         }
 
@@ -658,6 +662,18 @@ namespace NMEAViewer
         private void newPolarDiagramToolStripMenuItem_Click(object sender, EventArgs e)
         {
             HookupUserAddedPanel(new PolarDiagramWindow(m_Data, m_PolarData));
+        }
+
+        private void loadGPXToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (GPXLoader.Instance == null)
+            {
+                HookupUserAddedPanel(new GPXLoader(m_Data));
+            }
+            else
+            {
+                GPXLoader.Instance.Focus();
+            }
         }
     }
 }

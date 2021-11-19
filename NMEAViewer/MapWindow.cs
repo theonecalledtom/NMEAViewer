@@ -64,13 +64,6 @@ namespace NMEAViewer
             return data;
         }
 
-        enum eMapProviders
-        {
-            OpenSeaMap,
-            Bing,
-            GoogleEarth,
-        }
-
         public override void InitFromSerializedData(SerializedDataBase data_base)
         {
             SerializedData data = (SerializedData)data_base;
