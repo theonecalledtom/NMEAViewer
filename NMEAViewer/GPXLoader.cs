@@ -50,5 +50,10 @@ namespace NMEAViewer
         {
 
         }
+
+        private void PathOffset_Scroll(object sender, EventArgs e)
+        {
+
+        }
     }
 }
