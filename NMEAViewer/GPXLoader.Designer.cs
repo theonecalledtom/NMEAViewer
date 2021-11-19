@@ -29,8 +29,11 @@ namespace NMEAViewer
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.gMapComponent1 = new NMEAViewer.GMapComponent(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -39,9 +42,40 @@ namespace NMEAViewer
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
             this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.gMapComponent1);
             this.splitContainer1.Size = new System.Drawing.Size(800, 450);
             this.splitContainer1.SplitterDistance = 266;
             this.splitContainer1.TabIndex = 0;
+            // 
+            // gMapComponent1
+            // 
+            this.gMapComponent1.Bearing = 0F;
+            this.gMapComponent1.CanDragMap = true;
+            this.gMapComponent1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gMapComponent1.EmptyTileColor = System.Drawing.Color.Navy;
+            this.gMapComponent1.GrayScaleMode = false;
+            this.gMapComponent1.HelperLineOption = GMap.NET.WindowsForms.HelperLineOptions.DontShow;
+            this.gMapComponent1.LevelsKeepInMemory = 5;
+            this.gMapComponent1.Location = new System.Drawing.Point(0, 0);
+            this.gMapComponent1.MarkersEnabled = true;
+            this.gMapComponent1.MaxZoom = 2;
+            this.gMapComponent1.MinZoom = 2;
+            this.gMapComponent1.MouseWheelZoomEnabled = true;
+            this.gMapComponent1.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionAndCenter;
+            this.gMapComponent1.Name = "gMapComponent1";
+            this.gMapComponent1.NegativeMode = false;
+            this.gMapComponent1.PolygonsEnabled = true;
+            this.gMapComponent1.RetryLoadTile = 0;
+            this.gMapComponent1.RoutesEnabled = true;
+            this.gMapComponent1.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
+            this.gMapComponent1.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
+            this.gMapComponent1.ShowTileGridLines = false;
+            this.gMapComponent1.Size = new System.Drawing.Size(530, 450);
+            this.gMapComponent1.TabIndex = 0;
+            this.gMapComponent1.Zoom = 0D;
             // 
             // GPXLoader
             // 
@@ -52,6 +86,7 @@ namespace NMEAViewer
             this.Name = "GPXLoader";
             this.Text = "GPXLoader";
             this.Load += new System.EventHandler(this.GPXLoader_Load);
+            this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -61,5 +96,6 @@ namespace NMEAViewer
         #endregion
 
         private System.Windows.Forms.SplitContainer splitContainer1;
+        private GMapComponent gMapComponent1;
     }
 }
