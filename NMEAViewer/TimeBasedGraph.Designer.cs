@@ -56,7 +56,7 @@
             // menuStrip1
             // 
             this.menuStrip1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
+            this.menuStrip1.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.overlayListToolStripMenuItem,
@@ -72,7 +72,7 @@
             // overlayListToolStripMenuItem
             // 
             this.overlayListToolStripMenuItem.Name = "overlayListToolStripMenuItem";
-            this.overlayListToolStripMenuItem.Size = new System.Drawing.Size(158, 42);
+            this.overlayListToolStripMenuItem.Size = new System.Drawing.Size(145, 42);
             this.overlayListToolStripMenuItem.Text = "Overlay List";
             // 
             // timeToolStripMenuItem
@@ -82,27 +82,27 @@
             this.moveToLatestToolStripMenuItem,
             this.expandToLatestToolStripMenuItem});
             this.timeToolStripMenuItem.Name = "timeToolStripMenuItem";
-            this.timeToolStripMenuItem.Size = new System.Drawing.Size(88, 42);
+            this.timeToolStripMenuItem.Size = new System.Drawing.Size(81, 42);
             this.timeToolStripMenuItem.Text = "Time";
             // 
             // trackSelectionToolStripMenuItem
             // 
             this.trackSelectionToolStripMenuItem.Name = "trackSelectionToolStripMenuItem";
-            this.trackSelectionToolStripMenuItem.Size = new System.Drawing.Size(319, 44);
+            this.trackSelectionToolStripMenuItem.Size = new System.Drawing.Size(298, 44);
             this.trackSelectionToolStripMenuItem.Text = "Track selection";
             this.trackSelectionToolStripMenuItem.Click += new System.EventHandler(this.trackSelectionToolStripMenuItem_Click);
             // 
             // moveToLatestToolStripMenuItem
             // 
             this.moveToLatestToolStripMenuItem.Name = "moveToLatestToolStripMenuItem";
-            this.moveToLatestToolStripMenuItem.Size = new System.Drawing.Size(319, 44);
+            this.moveToLatestToolStripMenuItem.Size = new System.Drawing.Size(298, 44);
             this.moveToLatestToolStripMenuItem.Text = "Move to latest";
             this.moveToLatestToolStripMenuItem.Click += new System.EventHandler(this.moveToLatestToolStripMenuItem_Click);
             // 
             // expandToLatestToolStripMenuItem
             // 
             this.expandToLatestToolStripMenuItem.Name = "expandToLatestToolStripMenuItem";
-            this.expandToLatestToolStripMenuItem.Size = new System.Drawing.Size(319, 44);
+            this.expandToLatestToolStripMenuItem.Size = new System.Drawing.Size(298, 44);
             this.expandToLatestToolStripMenuItem.Text = "Expand to latest";
             this.expandToLatestToolStripMenuItem.Click += new System.EventHandler(this.expandToLatestToolStripMenuItem_Click);
             // 
@@ -111,13 +111,13 @@
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.graphStyleToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(119, 42);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(109, 42);
             this.optionsToolStripMenuItem.Text = "Options";
             // 
             // graphStyleToolStripMenuItem
             // 
             this.graphStyleToolStripMenuItem.Name = "graphStyleToolStripMenuItem";
-            this.graphStyleToolStripMenuItem.Size = new System.Drawing.Size(271, 44);
+            this.graphStyleToolStripMenuItem.Size = new System.Drawing.Size(256, 44);
             this.graphStyleToolStripMenuItem.Text = "Graph Style";
             this.graphStyleToolStripMenuItem.Click += new System.EventHandler(this.graphStyleToolStripMenuItem_Click);
             // 

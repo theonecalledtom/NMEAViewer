@@ -42,6 +42,7 @@
             this.checkBox_WriteRaw = new System.Windows.Forms.CheckBox();
             this.OutputFileEnabled = new System.Windows.Forms.CheckBox();
             this.SimulationGroup = new System.Windows.Forms.GroupBox();
+            this.checkBox_Loop = new System.Windows.Forms.CheckBox();
             this.label2PlaybackSpeed = new System.Windows.Forms.Label();
             this.PlaybackSpeed = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown_DataRead = new System.Windows.Forms.NumericUpDown();
@@ -60,7 +61,7 @@
             this.IPRadioButton = new System.Windows.Forms.RadioButton();
             this.OpenRecordingDialog = new System.Windows.Forms.OpenFileDialog();
             this.LogBox = new System.Windows.Forms.TextBox();
-            this.checkBox_Loop = new System.Windows.Forms.CheckBox();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             ((System.ComponentModel.ISupportInitialize)(this.BytesReadNumber)).BeginInit();
             this.OutputFileGroupBox.SuspendLayout();
             this.SimulationGroup.SuspendLayout();
@@ -69,6 +70,10 @@
             this.PortGroupBox.SuspendLayout();
             this.ComportConnectPanel.SuspendLayout();
             this.IPConnectPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
             // serialPort1
@@ -167,7 +172,7 @@
             this.OutputFileGroupBox.Controls.Add(this.BrowseForOutput);
             this.OutputFileGroupBox.Controls.Add(this.OutputFileEnabled);
             this.OutputFileGroupBox.Controls.Add(this.OutputFileName);
-            this.OutputFileGroupBox.Location = new System.Drawing.Point(14, 444);
+            this.OutputFileGroupBox.Location = new System.Drawing.Point(17, 445);
             this.OutputFileGroupBox.Margin = new System.Windows.Forms.Padding(4);
             this.OutputFileGroupBox.Name = "OutputFileGroupBox";
             this.OutputFileGroupBox.Padding = new System.Windows.Forms.Padding(4);
@@ -210,7 +215,7 @@
             this.SimulationGroup.Controls.Add(this.label1);
             this.SimulationGroup.Controls.Add(this.SimulationFileName);
             this.SimulationGroup.Controls.Add(this.OpenCloseSimulation);
-            this.SimulationGroup.Location = new System.Drawing.Point(16, 671);
+            this.SimulationGroup.Location = new System.Drawing.Point(17, 672);
             this.SimulationGroup.Margin = new System.Windows.Forms.Padding(4);
             this.SimulationGroup.Name = "SimulationGroup";
             this.SimulationGroup.Padding = new System.Windows.Forms.Padding(4);
@@ -218,6 +223,19 @@
             this.SimulationGroup.TabIndex = 10;
             this.SimulationGroup.TabStop = false;
             this.SimulationGroup.Text = "Simulation";
+            // 
+            // checkBox_Loop
+            // 
+            this.checkBox_Loop.AutoSize = true;
+            this.checkBox_Loop.Checked = true;
+            this.checkBox_Loop.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_Loop.Location = new System.Drawing.Point(294, 159);
+            this.checkBox_Loop.Name = "checkBox_Loop";
+            this.checkBox_Loop.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.checkBox_Loop.Size = new System.Drawing.Size(92, 29);
+            this.checkBox_Loop.TabIndex = 8;
+            this.checkBox_Loop.Text = "Loop";
+            this.checkBox_Loop.UseVisualStyleBackColor = true;
             // 
             // label2PlaybackSpeed
             // 
@@ -301,15 +319,15 @@
             // 
             // PortGroupBox
             // 
+            this.PortGroupBox.Controls.Add(this.IPConnectPanel);
+            this.PortGroupBox.Controls.Add(this.ComportRadioButton);
             this.PortGroupBox.Controls.Add(this.checkBox_Forward);
             this.PortGroupBox.Controls.Add(this.ComportConnectPanel);
-            this.PortGroupBox.Controls.Add(this.ComportRadioButton);
-            this.PortGroupBox.Controls.Add(this.IPConnectPanel);
-            this.PortGroupBox.Controls.Add(this.IPRadioButton);
             this.PortGroupBox.Controls.Add(this.OpenClose);
+            this.PortGroupBox.Controls.Add(this.IPRadioButton);
             this.PortGroupBox.Controls.Add(this.BytesReadNumber);
             this.PortGroupBox.Controls.Add(this.BytesReadLabel);
-            this.PortGroupBox.Location = new System.Drawing.Point(14, 19);
+            this.PortGroupBox.Location = new System.Drawing.Point(17, 18);
             this.PortGroupBox.Margin = new System.Windows.Forms.Padding(4);
             this.PortGroupBox.Name = "PortGroupBox";
             this.PortGroupBox.Padding = new System.Windows.Forms.Padding(4);
@@ -336,7 +354,7 @@
             // 
             this.ComportConnectPanel.Controls.Add(this.OpenPortComboList);
             this.ComportConnectPanel.Controls.Add(this.FindPorts);
-            this.ComportConnectPanel.Location = new System.Drawing.Point(50, 137);
+            this.ComportConnectPanel.Location = new System.Drawing.Point(52, 157);
             this.ComportConnectPanel.Margin = new System.Windows.Forms.Padding(4);
             this.ComportConnectPanel.Name = "ComportConnectPanel";
             this.ComportConnectPanel.Size = new System.Drawing.Size(332, 79);
@@ -345,7 +363,7 @@
             // ComportRadioButton
             // 
             this.ComportRadioButton.AutoSize = true;
-            this.ComportRadioButton.Location = new System.Drawing.Point(10, 162);
+            this.ComportRadioButton.Location = new System.Drawing.Point(1, 183);
             this.ComportRadioButton.Margin = new System.Windows.Forms.Padding(4);
             this.ComportRadioButton.Name = "ComportRadioButton";
             this.ComportRadioButton.Size = new System.Drawing.Size(27, 26);
@@ -356,11 +374,11 @@
             // 
             // IPConnectPanel
             // 
-            this.IPConnectPanel.Controls.Add(this.IPTextBox);
             this.IPConnectPanel.Controls.Add(this.label2);
-            this.IPConnectPanel.Controls.Add(this.PortTextBox);
             this.IPConnectPanel.Controls.Add(this.Port);
-            this.IPConnectPanel.Location = new System.Drawing.Point(50, 31);
+            this.IPConnectPanel.Controls.Add(this.IPTextBox);
+            this.IPConnectPanel.Controls.Add(this.PortTextBox);
+            this.IPConnectPanel.Location = new System.Drawing.Point(52, 32);
             this.IPConnectPanel.Margin = new System.Windows.Forms.Padding(4);
             this.IPConnectPanel.Name = "IPConnectPanel";
             this.IPConnectPanel.Size = new System.Drawing.Size(332, 96);
@@ -368,7 +386,7 @@
             // 
             // IPTextBox
             // 
-            this.IPTextBox.Location = new System.Drawing.Point(76, 12);
+            this.IPTextBox.Location = new System.Drawing.Point(77, 17);
             this.IPTextBox.Name = "IPTextBox";
             this.IPTextBox.Size = new System.Drawing.Size(240, 31);
             this.IPTextBox.TabIndex = 10;
@@ -376,7 +394,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 12);
+            this.label2.Location = new System.Drawing.Point(37, 20);
             this.label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(31, 25);
@@ -385,7 +403,7 @@
             // 
             // PortTextBox
             // 
-            this.PortTextBox.Location = new System.Drawing.Point(76, 54);
+            this.PortTextBox.Location = new System.Drawing.Point(77, 55);
             this.PortTextBox.Margin = new System.Windows.Forms.Padding(4);
             this.PortTextBox.Name = "PortTextBox";
             this.PortTextBox.Size = new System.Drawing.Size(110, 31);
@@ -394,7 +412,7 @@
             // Port
             // 
             this.Port.AutoSize = true;
-            this.Port.Location = new System.Drawing.Point(10, 54);
+            this.Port.Location = new System.Drawing.Point(18, 58);
             this.Port.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Port.Name = "Port";
             this.Port.Size = new System.Drawing.Size(51, 25);
@@ -404,7 +422,7 @@
             // IPRadioButton
             // 
             this.IPRadioButton.AutoSize = true;
-            this.IPRadioButton.Location = new System.Drawing.Point(10, 63);
+            this.IPRadioButton.Location = new System.Drawing.Point(1, 64);
             this.IPRadioButton.Margin = new System.Windows.Forms.Padding(4);
             this.IPRadioButton.Name = "IPRadioButton";
             this.IPRadioButton.Size = new System.Drawing.Size(27, 26);
@@ -420,37 +438,41 @@
             // 
             // LogBox
             // 
-            this.LogBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.LogBox.Location = new System.Drawing.Point(0, 900);
+            this.LogBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.LogBox.Location = new System.Drawing.Point(0, 0);
             this.LogBox.Multiline = true;
             this.LogBox.Name = "LogBox";
             this.LogBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.LogBox.Size = new System.Drawing.Size(534, 154);
+            this.LogBox.Size = new System.Drawing.Size(471, 291);
             this.LogBox.TabIndex = 12;
             // 
-            // checkBox_Loop
+            // splitContainer1
             // 
-            this.checkBox_Loop.AutoSize = true;
-            this.checkBox_Loop.Checked = true;
-            this.checkBox_Loop.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_Loop.Location = new System.Drawing.Point(294, 159);
-            this.checkBox_Loop.Name = "checkBox_Loop";
-            this.checkBox_Loop.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.checkBox_Loop.Size = new System.Drawing.Size(92, 29);
-            this.checkBox_Loop.TabIndex = 8;
-            this.checkBox_Loop.Text = "Loop";
-            this.checkBox_Loop.UseVisualStyleBackColor = true;
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.PortGroupBox);
+            this.splitContainer1.Panel1.Controls.Add(this.SimulationGroup);
+            this.splitContainer1.Panel1.Controls.Add(this.OutputFileGroupBox);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.LogBox);
+            this.splitContainer1.Size = new System.Drawing.Size(471, 1223);
+            this.splitContainer1.SplitterDistance = 928;
+            this.splitContainer1.TabIndex = 13;
             // 
             // Connection
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(534, 1054);
-            this.Controls.Add(this.LogBox);
-            this.Controls.Add(this.PortGroupBox);
-            this.Controls.Add(this.SimulationGroup);
-            this.Controls.Add(this.OutputFileGroupBox);
+            this.ClientSize = new System.Drawing.Size(471, 1223);
+            this.Controls.Add(this.splitContainer1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Connection";
@@ -467,8 +489,12 @@
             this.ComportConnectPanel.ResumeLayout(false);
             this.IPConnectPanel.ResumeLayout(false);
             this.IPConnectPanel.PerformLayout();
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            this.splitContainer1.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -506,5 +532,6 @@
         private System.Windows.Forms.TextBox LogBox;
         private System.Windows.Forms.TextBox IPTextBox;
         private System.Windows.Forms.CheckBox checkBox_Loop;
+        private System.Windows.Forms.SplitContainer splitContainer1;
     }
 }
