@@ -411,6 +411,10 @@ namespace NMEAViewer
                     //Counter steering! Perhaps go further though?
                     break;
                 }
+                else if (fPriorDelta == 0.0f)
+                {
+                    break;
+                }
                 --iStartOfTurn;
             }
 
@@ -419,7 +423,7 @@ namespace NMEAViewer
             int kMaxSearchForEnd = Math.Min(iLastSample + 10, m_Data.GetDataCount()); //? Could use zero and do the sample range automatically
             const int kGrooveCount = 4;
             const int kSamplesToCheckForChange = 10;
-            const double kfAvAWAForGroove = 2.0;
+            const double kfAvAWAForGroove = 3.0;
             int iGrooveCount = 0;
             fDelta = AngleUtil.ShortAngle(m_Data.GetDataAtIndex(iStartOfTurn, NMEACruncher.DataTypes.AWA), m_Data.GetDataAtIndex(iThroughWind, NMEACruncher.DataTypes.AWA));
             while (iEndOfTurn < kMaxSearchForEnd)
@@ -618,8 +622,8 @@ namespace NMEAViewer
                 double distanceLost = (wouldHaveTravelled - rOutData.TurnAndAccelVMGDist);
 
                 //Distance is in NM
-                //Might be better in ft or boat lengths (leaving this for display)
-                rOutData.SetValue(TackAnalysisData.eTackDataTypes.TotalLoss, distanceLost);
+                //Might be better in ft or boat lengths
+                rOutData.SetValue(TackAnalysisData.eTackDataTypes.TotalLoss, distanceLost * 6076.12 / 36.0);
                 
                 
                 //Get an earlier sample
