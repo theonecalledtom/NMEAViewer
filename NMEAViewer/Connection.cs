@@ -260,7 +260,7 @@ namespace NMEAViewer
                     if (OpenPortComboList.SelectedItem != null)
                     {
                         serialPort1.PortName = OpenPortComboList.SelectedItem.ToString();
-
+                        
                         if (m_AppSettings.LastPortConnected != serialPort1.PortName)
                         {
                             m_AppSettings.LastPortConnected = serialPort1.PortName;
@@ -274,8 +274,15 @@ namespace NMEAViewer
                         m_StartTime = DateTime.UtcNow;
 
                         //Let others know
-                        OnNewConnection();
-                        LogBox.Text += "Com port opened\r\n";
+                        if (serialPort1.IsOpen)
+                        {
+                            OnNewConnection();
+                            LogBox.Text += "Com port opened\r\n";
+                        }
+                        else
+                        {
+                            LogBox.Text += "FAILED to open Com port\r\n";
+                        }
                     }
                 }
                 else
@@ -313,6 +320,10 @@ namespace NMEAViewer
                             SetOpenCloseButtonState();
                             LogBox.Text += "TCP port opened\r\n";
                         }
+                        else
+                        {
+                            LogBox.Text += "FAILED to open TCP port\r\n";
+                        }
                     }
                     else
                     {
@@ -326,8 +337,11 @@ namespace NMEAViewer
                 {
                     //TMS: This stalls out?
                     serialPort1.Close();
-                    m_DataWriter.End();
-                    m_DataWriter = null;
+                    if (m_DataWriter != null)
+                    {
+                        m_DataWriter.End();
+                        m_DataWriter = null;
+                    }
                     LogBox.Text += "Closed comm port\r\n";
 
                 }
