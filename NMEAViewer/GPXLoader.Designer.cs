@@ -31,6 +31,7 @@ namespace NMEAViewer
         {
             this.components = new System.ComponentModel.Container();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.inject = new System.Windows.Forms.Button();
             this.RemoveTWD = new System.Windows.Forms.Button();
             this.AddTWD = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
@@ -58,6 +59,7 @@ namespace NMEAViewer
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.inject);
             this.splitContainer1.Panel1.Controls.Add(this.RemoveTWD);
             this.splitContainer1.Panel1.Controls.Add(this.AddTWD);
             this.splitContainer1.Panel1.Controls.Add(this.dataGridView1);
@@ -72,6 +74,16 @@ namespace NMEAViewer
             this.splitContainer1.Size = new System.Drawing.Size(1400, 705);
             this.splitContainer1.SplitterDistance = 465;
             this.splitContainer1.TabIndex = 0;
+            // 
+            // inject
+            // 
+            this.inject.Location = new System.Drawing.Point(37, 291);
+            this.inject.Name = "inject";
+            this.inject.Size = new System.Drawing.Size(212, 78);
+            this.inject.TabIndex = 6;
+            this.inject.Text = "INJECT";
+            this.inject.UseVisualStyleBackColor = true;
+            this.inject.Click += new System.EventHandler(this.inject_Click);
             // 
             // RemoveTWD
             // 
@@ -143,6 +155,7 @@ namespace NMEAViewer
             this.LoadGPX.TabIndex = 0;
             this.LoadGPX.Text = "Load GPX";
             this.LoadGPX.UseVisualStyleBackColor = true;
+            this.LoadGPX.Click += new System.EventHandler(this.LoadGPX_Click);
             // 
             // PathOffset
             // 
@@ -215,5 +228,6 @@ namespace NMEAViewer
         private System.Windows.Forms.Splitter splitter2;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.OpenFileDialog openGPXDialog;
+        private System.Windows.Forms.Button inject;
     }
 }

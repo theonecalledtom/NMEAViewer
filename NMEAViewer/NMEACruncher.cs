@@ -561,6 +561,21 @@ namespace NMEAViewer
                 }
             }
         }
+        public void StartNewData()
+        {
+            m_CrunchedData = new List<SOutputData>();
+            m_fTimeOfLastEntry = 0.0;
+        }
+
+        public void AddNewData(SOutputData newData)
+        {
+            m_CrunchedData.Add(newData);
+        }
+
+        public void EndNewData()
+        {
+            PostProcess();
+        }
 
         public bool ProcessFile(System.String fileName, NMEAStreamReader streamReader)
         { 
