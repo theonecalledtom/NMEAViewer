@@ -457,7 +457,7 @@ namespace NMEAViewer
                 double bestDist = fTolerance;
                 foreach(SOutputData data in m_CrunchedData)
                 {
-                    double fDist = MapWindow.CalculateDistanceBetweenLongsAndLats(fLong, fLat, data.GetValue(DataTypes.GPSLong), data.GetValue(DataTypes.GPSLat));
+                    double fDist = CoordinateUtils.DistanceBetween(fLong, fLat, data.GetValue(DataTypes.GPSLong), data.GetValue(DataTypes.GPSLat));
                     if (fDist < bestDist)
                     {
                         bestDist = fDist;

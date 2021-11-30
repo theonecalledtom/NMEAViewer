@@ -461,24 +461,8 @@ namespace NMEAViewer
             m_bDirty = true;
         }
 
-        const double R = 6371.0 * 1000.0;    // m
         const double kMinMoveForGPS = 1.0;   // m
 
-        public static double CalculateDistanceBetweenLongsAndLats(double fFromLong, double fFromLat, double fToLong, double fToLat)
-        {
-	        double dLat = (fFromLat - fToLat) * AngleUtil.DegToRad;
-            double dLon = (fFromLong - fToLong) * AngleUtil.DegToRad;
-            double lat1 = fToLat * AngleUtil.DegToRad;
-            double lat2 = fFromLat * AngleUtil.DegToRad;
-	        double fDLatOver2 = dLat * 0.5f;
-	        double fDLongOver2 = dLon * 0.5f;
-	        double a = Math.Sin(fDLatOver2) * Math.Sin(fDLatOver2) +
-		        Math.Sin(fDLongOver2) * Math.Sin(fDLongOver2) * Math.Cos(lat1) * Math.Cos(lat2);
-	        double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-
-	        double d = R * c;
-	        return d;
-        }
 
         private void BringPathUpToDate()
         {
@@ -495,7 +479,7 @@ namespace NMEAViewer
                         if (m_Route.Points.Count > 0)
                         {
                             GMap.NET.PointLatLng priorPoint = m_Route.Points[m_Route.Points.Count - 1];
-                            double fDist = CalculateDistanceBetweenLongsAndLats(priorPoint.Lng, priorPoint.Lat, fLong, fLat);
+                            double fDist = CoordinateUtils.DistanceBetween(priorPoint.Lng, priorPoint.Lat, fLong, fLat);
                             if (fDist > kMinMoveForGPS)
                             {
                                 AddPointToPath(fLong, fLat, m_Data.GetDataAtIndex(m_iLastDataProcessed, NMEACruncher.DataTypes.Time));
