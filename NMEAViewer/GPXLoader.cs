@@ -17,6 +17,20 @@ namespace NMEAViewer
     {
         private string m_GPXFileName;
         public static GPXLoader Instance;
+
+        struct WaypointData
+        {
+            public double latitude;
+            public double longitude;
+            public DateTime timeUtc;
+            public double timeSinceLast;
+            public double angleSinceLast;
+            public double distanceSinceLast;
+            public double speedSinceLast;
+        };
+
+        WaypointData[] Waypoints;
+
         private class SerializedData : DockableDrawable.SerializedDataBase
         {
             public string m_GPXFileName;
@@ -62,7 +76,22 @@ namespace NMEAViewer
                 m_GPXFileName = openGPXDialog.FileName;
                 using (var stream = new FileStream(m_GPXFileName, FileMode.Open))
                 {
+                    int wayPointCount = 0;
                     var data = GpsData.Parse(stream);
+                    for (int itrack = 0; itrack < data.Tracks.Count; itrack++)
+                    {
+                        var track = data.Tracks[itrack];
+
+                        for (int isegment = 0; isegment < track.Segments.Count; isegment++)
+                        {
+                            var segment = track.Segments[isegment];
+                            wayPointCount += segment.Waypoints.Count;
+                        }
+                    }
+
+                    Waypoints = new WaypointData[wayPointCount];
+
+                    int iCounter=0;
                     for (int itrack = 0; itrack < data.Tracks.Count; itrack++)
                     {
                         var track = data.Tracks[itrack];
@@ -72,9 +101,36 @@ namespace NMEAViewer
                             var segment = track.Segments[isegment];
                             for (int iwaypoint = 0; iwaypoint < segment.Waypoints.Count; iwaypoint++)
                             {
-                                var waypoint = segment.Waypoints[iwaypoint];
-
-                                //now what :)
+                                var waypointLoaded = segment.Waypoints[iwaypoint];
+                                ref var newWaypoint = ref Waypoints[iCounter];
+         
+                                //Cache our waypoint information
+                                newWaypoint.latitude = waypointLoaded.Coordinate.Latitude;
+                                newWaypoint.longitude = waypointLoaded.Coordinate.Longitude;
+                                newWaypoint.timeUtc = (DateTime)waypointLoaded.TimeUtc;
+                                if (iCounter > 0)
+                                {
+                                    ref var lastWaypoint = ref Waypoints[iCounter-1];
+                                    var span = newWaypoint.timeUtc - lastWaypoint.timeUtc;
+                                    newWaypoint.timeSinceLast = span.TotalSeconds;
+                                    newWaypoint.angleSinceLast = CoordinateUtils.HeadingTo(
+                                             lastWaypoint.longitude,
+                                             lastWaypoint.latitude,
+                                             newWaypoint.longitude,
+                                             newWaypoint.latitude
+                                         );
+                                    newWaypoint.distanceSinceLast = CoordinateUtils.DistanceBetween(
+                                             lastWaypoint.longitude,
+                                             lastWaypoint.latitude,
+                                             newWaypoint.longitude,
+                                             newWaypoint.latitude
+                                         );
+                                    
+                                    //Calculate a rought and ready speed
+                                    var spdMetresPerSecond = newWaypoint.distanceSinceLast / newWaypoint.timeSinceLast;
+                                    newWaypoint.speedSinceLast = spdMetresPerSecond * CoordinateUtils.HoursToSeconds / CoordinateUtils.NMtoM;
+                                }
+                                iCounter++;
                             }
                         }
                     }
