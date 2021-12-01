@@ -124,11 +124,11 @@
     <Compile Include="GPXLoader.Designer.cs">
       <DependentUpon>GPXLoader.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainForm.cs">
+    <Compile Include="ApplicationForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
+    <Compile Include="ApplicationForm.Designer.cs">
+      <DependentUpon>ApplicationForm.cs</DependentUpon>
     </Compile>
     <Compile Include="SetWindInputDialog.cs">
       <SubType>Form</SubType>
@@ -210,8 +210,8 @@
     <EmbeddedResource Include="GPXLoader.resx">
       <DependentUpon>GPXLoader.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
+    <EmbeddedResource Include="ApplicationForm.resx">
+      <DependentUpon>ApplicationForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SetWindInputDialog.resx">
       <DependentUpon>SetWindInputDialog.cs</DependentUpon>

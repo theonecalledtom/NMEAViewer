@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Geo.Gps;
 using GMap.NET.WindowsForms;
+using GMap.NET.WindowsForms.Markers;
 
 namespace NMEAViewer
 {
@@ -18,6 +19,7 @@ namespace NMEAViewer
         private string m_GPXFileName;
         public static GPXLoader Instance;
         NMEACruncher m_Data;
+        private GMapOverlay m_RoutesOverlay;
 
         struct WaypointData
         {
@@ -32,6 +34,7 @@ namespace NMEAViewer
         };
 
         WaypointData[] Waypoints;
+        private GMapRoute m_Route;
 
         private class SerializedData : DockableDrawable.SerializedDataBase
         {
@@ -64,7 +67,36 @@ namespace NMEAViewer
             InitializeComponent();
 
             m_Data = data;
+
+            m_RoutesOverlay = new GMapOverlay("routes");
+            Map.Overlays.Add(m_RoutesOverlay);
+            Map.MapProvider = GMap.NET.MapProviders.OpenSeaMapHybridProvider.Instance;
+            Map.Position = new GMap.NET.PointLatLng(32.0, -117.0);
+            Map.MinZoom = 1;
+            Map.MaxZoom = 24;
+            Map.Zoom = 9;
+
+            m_Route = new GMapRoute("Route Taken");
+            m_Route.Stroke.Color = System.Drawing.Color.Blue;
+            m_Route.Stroke.Width = 1;
+            m_RoutesOverlay.Routes.Add(m_Route);
+            //    SetTimerFrequency(0.5);
         }
+
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            //base.OnMouseWheel(e);
+
+            double factor = (e.Delta + 5000.0) / 5000.0;
+            if (factor < 0.1)
+            {
+                factor = 0.1;
+            }
+            double zoom = Map.Zoom;
+            zoom *= factor;
+            Map.Zoom = zoom;
+        }
+        //protected virtual void OnTimer(object sender, EventArgs e) { }
 
         protected override void OnDataReplaced(NMEACruncher newData)
         {
@@ -90,6 +122,15 @@ namespace NMEAViewer
 
         }
 
+        public void AddPointToRoute(double fLong, double fLat, GMapRoute route)
+        {
+            GMap.NET.PointLatLng newPoint = new GMap.NET.PointLatLng();
+            newPoint.Lat = fLat;
+            newPoint.Lng = fLong;
+            route.Points.Add(newPoint);
+            //m_bDirty = true;
+        }
+
         public void LoadGPXData(string fileName)
         {
             m_GPXFileName = fileName;
@@ -109,6 +150,7 @@ namespace NMEAViewer
                 }
 
                 Waypoints = new WaypointData[wayPointCount];
+                m_Route.Clear();
 
                 int iCounter = 0;
                 for (int itrack = 0; itrack < data.Tracks.Count; itrack++)
@@ -122,6 +164,9 @@ namespace NMEAViewer
                         {
                             var waypointLoaded = segment.Waypoints[iwaypoint];
                             ref var newWaypoint = ref Waypoints[iCounter];
+
+                            //Add to the drawable route
+                            AddPointToRoute(waypointLoaded.Coordinate.Longitude, waypointLoaded.Coordinate.Latitude, m_Route);
 
                             //Cache our waypoint information
                             newWaypoint.latitude = waypointLoaded.Coordinate.Latitude;
@@ -158,6 +203,10 @@ namespace NMEAViewer
                         }
                     }
                 }
+
+                //Centre on the route and finish drawing
+                Map.ZoomAndCenterRoutes(m_RoutesOverlay.Id);
+                Map.Refresh();
             }
         }
 
@@ -173,7 +222,31 @@ namespace NMEAViewer
 
         private void PathOffset_Scroll(object sender, EventArgs e)
         {
+            if (Waypoints.Length <= 0)
+                return;
+
             //We're scrubbing the timeline back and forth
+            var offset = (double)PathOffset.Value / (double)PathOffset.Maximum;
+            var timeOffset = offset * Waypoints.Last().timeSinceStart;
+            
+            m_RoutesOverlay.Markers.Clear();
+            foreach (var wpd in Waypoints)
+            {
+                if (wpd.timeSinceStart >= timeOffset)
+                {
+                    //Put a marker here
+                    GMap.NET.PointLatLng point = new GMap.NET.PointLatLng();
+                    point.Lat = wpd.latitude;
+                    point.Lng = wpd.longitude;
+                    GMarkerGoogle marker = new GMarkerGoogle(
+                        point,
+                        GMarkerGoogleType.orange_small
+                        );
+                    
+                    m_RoutesOverlay.Markers.Add(marker);
+                    break;
+                }
+            }
         }
 
         private void inject_Click(object sender, EventArgs e)

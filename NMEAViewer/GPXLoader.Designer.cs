@@ -40,6 +40,7 @@ namespace NMEAViewer
             this.splitter2 = new System.Windows.Forms.Splitter();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.LoadGPX = new System.Windows.Forms.Button();
+            this.Map = new NMEAViewer.GMapComponent(this.components);
             this.PathOffset = new System.Windows.Forms.TrackBar();
             this.gMapComponent1 = new NMEAViewer.GMapComponent(this.components);
             this.openGPXDialog = new System.Windows.Forms.OpenFileDialog();
@@ -59,6 +60,7 @@ namespace NMEAViewer
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.AutoScroll = true;
             this.splitContainer1.Panel1.Controls.Add(this.inject);
             this.splitContainer1.Panel1.Controls.Add(this.RemoveTWD);
             this.splitContainer1.Panel1.Controls.Add(this.AddTWD);
@@ -69,6 +71,7 @@ namespace NMEAViewer
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.Map);
             this.splitContainer1.Panel2.Controls.Add(this.PathOffset);
             this.splitContainer1.Panel2.Controls.Add(this.gMapComponent1);
             this.splitContainer1.Size = new System.Drawing.Size(1400, 705);
@@ -77,7 +80,7 @@ namespace NMEAViewer
             // 
             // inject
             // 
-            this.inject.Location = new System.Drawing.Point(37, 291);
+            this.inject.Location = new System.Drawing.Point(37, 244);
             this.inject.Name = "inject";
             this.inject.Size = new System.Drawing.Size(212, 78);
             this.inject.TabIndex = 6;
@@ -87,7 +90,7 @@ namespace NMEAViewer
             // 
             // RemoveTWD
             // 
-            this.RemoveTWD.Location = new System.Drawing.Point(37, 192);
+            this.RemoveTWD.Location = new System.Drawing.Point(37, 169);
             this.RemoveTWD.Name = "RemoveTWD";
             this.RemoveTWD.Size = new System.Drawing.Size(212, 51);
             this.RemoveTWD.TabIndex = 5;
@@ -96,7 +99,7 @@ namespace NMEAViewer
             // 
             // AddTWD
             // 
-            this.AddTWD.Location = new System.Drawing.Point(37, 105);
+            this.AddTWD.Location = new System.Drawing.Point(37, 95);
             this.AddTWD.Name = "AddTWD";
             this.AddTWD.Size = new System.Drawing.Size(212, 51);
             this.AddTWD.TabIndex = 4;
@@ -110,11 +113,11 @@ namespace NMEAViewer
             this.TWD,
             this.Time});
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.dataGridView1.Location = new System.Drawing.Point(6, 398);
+            this.dataGridView1.Location = new System.Drawing.Point(6, 456);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 82;
             this.dataGridView1.RowTemplate.Height = 33;
-            this.dataGridView1.Size = new System.Drawing.Size(459, 307);
+            this.dataGridView1.Size = new System.Drawing.Size(459, 249);
             this.dataGridView1.TabIndex = 3;
             // 
             // TWD
@@ -156,6 +159,34 @@ namespace NMEAViewer
             this.LoadGPX.Text = "Load GPX";
             this.LoadGPX.UseVisualStyleBackColor = true;
             this.LoadGPX.Click += new System.EventHandler(this.LoadGPX_Click);
+            // 
+            // Map
+            // 
+            this.Map.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.Map.Bearing = 0F;
+            this.Map.CanDragMap = true;
+            this.Map.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Map.EmptyTileColor = System.Drawing.Color.Navy;
+            this.Map.GrayScaleMode = false;
+            this.Map.HelperLineOption = GMap.NET.WindowsForms.HelperLineOptions.DontShow;
+            this.Map.LevelsKeepInMemory = 5;
+            this.Map.Location = new System.Drawing.Point(0, 0);
+            this.Map.MarkersEnabled = true;
+            this.Map.MaxZoom = 2;
+            this.Map.MinZoom = 2;
+            this.Map.MouseWheelZoomEnabled = true;
+            this.Map.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionAndCenter;
+            this.Map.Name = "Map";
+            this.Map.NegativeMode = false;
+            this.Map.PolygonsEnabled = true;
+            this.Map.RetryLoadTile = 0;
+            this.Map.RoutesEnabled = true;
+            this.Map.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Fractional;
+            this.Map.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
+            this.Map.ShowTileGridLines = false;
+            this.Map.Size = new System.Drawing.Size(931, 615);
+            this.Map.TabIndex = 2;
+            this.Map.Zoom = 0D;
             // 
             // PathOffset
             // 
@@ -229,5 +260,6 @@ namespace NMEAViewer
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.OpenFileDialog openGPXDialog;
         private System.Windows.Forms.Button inject;
+        private GMapComponent Map;
     }
 }
