@@ -36,6 +36,8 @@ namespace NMEAViewer
         WaypointData[] Waypoints;
         private GMapRoute m_Route;
 
+        private int m_SelectedWaypoint;
+
         private class SerializedData : DockableDrawable.SerializedDataBase
         {
             public string m_GPXFileName;
@@ -66,6 +68,7 @@ namespace NMEAViewer
         {
             InitializeComponent();
 
+            m_SelectedWaypoint = -1;
             m_Data = data;
 
             m_RoutesOverlay = new GMapOverlay("routes");
@@ -149,7 +152,16 @@ namespace NMEAViewer
                     }
                 }
 
+                if (wayPointCount == 0)
+                {
+                    Waypoints = null;
+                    m_SelectedWaypoint = -1;
+                    m_Route.Clear();
+                    m_RoutesOverlay.Markers.Clear();
+                    return;
+                }
                 Waypoints = new WaypointData[wayPointCount];
+                m_SelectedWaypoint = 0;
                 m_Route.Clear();
 
                 int iCounter = 0;
@@ -230,6 +242,7 @@ namespace NMEAViewer
             var timeOffset = offset * Waypoints.Last().timeSinceStart;
             
             m_RoutesOverlay.Markers.Clear();
+            int iWaypoint = 0;
             foreach (var wpd in Waypoints)
             {
                 if (wpd.timeSinceStart >= timeOffset)
@@ -244,8 +257,10 @@ namespace NMEAViewer
                         );
                     
                     m_RoutesOverlay.Markers.Add(marker);
+                    m_SelectedWaypoint = iWaypoint;
                     break;
                 }
+                iWaypoint++;
             }
         }
 
@@ -269,6 +284,40 @@ namespace NMEAViewer
             if (openGPXDialog.ShowDialog() == DialogResult.OK)
             {
                 LoadGPXData(openGPXDialog.FileName);
+            }
+        }
+
+        private void AddTWD_Click(object sender, EventArgs e)
+        {
+            int newRow = TWDTable.Rows.Add();
+            if (m_SelectedWaypoint >= 0)
+            {
+                TWDTable.Rows[newRow].Cells[0].Value = Waypoints[m_SelectedWaypoint].timeSinceStart;
+            }
+        }
+        
+        private void RemoveTWD_Click(object sender, EventArgs e)
+        {
+            HashSet<DataGridViewRow> rowsToRemove = new HashSet<DataGridViewRow>();
+            foreach (DataGridViewRow row in TWDTable.SelectedRows)
+            {
+                if (!rowsToRemove.Contains(row))
+                {
+                    rowsToRemove.Add(row);
+                }
+            }
+
+            foreach (DataGridViewCell cell in TWDTable.SelectedCells)
+            {
+                if (!rowsToRemove.Contains(cell.OwningRow))
+                {
+                    rowsToRemove.Add(cell.OwningRow);
+                }
+            }
+
+            foreach (DataGridViewRow row in rowsToRemove)
+            {
+                TWDTable.Rows.Remove(row);
             }
         }
     }
