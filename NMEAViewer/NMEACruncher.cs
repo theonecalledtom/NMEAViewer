@@ -574,6 +574,10 @@ namespace NMEAViewer
 
         public void EndNewData()
         {
+            if (m_CrunchedData.Count > 0)
+            {
+                m_fTimeOfLastEntry = m_CrunchedData[m_CrunchedData.Count - 1].GetValue(DataTypes.Time);
+            }
             PostProcess();
         }
 

@@ -132,7 +132,7 @@ namespace NMEAViewer
 
         public void ProcessCurrentData(NMEACruncher.SOutputData outputData, PolarData polarData, double fElapsedTime)
         {
-            outputData.SetValue(0, fElapsedTime);
+            outputData.SetValue(NMEAViewer.NMEACruncher.DataTypes.Time, fElapsedTime);
 
             //grab data
             foreach (var entry in m_MessageProcessors)

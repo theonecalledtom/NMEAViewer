@@ -124,13 +124,21 @@ namespace NMEAViewer
         NMEAViewer.NMEACruncher.SOutputData GetCruncherDataFromWaypointData(WaypointData indata, WindData windData)
         {
             var outdata = new NMEAViewer.NMEACruncher.SOutputData();
+            outdata.SetValue(NMEAViewer.NMEACruncher.DataTypes.Time, indata.timeSinceStart);
             outdata.SetValue(NMEAViewer.NMEACruncher.DataTypes.GPSLat, indata.latitude);
             outdata.SetValue(NMEAViewer.NMEACruncher.DataTypes.GPSLong, indata.longitude);
-            outdata.SetValue(NMEAViewer.NMEACruncher.DataTypes.Time, indata.timeSinceStart);
+            outdata.SetValue(NMEAViewer.NMEACruncher.DataTypes.TWD, windData.TWD);
+            outdata.SetValue(NMEAViewer.NMEACruncher.DataTypes.TWS, windData.TWS);
+
             if (indata.timeSinceStart > 0.0)
             {
                 outdata.SetValue(NMEAViewer.NMEACruncher.DataTypes.GPSHeading, indata.angleSinceLast);
                 outdata.SetValue(NMEAViewer.NMEACruncher.DataTypes.GPSSOG, indata.speedSinceLast);
+
+                var TWA = AngleUtil.ContainAngleMinus180To180(windData.TWD - indata.angleSinceLast);
+                outdata.SetValue(NMEAViewer.NMEACruncher.DataTypes.TWA, TWA);
+
+                //For AWA we'll need to do some math
             }
             return outdata;
         }
@@ -252,7 +260,7 @@ namespace NMEAViewer
             int iWindIndex = 0;
             foreach (var wpd in Waypoints)
             {
-                while ( (iWindIndex < TWDTable.RowCount - 2)
+                while ( (iWindIndex < TWDTable.RowCount - 1)
                         &&  (windData[iWindIndex + 1].Time < wpd.timeSinceStart))
                 {
                     ++iWindIndex;
@@ -260,6 +268,7 @@ namespace NMEAViewer
                 m_Data.AddNewData(GetCruncherDataFromWaypointData(wpd, windData[iWindIndex]));
             }
             m_Data.EndNewData();
+            m_Data.SmoothData();
         }
 
         private void PathOffset_Scroll(object sender, EventArgs e)
