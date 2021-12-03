@@ -30,31 +30,35 @@ namespace NMEAViewer
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.LoadGPX = new System.Windows.Forms.Button();
             this.inject = new System.Windows.Forms.Button();
-            this.RemoveTWD = new System.Windows.Forms.Button();
             this.AddTWD = new System.Windows.Forms.Button();
+            this.RemoveTWD = new System.Windows.Forms.Button();
             this.TWDTable = new System.Windows.Forms.DataGridView();
             this.splitter2 = new System.Windows.Forms.Splitter();
             this.splitter1 = new System.Windows.Forms.Splitter();
-            this.LoadGPX = new System.Windows.Forms.Button();
             this.Map = new NMEAViewer.GMapComponent(this.components);
             this.PathOffset = new System.Windows.Forms.TrackBar();
             this.gMapComponent1 = new NMEAViewer.GMapComponent(this.components);
             this.openGPXDialog = new System.Windows.Forms.OpenFileDialog();
-            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.Time = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TWD = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.TWS = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.TWDTable)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.PathOffset)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.TWDTable)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PathOffset)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -79,6 +83,37 @@ namespace NMEAViewer
             this.splitContainer1.SplitterDistance = 563;
             this.splitContainer1.TabIndex = 0;
             // 
+            // splitContainer2
+            // 
+            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer2.Location = new System.Drawing.Point(6, 0);
+            this.splitContainer2.Name = "splitContainer2";
+            this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer2.Panel1
+            // 
+            this.splitContainer2.Panel1.Controls.Add(this.LoadGPX);
+            this.splitContainer2.Panel1.Controls.Add(this.inject);
+            this.splitContainer2.Panel1.Controls.Add(this.AddTWD);
+            this.splitContainer2.Panel1.Controls.Add(this.RemoveTWD);
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this.TWDTable);
+            this.splitContainer2.Size = new System.Drawing.Size(557, 868);
+            this.splitContainer2.SplitterDistance = 400;
+            this.splitContainer2.TabIndex = 7;
+            // 
+            // LoadGPX
+            // 
+            this.LoadGPX.Location = new System.Drawing.Point(21, 19);
+            this.LoadGPX.Name = "LoadGPX";
+            this.LoadGPX.Size = new System.Drawing.Size(212, 51);
+            this.LoadGPX.TabIndex = 0;
+            this.LoadGPX.Text = "Load GPX";
+            this.LoadGPX.UseVisualStyleBackColor = true;
+            this.LoadGPX.Click += new System.EventHandler(this.LoadGPX_Click);
+            // 
             // inject
             // 
             this.inject.Location = new System.Drawing.Point(21, 227);
@@ -88,16 +123,6 @@ namespace NMEAViewer
             this.inject.Text = "INJECT";
             this.inject.UseVisualStyleBackColor = true;
             this.inject.Click += new System.EventHandler(this.inject_Click);
-            // 
-            // RemoveTWD
-            // 
-            this.RemoveTWD.Location = new System.Drawing.Point(21, 160);
-            this.RemoveTWD.Name = "RemoveTWD";
-            this.RemoveTWD.Size = new System.Drawing.Size(212, 51);
-            this.RemoveTWD.TabIndex = 5;
-            this.RemoveTWD.Text = "Remove TWD";
-            this.RemoveTWD.UseVisualStyleBackColor = true;
-            this.RemoveTWD.Click += new System.EventHandler(this.RemoveTWD_Click);
             // 
             // AddTWD
             // 
@@ -109,19 +134,33 @@ namespace NMEAViewer
             this.AddTWD.UseVisualStyleBackColor = true;
             this.AddTWD.Click += new System.EventHandler(this.AddTWD_Click);
             // 
+            // RemoveTWD
+            // 
+            this.RemoveTWD.Location = new System.Drawing.Point(21, 160);
+            this.RemoveTWD.Name = "RemoveTWD";
+            this.RemoveTWD.Size = new System.Drawing.Size(212, 51);
+            this.RemoveTWD.TabIndex = 5;
+            this.RemoveTWD.Text = "Remove TWD";
+            this.RemoveTWD.UseVisualStyleBackColor = true;
+            this.RemoveTWD.Click += new System.EventHandler(this.RemoveTWD_Click);
+            // 
             // TWDTable
             // 
             this.TWDTable.AllowUserToAddRows = false;
             this.TWDTable.AllowUserToDeleteRows = false;
+            this.TWDTable.AllowUserToResizeRows = false;
             this.TWDTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.TWDTable.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Time,
-            this.TWD});
+            this.TWD,
+            this.TWS});
             this.TWDTable.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TWDTable.Location = new System.Drawing.Point(0, 0);
             this.TWDTable.Name = "TWDTable";
-            this.TWDTable.RowHeadersWidth = 82;
+            this.TWDTable.RowHeadersVisible = false;
+            this.TWDTable.RowHeadersWidth = 22;
             this.TWDTable.RowTemplate.Height = 33;
+            this.TWDTable.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.TWDTable.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.TWDTable.Size = new System.Drawing.Size(557, 464);
             this.TWDTable.TabIndex = 3;
@@ -141,16 +180,6 @@ namespace NMEAViewer
             this.splitter1.Size = new System.Drawing.Size(3, 868);
             this.splitter1.TabIndex = 1;
             this.splitter1.TabStop = false;
-            // 
-            // LoadGPX
-            // 
-            this.LoadGPX.Location = new System.Drawing.Point(21, 19);
-            this.LoadGPX.Name = "LoadGPX";
-            this.LoadGPX.Size = new System.Drawing.Size(212, 51);
-            this.LoadGPX.TabIndex = 0;
-            this.LoadGPX.Text = "Load GPX";
-            this.LoadGPX.UseVisualStyleBackColor = true;
-            this.LoadGPX.Click += new System.EventHandler(this.LoadGPX_Click);
             // 
             // Map
             // 
@@ -217,40 +246,37 @@ namespace NMEAViewer
             this.gMapComponent1.TabIndex = 0;
             this.gMapComponent1.Zoom = 0D;
             // 
-            // splitContainer2
-            // 
-            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer2.Location = new System.Drawing.Point(6, 0);
-            this.splitContainer2.Name = "splitContainer2";
-            this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitContainer2.Panel1
-            // 
-            this.splitContainer2.Panel1.Controls.Add(this.LoadGPX);
-            this.splitContainer2.Panel1.Controls.Add(this.inject);
-            this.splitContainer2.Panel1.Controls.Add(this.AddTWD);
-            this.splitContainer2.Panel1.Controls.Add(this.RemoveTWD);
-            // 
-            // splitContainer2.Panel2
-            // 
-            this.splitContainer2.Panel2.Controls.Add(this.TWDTable);
-            this.splitContainer2.Size = new System.Drawing.Size(557, 868);
-            this.splitContainer2.SplitterDistance = 400;
-            this.splitContainer2.TabIndex = 7;
-            // 
             // Time
             // 
+            this.Time.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            dataGridViewCellStyle1.Format = "N2";
+            dataGridViewCellStyle1.NullValue = "0.0";
+            this.Time.DefaultCellStyle = dataGridViewCellStyle1;
             this.Time.HeaderText = "Time";
             this.Time.MinimumWidth = 10;
             this.Time.Name = "Time";
-            this.Time.Width = 200;
+            this.Time.Width = 104;
             // 
             // TWD
             // 
+            this.TWD.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            dataGridViewCellStyle2.Format = "N2";
+            dataGridViewCellStyle2.NullValue = "0.0";
+            this.TWD.DefaultCellStyle = dataGridViewCellStyle2;
             this.TWD.HeaderText = "TWD";
             this.TWD.MinimumWidth = 10;
             this.TWD.Name = "TWD";
-            this.TWD.Width = 200;
+            this.TWD.Width = 105;
+            // 
+            // TWS
+            // 
+            dataGridViewCellStyle3.Format = "N2";
+            dataGridViewCellStyle3.NullValue = "0.0";
+            this.TWS.DefaultCellStyle = dataGridViewCellStyle3;
+            this.TWS.HeaderText = "TWS";
+            this.TWS.MinimumWidth = 10;
+            this.TWS.Name = "TWS";
+            this.TWS.Width = 200;
             // 
             // GPXLoader
             // 
@@ -260,18 +286,17 @@ namespace NMEAViewer
             this.Controls.Add(this.splitContainer1);
             this.Name = "GPXLoader";
             this.Text = "GPXLoader";
-            this.Load += new System.EventHandler(this.GPXLoader_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.TWDTable)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.PathOffset)).EndInit();
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.TWDTable)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PathOffset)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -293,5 +318,6 @@ namespace NMEAViewer
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.DataGridViewTextBoxColumn Time;
         private System.Windows.Forms.DataGridViewTextBoxColumn TWD;
+        private System.Windows.Forms.DataGridViewTextBoxColumn TWS;
     }
 }

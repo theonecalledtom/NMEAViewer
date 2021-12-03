@@ -33,6 +33,13 @@ namespace NMEAViewer
             public double speedSinceLast;
         };
 
+        struct WindData
+        {
+            public double Time;
+            public double TWD;
+            public double TWS;
+        };
+
         WaypointData[] Waypoints;
         private GMapRoute m_Route;
 
@@ -84,6 +91,14 @@ namespace NMEAViewer
             m_Route.Stroke.Width = 1;
             m_RoutesOverlay.Routes.Add(m_Route);
             //    SetTimerFrequency(0.5);
+
+            //Track changes
+            TWDTable.CellValueChanged += TWDTable_CellValueChanged;
+        }
+
+        private void TWDTable_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            TWDTable.Sort(TWDTable.Columns[0], ListSortDirection.Ascending);
         }
 
         protected override void OnMouseWheel(MouseEventArgs e)
@@ -106,7 +121,7 @@ namespace NMEAViewer
             m_Data = newData;
         }
 
-        NMEAViewer.NMEACruncher.SOutputData GetCruncherDataFromWaypointData(WaypointData indata)
+        NMEAViewer.NMEACruncher.SOutputData GetCruncherDataFromWaypointData(WaypointData indata, WindData windData)
         {
             var outdata = new NMEAViewer.NMEACruncher.SOutputData();
             outdata.SetValue(NMEAViewer.NMEACruncher.DataTypes.GPSLat, indata.latitude);
@@ -120,11 +135,7 @@ namespace NMEAViewer
             return outdata;
         }
 
-        private void GPXLoader_Load(object sender, EventArgs e)
-        {
-
-        }
-
+       
         public void AddPointToRoute(double fLong, double fLat, GMapRoute route)
         {
             GMap.NET.PointLatLng newPoint = new GMap.NET.PointLatLng();
@@ -225,9 +236,28 @@ namespace NMEAViewer
         void ConvertToData()
         {
             m_Data.StartNewData();
+            WindData[] windData = new WindData[TWDTable.RowCount > 0 ? TWDTable.RowCount : 1];
+            for (int i=0;i<TWDTable.RowCount; i++)
+            {
+                windData[i].Time = Convert.ToDouble(TWDTable.Rows[i].Cells[0].Value);
+                windData[i].TWD = Convert.ToDouble(TWDTable.Rows[i].Cells[1].Value);
+                windData[i].TWS = Convert.ToDouble(TWDTable.Rows[i].Cells[2].Value);
+            }
+            if(TWDTable.RowCount<=0)
+            {
+                windData[0].Time = 0.0;
+                windData[0].TWD = 0.0;
+                windData[0].TWS = 0.0;
+            }
+            int iWindIndex = 0;
             foreach (var wpd in Waypoints)
             {
-                m_Data.AddNewData(GetCruncherDataFromWaypointData(wpd));
+                while ( (iWindIndex < TWDTable.RowCount - 2)
+                        &&  (windData[iWindIndex + 1].Time < wpd.timeSinceStart))
+                {
+                    ++iWindIndex;
+                }
+                m_Data.AddNewData(GetCruncherDataFromWaypointData(wpd, windData[iWindIndex]));
             }
             m_Data.EndNewData();
         }
