@@ -292,7 +292,10 @@ namespace NMEAViewer
             int newRow = TWDTable.Rows.Add();
             if (m_SelectedWaypoint >= 0)
             {
-                TWDTable.Rows[newRow].Cells[0].Value = Waypoints[m_SelectedWaypoint].timeSinceStart;
+                var row = TWDTable.Rows[newRow];
+                row.Cells[0].Value = Waypoints[m_SelectedWaypoint].timeSinceStart;
+                TWDTable.Sort(TWDTable.Columns[0], ListSortDirection.Ascending);
+                TWDTable.CurrentCell = row.Cells[1];
             }
         }
         
