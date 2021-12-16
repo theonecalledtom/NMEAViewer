@@ -197,6 +197,10 @@ namespace NMEAViewer
             {
                 return new GPXLoader(m_Data);
             }
+            else if (typeName == typeof(NMEAViewer.GPXLoader).ToString())
+            {
+                return new GPXLoader(m_Data);
+            }
             return null;
         }
 

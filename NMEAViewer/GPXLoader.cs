@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using Geo.Gps;
 using GMap.NET.WindowsForms;
 using GMap.NET.WindowsForms.Markers;
+using Newtonsoft.Json;
 
 namespace NMEAViewer
 {
@@ -33,6 +34,7 @@ namespace NMEAViewer
             public double speedSinceLast;
         };
 
+        [JsonObject(MemberSerialization.OptOut)]
         struct WindData
         {
             public double Time;
@@ -48,7 +50,7 @@ namespace NMEAViewer
         private class SerializedData : DockableDrawable.SerializedDataBase
         {
             public string m_GPXFileName;
-
+            public WindData[] m_Wind;
             public SerializedData(DockableDrawable parent)
                 : base(parent) { }
         };
@@ -57,6 +59,8 @@ namespace NMEAViewer
         {
             SerializedData data = new SerializedData(this);
             data.m_GPXFileName = m_GPXFileName;
+            LoadGPXData(data.m_GPXFileName);
+            data.m_Wind = CreateWindDataFromTable();
             return data;
         }
 
@@ -65,6 +69,7 @@ namespace NMEAViewer
             base.InitFromSerializedData(data_base);
             SerializedData data = (SerializedData)data_base;
             m_GPXFileName = data.m_GPXFileName;
+            CreateTableFromWindData(data.m_Wind);
         }
 
         public override void PostInitFromSerializedData(SerializedDataBase data_base)
@@ -139,6 +144,17 @@ namespace NMEAViewer
                 outdata.SetValue(NMEAViewer.NMEACruncher.DataTypes.TWA, TWA);
 
                 //For AWA we'll need to do some math
+                //Hmmm, GPS speed is going to be quite random....
+                //For solution 1 though we'll use it and see what the data looks like
+                var vForward = indata.speedSinceLast + Math.Cos(TWA * AngleUtil.DegToRad) * windData.TWS;
+
+                var vSideToWind = Math.Sin(TWA * AngleUtil.DegToRad) * windData.TWS;
+
+                var AWA = Math.Atan2(vSideToWind, vForward) * AngleUtil.RadToDeg;
+                var AWS = Math.Sqrt(vForward * vForward + vSideToWind * vSideToWind);
+
+                outdata.SetValue(NMEAViewer.NMEACruncher.DataTypes.AWA, AWA);
+                outdata.SetValue(NMEAViewer.NMEACruncher.DataTypes.AWS, AWS);
             }
             return outdata;
         }
@@ -160,6 +176,11 @@ namespace NMEAViewer
             {
                 int wayPointCount = 0;
                 var data = GpsData.Parse(stream);
+                if (data == null)
+                {
+                    //Output log???
+                    return;
+                }
                 for (int itrack = 0; itrack < data.Tracks.Count; itrack++)
                 {
                     var track = data.Tracks[itrack];
@@ -244,19 +265,8 @@ namespace NMEAViewer
         void ConvertToData()
         {
             m_Data.StartNewData();
-            WindData[] windData = new WindData[TWDTable.RowCount > 0 ? TWDTable.RowCount : 1];
-            for (int i=0;i<TWDTable.RowCount; i++)
-            {
-                windData[i].Time = Convert.ToDouble(TWDTable.Rows[i].Cells[0].Value);
-                windData[i].TWD = Convert.ToDouble(TWDTable.Rows[i].Cells[1].Value);
-                windData[i].TWS = Convert.ToDouble(TWDTable.Rows[i].Cells[2].Value);
-            }
-            if(TWDTable.RowCount<=0)
-            {
-                windData[0].Time = 0.0;
-                windData[0].TWD = 0.0;
-                windData[0].TWS = 0.0;
-            }
+            WindData[] windData = CreateWindDataFromTable();
+            
             int iWindIndex = 0;
             foreach (var wpd in Waypoints)
             {
@@ -271,9 +281,44 @@ namespace NMEAViewer
             m_Data.SmoothData();
         }
 
+        private WindData[] CreateWindDataFromTable()
+        {
+            WindData[] windData = new WindData[TWDTable.RowCount > 0 ? TWDTable.RowCount : 1];
+            for (int i = 0; i < TWDTable.RowCount; i++)
+            {
+                windData[i].Time = Convert.ToDouble(TWDTable.Rows[i].Cells[0].Value);
+                windData[i].TWD = Convert.ToDouble(TWDTable.Rows[i].Cells[1].Value);
+                windData[i].TWS = Convert.ToDouble(TWDTable.Rows[i].Cells[2].Value);
+            }
+
+            if (TWDTable.RowCount <= 0)
+            {
+                windData[0].Time = 0.0;
+                windData[0].TWD = 0.0;
+                windData[0].TWS = 0.0;
+            }
+            return windData;
+        }
+
+        private void CreateTableFromWindData(WindData[] m_Wind)
+        {
+            TWDTable.Rows.Clear();
+            if (m_Wind != null)
+            {
+                foreach (var wnd in m_Wind)
+                {
+                    int newRow = TWDTable.Rows.Add();
+                    var row = TWDTable.Rows[newRow];
+                    row.Cells[0].Value = wnd.Time;
+                    row.Cells[1].Value = wnd.TWD;
+                    row.Cells[2].Value = wnd.TWS;
+                }
+            }
+        }
+
         private void PathOffset_Scroll(object sender, EventArgs e)
         {
-            if (Waypoints.Length <= 0)
+            if (Waypoints == null || Waypoints.Length <= 0)
                 return;
 
             //We're scrubbing the timeline back and forth
