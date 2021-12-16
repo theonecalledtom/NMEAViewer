@@ -303,7 +303,7 @@ namespace NMEAViewer
                 return m_CrunchedData.Count - 1;
             }
 
-            double fTimePerIndex = ((double)m_CrunchedData.Count) / m_fTimeOfLastEntry;
+            double fTimePerIndex = m_fTimeOfLastEntry / ((double)m_CrunchedData.Count);
             int nMaxIndex = m_CrunchedData.Count - 1;
             int iStartIndex = System.Math.Min((int)(fTime * fTimePerIndex), nMaxIndex);
 
